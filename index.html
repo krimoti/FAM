@@ -4,172 +4,311 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ארנק המשפחה 💰</title>
+<title>ארנק חכם 💰</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Rubik:wght@400;500;600;700&display=swap');
 
 :root {
-–dark:#12121F; –card:#1C1C2E; –card2:#252540;
-–text:#EEEEF8; –dim:#8888AA;
-–yellow:#FFD166; –orange:#FF9F43; –green:#06D6A0; –red:#FF6B6B;
+–dark:#12121F; –card:#1C1C2E; –card2:#252540; –card3:#2A2A45;
+–text:#EEEEF8; –dim:#8888AA; –border:rgba(255,255,255,.07);
+–yellow:#FFD166; –orange:#FF9F43; –green:#06D6A0;
+–red:#FF6B6B; –blue:#4CC9F0; –purple:#C77DFF;
 –c0:#FF6B9D; –c1:#C77DFF; –c2:#4CC9F0; –c3:#06D6A0; –c4:#FFD166; –c5:#FF9F43;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 body{font-family:‘Rubik’,sans-serif;background:var(–dark);color:var(–text);min-height:100vh;overflow-x:hidden;}
 
+/* BG */
 .bg{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
-.bg span{position:absolute;border-radius:50%;opacity:.05;animation:fl 9s ease-in-out infinite;}
-.bg span:nth-child(1){width:350px;height:350px;background:#FF6B9D;top:-80px;right:-100px;}
-.bg span:nth-child(2){width:250px;height:250px;background:#C77DFF;bottom:60px;left:-80px;animation-delay:3s;}
-.bg span:nth-child(3){width:180px;height:180px;background:#4CC9F0;top:45%;left:45%;animation-delay:5s;}
-@keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-22px)}}
+.bg span{position:absolute;border-radius:50%;opacity:.04;animation:fl 10s ease-in-out infinite;}
+.bg span:nth-child(1){width:400px;height:400px;background:#FF6B9D;top:-100px;right:-120px;}
+.bg span:nth-child(2){width:280px;height:280px;background:#C77DFF;bottom:40px;left:-90px;animation-delay:3s;}
+.bg span:nth-child(3){width:200px;height:200px;background:#4CC9F0;top:40%;left:40%;animation-delay:6s;}
+@keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
 
+/* SCREENS */
 .screen{position:relative;z-index:1;min-height:100vh;display:none;flex-direction:column;}
 .screen.active{display:flex;}
 
-/* ── LOADING ── */
+/* LOADING */
 #loading{align-items:center;justify-content:center;gap:16px;}
-.spin{width:44px;height:44px;border:3px solid rgba(255,209,102,.2);border-top-color:var(–yellow);border-radius:50%;animation:spin .8s linear infinite;}
+.spin{width:46px;height:46px;border:3px solid rgba(255,209,102,.2);border-top-color:var(–yellow);border-radius:50%;animation:spin .8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
 .load-txt{color:var(–dim);font-size:.95rem;}
 
-/* ── HOME ── */
-#home{align-items:center;justify-content:flex-start;padding:50px 20px 40px;gap:10px;}
-.home-logo{font-family:‘Fredoka One’;font-size:2.6rem;color:var(–yellow);text-shadow:0 0 40px rgba(255,209,102,.35);text-align:center;line-height:1.1;}
-.home-sub{color:var(–dim);font-size:.9rem;text-align:center;margin-bottom:8px;}
-.profiles-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;width:100%;max-width:380px;margin-top:10px;}
-.pcard{background:var(–card);border-radius:22px;padding:26px 14px;text-align:center;cursor:pointer;transition:transform .2s,box-shadow .2s;border:2px solid transparent;position:relative;overflow:hidden;}
-.pcard:active{transform:scale(.96);}
-.pcard .pe{font-size:2.8rem;display:block;margin-bottom:6px;}
-.pcard .pn{font-size:1rem;font-weight:700;}
-.pcard .pb{font-size:.82rem;color:var(–dim);margin-top:3px;}
+/* HOME */
+#home{align-items:center;padding:50px 20px 40px;gap:10px;}
+.home-logo{font-family:‘Fredoka One’;font-size:2.5rem;color:var(–yellow);text-shadow:0 0 40px rgba(255,209,102,.3);text-align:center;}
+.home-sub{color:var(–dim);font-size:.88rem;text-align:center;margin-bottom:6px;}
+.profiles-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px;width:100%;max-width:380px;margin-top:8px;}
+.pcard{background:var(–card);border-radius:20px;padding:24px 12px;text-align:center;cursor:pointer;transition:transform .18s,box-shadow .18s;border:2px solid transparent;}
+.pcard:active{transform:scale(.95);}
+.pcard .pe{font-size:2.6rem;display:block;margin-bottom:5px;}
+.pcard .pn{font-size:.97rem;font-weight:700;}
+.pcard .pb{font-size:.8rem;color:var(–dim);margin-top:3px;}
 .pcard .pb .bv{font-weight:700;}
-.pcard.dad-card{grid-column:1/-1;padding:20px;}
-.pcard.dad-card .pe{font-size:2.2rem;}
+.pcard.dad-card{grid-column:1/-1;padding:18px 20px;display:flex;align-items:center;gap:14px;text-align:right;}
+.pcard.dad-card .pe{font-size:2rem;margin:0;}
+.pcard.dad-card .pinfo{flex:1;}
+/* notification badge */
+.nbadge{
+background:var(–red);color:#fff;border-radius:50%;
+width:20px;height:20px;font-size:.72rem;font-weight:700;
+display:flex;align-items:center;justify-content:center;
+margin-right:auto;
+}
 
-/* ── PIN ── */
-#pin{align-items:center;justify-content:center;gap:22px;padding:40px 20px;}
+/* PIN */
+#pin{align-items:center;justify-content:center;gap:20px;padding:40px 20px;}
 .pin-av{font-size:4rem;}
-.pin-who{font-family:‘Fredoka One’;font-size:1.7rem;text-align:center;}
+.pin-who{font-family:‘Fredoka One’;font-size:1.65rem;text-align:center;}
 .pin-dots{display:flex;gap:14px;}
 .pin-dot{width:15px;height:15px;border-radius:50%;border:2px solid var(–dim);transition:all .15s;}
 .pin-dot.on{background:var(–yellow);border-color:var(–yellow);transform:scale(1.25);}
 .pin-err{color:var(–red);font-size:.88rem;height:18px;text-align:center;}
-.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;max-width:270px;width:100%;}
-.kk{background:var(–card);border:none;border-radius:15px;padding:17px;font-size:1.35rem;font-weight:700;color:var(–text);cursor:pointer;transition:background .12s,transform .1s;font-family:‘Rubik’;}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:268px;width:100%;}
+.kk{background:var(–card);border:none;border-radius:14px;padding:16px;font-size:1.3rem;font-weight:700;color:var(–text);cursor:pointer;transition:background .12s,transform .1s;font-family:‘Rubik’;}
 .kk:hover{background:var(–card2);}
-.kk:active{transform:scale(.91);}
-.kk.del{font-size:.95rem;color:var(–dim);}
+.kk:active{transform:scale(.9);}
+.kk.del{font-size:.9rem;color:var(–dim);}
 .kk.emp{background:transparent;cursor:default;pointer-events:none;}
-.btn-back{background:none;border:1px solid rgba(255,255,255,.14);color:var(–dim);padding:9px 22px;border-radius:11px;cursor:pointer;font-family:‘Rubik’;font-size:.88rem;}
-.btn-back:hover{border-color:rgba(255,255,255,.35);}
+.btn-back{background:none;border:1px solid rgba(255,255,255,.13);color:var(–dim);padding:8px 20px;border-radius:10px;cursor:pointer;font-family:‘Rubik’;font-size:.86rem;}
 
-/* ── CHILD VIEW ── */
-#child-view{padding:0;}
-.cv-header{padding:52px 20px 26px;text-align:center;position:relative;}
-.cv-back{position:absolute;top:56px;left:16px;background:rgba(255,255,255,.07);border:none;border-radius:11px;padding:7px 13px;color:var(–text);cursor:pointer;font-size:.82rem;font-family:‘Rubik’;}
-.cv-back:hover{background:rgba(255,255,255,.14);}
-.cv-av{font-size:3.2rem;display:block;margin-bottom:4px;}
-.cv-name{font-family:‘Fredoka One’;font-size:1.5rem;}
-.cv-sync{font-size:.72rem;color:var(–green);margin-top:4px;display:flex;align-items:center;justify-content:center;gap:5px;}
-.sync-dot{width:7px;height:7px;border-radius:50%;background:var(–green);animation:pulse 2s ease-in-out infinite;}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+/* ══ CHILD VIEW ══ */
+#child-view{padding:0;padding-bottom:80px;}
 
-.bal-card{margin:0 18px;padding:30px 22px;border-radius:26px;background:linear-gradient(135deg,var(–card),var(–card2));text-align:center;position:relative;overflow:hidden;}
-.bal-label{font-size:.88rem;color:var(–dim);margin-bottom:7px;}
-.bal-amount{font-family:‘Fredoka One’;font-size:3.8rem;line-height:1;margin-bottom:6px;}
-.bal-nis{font-size:2rem;}
-.bal-updated{font-size:.78rem;color:var(–dim);}
-.bal-emoji{font-size:1.8rem;margin-top:6px;display:block;}
+/* TAB BAR */
+.tab-bar{
+position:fixed;bottom:0;left:0;right:0;z-index:100;
+background:rgba(18,18,31,.95);backdrop-filter:blur(16px);
+border-top:1px solid var(–border);
+display:flex;padding:8px 4px 20px;
+}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 4px;border-radius:12px;transition:background .15s;}
+.tab:active{background:rgba(255,255,255,.06);}
+.tab .ti{font-size:1.3rem;}
+.tab .tl{font-size:.66rem;color:var(–dim);transition:color .15s;}
+.tab.active .tl{color:var(–yellow);}
+.tab .tnotif{
+position:absolute;top:4px;right:6px;
+background:var(–red);color:#fff;border-radius:50%;
+width:16px;height:16px;font-size:.62rem;font-weight:700;
+display:flex;align-items:center;justify-content:center;
+}
 
-.msg-box{margin:14px 18px 0;display:flex;flex-direction:column;gap:8px;}
-.msg-personal,.msg-auto{border-radius:15px;padding:12px 15px;font-size:.88rem;display:flex;align-items:flex-start;gap:9px;line-height:1.45;animation:fiu .4s ease both;}
+.tab-content{display:none;padding:0;}
+.tab-content.active{display:block;}
+
+/* CHILD HEADER */
+.cv-hdr{padding:48px 18px 18px;text-align:center;position:relative;}
+.cv-back{position:absolute;top:52px;left:14px;background:rgba(255,255,255,.07);border:none;border-radius:10px;padding:6px 12px;color:var(–text);cursor:pointer;font-size:.8rem;font-family:‘Rubik’;}
+.cv-sync{font-size:.7rem;color:var(–green);display:flex;align-items:center;justify-content:center;gap:4px;margin-top:3px;}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:var(–green);animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* BALANCE CARD */
+.bal-card{margin:0 16px;padding:26px 20px;border-radius:24px;background:linear-gradient(135deg,var(–card),var(–card2));text-align:center;position:relative;overflow:hidden;}
+.bal-label{font-size:.86rem;color:var(–dim);margin-bottom:6px;}
+.bal-amount{font-family:‘Fredoka One’;font-size:3.5rem;line-height:1;margin-bottom:5px;}
+.bal-nis{font-size:1.8rem;}
+.bal-upd{font-size:.76rem;color:var(–dim);}
+.bal-em{font-size:1.6rem;margin-top:5px;display:block;}
+
+/* GOAL BAR */
+.goal-bar-wrap{margin:12px 16px 0;background:var(–card);border-radius:18px;padding:16px;}
+.goal-bar-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.goal-title{font-size:.88rem;font-weight:700;}
+.goal-pct{font-size:.82rem;color:var(–dim);}
+.goal-track{height:10px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;}
+.goal-fill{height:100%;border-radius:99px;transition:width .6s cubic-bezier(.34,1.3,.64,1);}
+.goal-amounts{display:flex;justify-content:space-between;margin-top:6px;font-size:.74rem;color:var(–dim);}
+.goal-done{text-align:center;font-size:.88rem;color:var(–green);font-weight:700;margin-top:6px;}
+
+/* MESSAGES */
+.msg-box{margin:12px 16px 0;display:flex;flex-direction:column;gap:7px;}
+.msg-personal,.msg-auto{border-radius:14px;padding:11px 14px;font-size:.86rem;display:flex;align-items:flex-start;gap:8px;line-height:1.45;animation:fiu .4s ease both;}
 .msg-personal{background:linear-gradient(135deg,rgba(255,209,102,.13),rgba(255,159,67,.07));border:1px solid rgba(255,209,102,.28);color:var(–yellow);font-weight:600;}
-.msg-auto{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);color:var(–dim);}
-.msg-ic{font-size:1.05rem;flex-shrink:0;margin-top:1px;}
+.msg-auto{background:rgba(255,255,255,.04);border:1px solid var(–border);color:var(–dim);}
+.msg-ic{font-size:1rem;flex-shrink:0;margin-top:1px;}
 @keyframes fiu{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
 
-.hist-sec{padding:22px 18px 40px;}
-.sec-ttl{font-size:.82rem;color:var(–dim);margin-bottom:12px;letter-spacing:.05em;font-weight:600;}
-.tx{background:var(–card);border-radius:15px;padding:14px;margin-bottom:9px;display:flex;align-items:center;gap:12px;}
-.tx-ic{font-size:1.35rem;}
+/* HISTORY TAB */
+.hist-pad{padding:16px 16px 0;}
+.sec-ttl{font-size:.8rem;color:var(–dim);margin-bottom:11px;letter-spacing:.05em;font-weight:600;}
+.tx{background:var(–card);border-radius:14px;padding:13px;margin-bottom:8px;display:flex;align-items:center;gap:11px;}
+.tx-ic{font-size:1.25rem;}
 .tx-body{flex:1;}
-.tx-note{font-size:.92rem;font-weight:600;}
-.tx-date{font-size:.75rem;color:var(–dim);margin-top:2px;}
-.tx-amt{font-size:1.05rem;font-weight:700;}
+.tx-note{font-size:.9rem;font-weight:600;}
+.tx-date{font-size:.73rem;color:var(–dim);margin-top:2px;}
+.tx-amt{font-size:1rem;font-weight:700;}
 .tx-amt.pos{color:var(–green);}
 .tx-amt.neg{color:var(–red);}
-.no-hist{color:var(–dim);font-size:.88rem;text-align:center;padding:18px;}
+.no-hist{color:var(–dim);font-size:.86rem;text-align:center;padding:28px;}
 
-/* ── DAD VIEW ── */
-#dad-view{padding:0;}
-.dad-hdr{padding:52px 20px 20px;background:linear-gradient(180deg,rgba(255,159,67,.07) 0%,transparent 100%);}
-.dad-hdr .dback{display:inline-block;background:rgba(255,255,255,.07);border:none;border-radius:11px;padding:7px 13px;color:var(–text);cursor:pointer;font-size:.82rem;font-family:‘Rubik’;margin-bottom:10px;}
-.dad-hdr .dback:hover{background:rgba(255,255,255,.14);}
-.dad-hdr h1{font-family:‘Fredoka One’;font-size:1.55rem;color:var(–orange);}
-.dad-hdr p{font-size:.83rem;color:var(–dim);margin-top:3px;}
-.dad-body{padding:14px 18px 50px;display:flex;flex-direction:column;gap:18px;}
+/* GRAPH TAB */
+.graph-pad{padding:16px;}
+.graph-wrap{background:var(–card);border-radius:18px;padding:18px 14px;}
+.graph-title{font-size:.88rem;font-weight:700;margin-bottom:16px;text-align:center;}
+canvas#savingsChart{width:100%!important;max-height:200px;}
+.graph-empty{color:var(–dim);text-align:center;padding:40px 20px;font-size:.88rem;}
 
-.kid-panel{background:var(–card);border-radius:22px;overflow:hidden;}
-.kph{padding:18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,.06);}
-.kph .ke{font-size:2rem;}
-.kph .ki{flex:1;}
-.kph .kn{font-weight:700;font-size:.97rem;}
-.kph .kb{font-size:.8rem;color:var(–dim);margin-top:2px;}
-.kph .kb .kbv{font-weight:700;}
-.kactions{padding:14px;display:flex;flex-direction:column;gap:9px;}
+/* TASKS TAB (child) */
+.tasks-pad{padding:16px;}
+.task-card{background:var(–card);border-radius:14px;padding:14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;}
+.task-emoji{font-size:1.5rem;}
+.task-body{flex:1;}
+.task-name{font-size:.92rem;font-weight:600;}
+.task-bonus{font-size:.8rem;color:var(–green);margin-top:2px;}
+.task-status{font-size:.78rem;margin-top:2px;}
+.task-status.pending{color:var(–yellow);}
+.task-status.approved{color:var(–green);}
+.task-status.done-wait{color:var(–orange);}
+.btn-task-done{
+background:rgba(6,214,160,.12);border:1px solid rgba(6,214,160,.3);
+color:var(–green);border-radius:10px;padding:7px 12px;
+font-family:‘Rubik’;font-size:.8rem;cursor:pointer;font-weight:600;
+white-space:nowrap;
+}
+.btn-task-done:disabled{opacity:.4;cursor:default;}
+
+/* REQUESTS TAB (child) */
+.req-pad{padding:16px;}
+.req-form{background:var(–card);border-radius:18px;padding:16px;margin-bottom:14px;}
+.req-form h4{font-size:.9rem;font-weight:700;margin-bottom:12px;}
+.req-item{background:var(–card);border-radius:14px;padding:13px;margin-bottom:8px;}
+.req-top{display:flex;align-items:center;gap:10px;margin-bottom:4px;}
+.req-emoji{font-size:1.3rem;}
+.req-name{font-size:.9rem;font-weight:600;flex:1;}
+.req-amt{font-size:.88rem;color:var(–yellow);font-weight:700;}
+.req-note{font-size:.78rem;color:var(–dim);}
+.req-badge{
+font-size:.72rem;padding:3px 9px;border-radius:99px;font-weight:700;
+}
+.req-badge.waiting{background:rgba(255,209,102,.15);color:var(–yellow);}
+.req-badge.approved{background:rgba(6,214,160,.15);color:var(–green);}
+.req-badge.rejected{background:rgba(255,107,107,.15);color:var(–red);}
+
+/* GOAL SETTER (child) */
+.goal-pad{padding:16px;}
+.goal-setter{background:var(–card);border-radius:18px;padding:16px;}
+.goal-setter h4{font-size:.9rem;font-weight:700;margin-bottom:12px;}
+.current-goal{background:var(–card2);border-radius:14px;padding:14px;margin-bottom:10px;}
+
+/* ══ DAD VIEW ══ */
+#dad-view{padding:0;padding-bottom:80px;}
+.dad-hdr{padding:50px 18px 16px;background:linear-gradient(180deg,rgba(255,159,67,.07) 0%,transparent 100%);}
+.dad-hdr .dback{display:inline-block;background:rgba(255,255,255,.07);border:none;border-radius:10px;padding:6px 12px;color:var(–text);cursor:pointer;font-size:.8rem;font-family:‘Rubik’;margin-bottom:8px;}
+.dad-hdr h1{font-family:‘Fredoka One’;font-size:1.5rem;color:var(–orange);}
+.dad-hdr p{font-size:.8rem;color:var(–dim);margin-top:2px;}
+
+/* DAD TABS */
+.dad-tab-bar{
+display:flex;background:var(–card);margin:12px 16px;border-radius:14px;padding:4px;gap:3px;
+}
+.dad-tab{flex:1;padding:9px 6px;text-align:center;font-size:.8rem;font-weight:600;color:var(–dim);cursor:pointer;border-radius:10px;transition:all .18s;position:relative;}
+.dad-tab.active{background:var(–card2);color:var(–text);}
+.dad-tab .dnotif{
+position:absolute;top:4px;right:6px;
+background:var(–red);color:#fff;border-radius:50%;
+width:14px;height:14px;font-size:.58rem;font-weight:700;
+display:flex;align-items:center;justify-content:center;
+}
+
+.dad-tab-content{display:none;padding:0 16px 16px;}
+.dad-tab-content.active{display:block;}
+
+/* KID PANEL */
+.kid-select{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.ks-btn{background:var(–card);border:2px solid transparent;border-radius:12px;padding:8px 14px;cursor:pointer;font-family:‘Rubik’;font-size:.85rem;color:var(–dim);transition:all .15s;}
+.ks-btn.active{color:var(–text);font-weight:700;}
+
+.panel-section{background:var(–card);border-radius:18px;padding:16px;margin-bottom:12px;}
+.panel-section h4{font-size:.88rem;font-weight:700;margin-bottom:12px;color:var(–dim);}
+
 .arow{display:flex;gap:7px;align-items:flex-end;}
 .iw{flex:1;}
-.iw label{display:block;font-size:.73rem;color:var(–dim);margin-bottom:4px;}
-.iw input{width:100%;background:var(–dark);border:1.5px solid rgba(255,255,255,.09);border-radius:11px;padding:10px 13px;color:var(–text);font-family:‘Rubik’;font-size:.93rem;transition:border-color .2s;}
-.iw input:focus{outline:none;border-color:var(–yellow);}
-.btn-g,.btn-r,.btn-y,.btn-p{border:none;border-radius:11px;padding:11px 15px;font-family:‘Fredoka One’;font-size:.95rem;cursor:pointer;transition:transform .1s,box-shadow .2s;white-space:nowrap;}
+.iw label{display:block;font-size:.72rem;color:var(–dim);margin-bottom:4px;}
+.iw input,.iw select,.iw textarea{
+width:100%;background:var(–dark);border:1.5px solid rgba(255,255,255,.09);
+border-radius:10px;padding:9px 12px;color:var(–text);
+font-family:‘Rubik’;font-size:.9rem;transition:border-color .2s;
+}
+.iw input:focus,.iw select:focus,.iw textarea:focus{outline:none;border-color:var(–yellow);}
+.iw textarea{resize:none;height:60px;}
+.iw select option{background:var(–dark);}
+
+.btn-g,.btn-r,.btn-y,.btn-p,.btn-b{
+border:none;border-radius:10px;padding:10px 14px;
+font-family:‘Fredoka One’;font-size:.9rem;cursor:pointer;
+transition:transform .1s,box-shadow .15s;white-space:nowrap;
+}
 .btn-g{background:var(–green);color:#0A0A1A;}
-.btn-g:hover{box-shadow:0 4px 18px rgba(6,214,160,.4);}
 .btn-r{background:var(–red);color:#fff;}
-.btn-r:hover{box-shadow:0 4px 18px rgba(255,107,107,.4);}
 .btn-y{background:var(–yellow);color:#1A1A2E;}
-.btn-y:hover{box-shadow:0 4px 18px rgba(255,209,102,.4);}
-.btn-p{background:#C77DFF;color:#0A0A1A;}
-.btn-p:hover{box-shadow:0 4px 18px rgba(199,125,255,.4);}
-.btn-g:active,.btn-r:active,.btn-y:active,.btn-p:active{transform:scale(.94);}
-.divider{height:1px;background:rgba(255,255,255,.05);margin:2px 0;}
-.mini-hist{padding:0 14px 14px;}
-.mtx{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.83rem;}
+.btn-p{background:var(–purple);color:#0A0A1A;}
+.btn-b{background:var(–blue);color:#0A0A1A;}
+.btn-g:active,.btn-r:active,.btn-y:active,.btn-p:active,.btn-b:active{transform:scale(.93);}
+
+/* TASKS (dad) */
+.task-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(–border);}
+.task-row:last-child{border:none;}
+.task-row .tr-body{flex:1;}
+.task-row .tr-name{font-size:.88rem;font-weight:600;}
+.task-row .tr-meta{font-size:.75rem;color:var(–dim);margin-top:2px;}
+.task-row .tr-bonus{font-size:.82rem;color:var(–green);font-weight:700;}
+.tr-actions{display:flex;gap:6px;}
+.btn-sm{border:none;border-radius:8px;padding:6px 10px;font-size:.78rem;cursor:pointer;font-family:‘Rubik’;font-weight:600;}
+.btn-sm.approve{background:rgba(6,214,160,.15);color:var(–green);}
+.btn-sm.reject{background:rgba(255,107,107,.12);color:var(–red);}
+.btn-sm.del{background:rgba(255,255,255,.06);color:var(–dim);}
+
+/* REQUESTS (dad) */
+.req-dad-item{background:var(–card2);border-radius:14px;padding:13px;margin-bottom:8px;}
+.req-dad-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.req-dad-name{font-size:.9rem;font-weight:700;flex:1;}
+.req-dad-from{font-size:.76rem;color:var(–dim);}
+.req-dad-note{font-size:.82rem;color:var(–dim);margin-bottom:10px;}
+.req-dad-actions{display:flex;gap:7px;}
+
+/* MINI TX */
+.divider{height:1px;background:var(–border);margin:4px 0;}
+.mini-hist{padding-top:4px;}
+.mtx{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03);font-size:.81rem;}
 .mtx:last-child{border:none;}
 .mtx .mn{flex:1;color:var(–dim);}
 .mtx .ma{font-weight:700;}
 .mtx .ma.pos{color:var(–green);}
 .mtx .ma.neg{color:var(–red);}
 .mtx .ma.set{color:var(–yellow);}
-.mtx .md{font-size:.7rem;color:rgba(255,255,255,.22);}
-.add-kid-btn{display:flex;align-items:center;justify-content:center;gap:10px;background:rgba(255,255,255,.04);border:2px dashed rgba(255,255,255,.12);border-radius:22px;padding:22px;cursor:pointer;font-size:.95rem;color:var(–dim);font-weight:600;transition:border-color .2s,color .2s;}
-.add-kid-btn:hover{border-color:rgba(255,255,255,.25);color:var(–text);}
+.mtx .md{font-size:.68rem;color:rgba(255,255,255,.2);}
 
-/* ── TOAST ── */
-.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(120px);background:var(–green);color:#0A0A1A;padding:11px 22px;border-radius:50px;font-weight:700;font-size:.88rem;transition:transform .32s cubic-bezier(.34,1.56,.64,1);z-index:999;white-space:nowrap;}
+.add-kid-btn{display:flex;align-items:center;justify-content:center;gap:9px;background:rgba(255,255,255,.03);border:2px dashed rgba(255,255,255,.11);border-radius:18px;padding:20px;cursor:pointer;font-size:.9rem;color:var(–dim);font-weight:600;margin-bottom:12px;}
+.add-kid-btn:hover{border-color:rgba(255,255,255,.22);color:var(–text);}
+
+/* TOAST */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(120px);background:var(–green);color:#0A0A1A;padding:10px 20px;border-radius:50px;font-weight:700;font-size:.86rem;transition:transform .3s cubic-bezier(.34,1.56,.64,1);z-index:999;white-space:nowrap;}
 .toast.show{transform:translateX(-50%) translateY(0);}
 .toast.err{background:var(–red);color:#fff;}
+.toast.info{background:var(–blue);color:#0A0A1A;}
 
-/* ── MODAL ── */
+/* OVERLAY / MODAL */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:500;align-items:flex-end;justify-content:center;}
 .overlay.open{display:flex;}
-.modal{background:var(–card);border-radius:28px 28px 0 0;padding:28px 22px 40px;width:100%;max-width:460px;animation:slideUp .28s cubic-bezier(.34,1.3,.64,1);max-height:88vh;overflow-y:auto;}
+.modal{background:var(–card);border-radius:26px 26px 0 0;padding:26px 20px 38px;width:100%;max-width:460px;animation:slideUp .26s cubic-bezier(.34,1.3,.64,1);max-height:88vh;overflow-y:auto;}
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.modal h3{font-family:‘Fredoka One’;font-size:1.35rem;margin-bottom:18px;}
-.mfield{margin-bottom:13px;}
-.mfield label{display:block;font-size:.75rem;color:var(–dim);margin-bottom:4px;}
-.mfield input{width:100%;background:var(–dark);border:1.5px solid rgba(255,255,255,.09);border-radius:11px;padding:11px 13px;color:var(–text);font-family:‘Rubik’;font-size:.93rem;}
-.mfield input:focus{outline:none;border-color:var(–yellow);}
-.mbtns{display:flex;gap:9px;margin-top:6px;}
-.mbtns button{flex:1;border:none;border-radius:11px;padding:13px;font-family:‘Fredoka One’;font-size:.97rem;cursor:pointer;}
+.modal h3{font-family:‘Fredoka One’;font-size:1.3rem;margin-bottom:16px;}
+.mfield{margin-bottom:12px;}
+.mfield label{display:block;font-size:.74rem;color:var(–dim);margin-bottom:4px;}
+.mfield input,.mfield select{width:100%;background:var(–dark);border:1.5px solid rgba(255,255,255,.09);border-radius:10px;padding:10px 12px;color:var(–text);font-family:‘Rubik’;font-size:.9rem;}
+.mfield input:focus,.mfield select:focus{outline:none;border-color:var(–yellow);}
+.mbtns{display:flex;gap:8px;margin-top:8px;}
+.mbtns button{flex:1;border:none;border-radius:10px;padding:12px;font-family:‘Fredoka One’;font-size:.93rem;cursor:pointer;}
 .mbtns .msave{background:var(–yellow);color:var(–dark);}
 .mbtns .mcancel{background:rgba(255,255,255,.07);color:var(–text);}
-.mdel{width:100%;border:none;border-radius:11px;padding:12px;background:rgba(255,107,107,.12);color:var(–red);font-family:‘Fredoka One’;font-size:.95rem;cursor:pointer;margin-top:10px;}
-.mdel:hover{background:rgba(255,107,107,.22);}
+.mdel{width:100%;border:none;border-radius:10px;padding:11px;background:rgba(255,107,107,.1);color:var(–red);font-family:‘Fredoka One’;font-size:.9rem;cursor:pointer;margin-top:8px;}
 
-.gear{position:fixed;top:16px;right:14px;z-index:200;background:rgba(255,255,255,.06);border:none;border-radius:11px;padding:9px 11px;cursor:pointer;font-size:1.05rem;transition:background .2s;}
-.gear:hover{background:rgba(255,255,255,.12);}
+.gear{position:fixed;top:14px;right:13px;z-index:200;background:rgba(255,255,255,.06);border:none;border-radius:10px;padding:8px 10px;cursor:pointer;font-size:1rem;}
+.empty-state{color:var(–dim);text-align:center;padding:24px 16px;font-size:.86rem;}
 </style>
 
 </head>
@@ -187,7 +326,7 @@ body{font-family:‘Rubik’,sans-serif;background:var(–dark);color:var(–tex
 <!-- HOME -->
 
 <div class="screen" id="home">
-  <div class="home-logo">💰 ארנק המשפחה</div>
+  <div class="home-logo">💰 ארנק חכם</div>
   <div class="home-sub">בחר/י את הפרופיל שלך</div>
   <div class="profiles-grid" id="pgrid"></div>
 </div>
@@ -203,18 +342,10 @@ body{font-family:‘Rubik’,sans-serif;background:var(–dark);color:var(–tex
   </div>
   <div class="pin-err" id="pin-err"></div>
   <div class="keypad">
-    <button class="kk" onclick="pk('1')">1</button>
-    <button class="kk" onclick="pk('2')">2</button>
-    <button class="kk" onclick="pk('3')">3</button>
-    <button class="kk" onclick="pk('4')">4</button>
-    <button class="kk" onclick="pk('5')">5</button>
-    <button class="kk" onclick="pk('6')">6</button>
-    <button class="kk" onclick="pk('7')">7</button>
-    <button class="kk" onclick="pk('8')">8</button>
-    <button class="kk" onclick="pk('9')">9</button>
-    <div class="kk emp"></div>
-    <button class="kk" onclick="pk('0')">0</button>
-    <button class="kk del" onclick="pdel()">⌫</button>
+    <button class="kk" onclick="pk('1')">1</button><button class="kk" onclick="pk('2')">2</button><button class="kk" onclick="pk('3')">3</button>
+    <button class="kk" onclick="pk('4')">4</button><button class="kk" onclick="pk('5')">5</button><button class="kk" onclick="pk('6')">6</button>
+    <button class="kk" onclick="pk('7')">7</button><button class="kk" onclick="pk('8')">8</button><button class="kk" onclick="pk('9')">9</button>
+    <div class="kk emp"></div><button class="kk" onclick="pk('0')">0</button><button class="kk del" onclick="pdel()">⌫</button>
   </div>
   <button class="btn-back" onclick="goHome()">← חזרה</button>
 </div>
@@ -222,22 +353,81 @@ body{font-family:‘Rubik’,sans-serif;background:var(–dark);color:var(–tex
 <!-- CHILD VIEW -->
 
 <div class="screen" id="child-view">
-  <div class="cv-header">
+  <div class="cv-hdr">
     <button class="cv-back" onclick="goHome()">← חזרה</button>
-    <span class="cv-av" id="cv-av"></span>
-    <div class="cv-name" id="cv-name"></div>
+    <span id="cv-av" style="font-size:3rem;display:block;margin-bottom:3px"></span>
+    <div id="cv-name" style="font-family:'Fredoka One';font-size:1.4rem;"></div>
     <div class="cv-sync"><span class="sync-dot"></span> מסונכרן בזמן אמת</div>
   </div>
-  <div class="bal-card" id="cv-card">
-    <div class="bal-label">היתרה שלי ✨</div>
-    <div class="bal-amount" id="cv-amt"></div>
-    <div class="bal-updated" id="cv-upd"></div>
-    <span class="bal-emoji" id="cv-em"></span>
+
+  <!-- TAB CONTENTS -->
+
+  <div id="ct-home" class="tab-content active">
+    <div class="bal-card" id="cv-card">
+      <div class="bal-label">היתרה שלי ✨</div>
+      <div class="bal-amount" id="cv-amt"></div>
+      <div class="bal-upd" id="cv-upd"></div>
+      <span class="bal-em" id="cv-em"></span>
+    </div>
+    <div id="cv-goal-bar" style="display:none"></div>
+    <div class="msg-box" id="cv-msg" style="display:none"></div>
   </div>
-  <div class="msg-box" id="cv-msg" style="display:none"></div>
-  <div class="hist-sec">
-    <div class="sec-ttl">📋 היסטוריית תנועות</div>
-    <div id="cv-hist"></div>
+
+  <div id="ct-tasks" class="tab-content">
+    <div class="tasks-pad">
+      <div class="sec-ttl">✅ המשימות שלי</div>
+      <div id="cv-tasks-list"></div>
+    </div>
+  </div>
+
+  <div id="ct-goal" class="tab-content">
+    <div class="goal-pad">
+      <div class="sec-ttl">🎯 יעד החיסכון שלי</div>
+      <div class="goal-setter" id="cv-goal-setter"></div>
+    </div>
+  </div>
+
+  <div id="ct-requests" class="tab-content">
+    <div class="req-pad">
+      <div class="req-form">
+        <h4>💌 שלח/י בקשה לאבא</h4>
+        <div class="iw" style="margin-bottom:8px"><label>על מה הבקשה?</label><input id="req-name" placeholder="אוזניות, ספר, משחק..." maxlength="40"></div>
+        <div class="arow">
+          <div class="iw"><label>סכום ₪</label><input type="number" id="req-amt" placeholder="0" min="0"></div>
+          <div class="iw"><label>הסבר קצר</label><input id="req-note" placeholder="כי..." maxlength="60"></div>
+        </div>
+        <button class="btn-p" style="width:100%;margin-top:10px" onclick="sendRequest()">📨 שלח בקשה</button>
+      </div>
+      <div class="sec-ttl">הבקשות שלי</div>
+      <div id="cv-requests-list"></div>
+    </div>
+  </div>
+
+  <div id="ct-hist" class="tab-content">
+    <div class="hist-pad">
+      <div class="sec-ttl">📋 היסטוריה</div>
+      <div id="cv-hist"></div>
+    </div>
+  </div>
+
+  <!-- CHILD TAB BAR -->
+
+  <div class="tab-bar">
+    <div class="tab active" onclick="switchTab('home')" id="ctab-home">
+      <span class="ti">🏠</span><span class="tl">בית</span>
+    </div>
+    <div class="tab" onclick="switchTab('tasks')" id="ctab-tasks">
+      <span class="ti">✅</span><span class="tl">משימות</span>
+    </div>
+    <div class="tab" onclick="switchTab('goal')" id="ctab-goal">
+      <span class="ti">🎯</span><span class="tl">יעד</span>
+    </div>
+    <div class="tab" onclick="switchTab('requests')" id="ctab-requests" style="position:relative">
+      <span class="ti">💌</span><span class="tl">בקשות</span>
+    </div>
+    <div class="tab" onclick="switchTab('hist')" id="ctab-hist">
+      <span class="ti">📋</span><span class="tl">היסטוריה</span>
+    </div>
   </div>
 </div>
 
@@ -247,24 +437,79 @@ body{font-family:‘Rubik’,sans-serif;background:var(–dark);color:var(–tex
   <div class="dad-hdr">
     <button class="dback" onclick="goHome()">← חזרה</button>
     <h1>🛠️ ניהול ארנקים</h1>
-    <p>עדכן יתרות • שלח הודעות • הוסף ילדים</p>
+    <p>עדכן יתרות • משימות • בקשות</p>
   </div>
-  <div class="dad-body" id="dad-body"></div>
+
+  <div class="dad-tab-bar">
+    <div class="dad-tab active" onclick="switchDadTab('wallet')" id="dtab-wallet">💰 ארנק</div>
+    <div class="dad-tab" onclick="switchDadTab('tasks')" id="dtab-tasks">✅ משימות</div>
+    <div class="dad-tab" onclick="switchDadTab('requests')" id="dtab-requests" style="position:relative">💌 בקשות</div>
+    <div class="dad-tab" onclick="switchDadTab('kids')" id="dtab-kids">👥 ילדים</div>
+  </div>
+
+  <!-- WALLET TAB -->
+
+  <div class="dad-tab-content active" id="dtc-wallet">
+    <div class="kid-select" id="dad-kid-select"></div>
+    <div id="dad-wallet-panel"></div>
+  </div>
+
+  <!-- TASKS TAB -->
+
+  <div class="dad-tab-content" id="dtc-tasks">
+    <div class="panel-section">
+      <h4>➕ הוסף משימה</h4>
+      <div class="arow" style="margin-bottom:8px">
+        <div class="iw"><label>שם המשימה</label><input id="task-name" placeholder="סידור חדר, שיעורים..." maxlength="30"></div>
+        <div class="iw" style="max-width:90px"><label>בונוס ₪</label><input type="number" id="task-bonus" placeholder="5" min="0"></div>
+      </div>
+      <div class="arow">
+        <div class="iw"><label>אימוג'י</label><input id="task-emoji" placeholder="🧹" maxlength="4"></div>
+        <div class="iw"><label>לאיזו ילדה?</label>
+          <select id="task-kid"></select>
+        </div>
+        <button class="btn-g" onclick="addTask()">הוסף</button>
+      </div>
+    </div>
+    <div class="panel-section">
+      <h4>📋 כל המשימות</h4>
+      <div id="dad-tasks-list"></div>
+    </div>
+  </div>
+
+  <!-- REQUESTS TAB -->
+
+  <div class="dad-tab-content" id="dtc-requests">
+    <div id="dad-requests-list"></div>
+  </div>
+
+  <!-- KIDS TAB -->
+
+  <div class="dad-tab-content" id="dtc-kids">
+    <div class="add-kid-btn" onclick="openAddKid()">
+      <span style="font-size:1.3rem">➕</span> הוסף ילד/ה חדש/ה
+    </div>
+    <div id="dad-kids-list"></div>
+  </div>
+
+  <div class="tab-bar" style="justify-content:flex-start;padding-right:16px;">
+    <!-- spacer so content isn't hidden -->
+  </div>
 </div>
 
-<!-- MODAL: EDIT/ADD KID -->
+<!-- MODAL: KID -->
 
 <div class="overlay" id="kid-modal">
   <div class="modal">
     <h3 id="km-title">➕ הוסף ילד/ה</h3>
-    <div class="mfield"><label>שם</label><input id="km-name" placeholder="שם הילד/ה" maxlength="14"></div>
+    <div class="mfield"><label>שם</label><input id="km-name" placeholder="שם" maxlength="14"></div>
     <div class="mfield"><label>אימוג'י</label><input id="km-emoji" placeholder="👧" maxlength="4"></div>
-    <div class="mfield"><label>קוד PIN (4 ספרות)</label><input id="km-pin" type="number" placeholder="1234"></div>
+    <div class="mfield"><label>PIN (4 ספרות)</label><input id="km-pin" type="number" placeholder="1234"></div>
     <div class="mbtns">
       <button class="msave" onclick="saveKid()">שמור</button>
       <button class="mcancel" onclick="closeModal('kid-modal')">ביטול</button>
     </div>
-    <button class="mdel" id="km-del" onclick="deleteKid()" style="display:none">🗑️ מחק ילד/ה זה</button>
+    <button class="mdel" id="km-del" onclick="deleteKid()" style="display:none">🗑️ מחק</button>
   </div>
 </div>
 
@@ -275,7 +520,7 @@ body{font-family:‘Rubik’,sans-serif;background:var(–dark);color:var(–tex
     <h3>⚙️ הגדרות</h3>
     <div class="mfield"><label>שם</label><input id="dm-name" placeholder="אבא" maxlength="14"></div>
     <div class="mfield"><label>אימוג'י</label><input id="dm-emoji" placeholder="👨" maxlength="4"></div>
-    <div class="mfield"><label>קוד PIN (4 ספרות)</label><input id="dm-pin" type="number" placeholder="0000"></div>
+    <div class="mfield"><label>PIN (4 ספרות)</label><input id="dm-pin" type="number" placeholder="0000"></div>
     <div class="mbtns">
       <button class="msave" onclick="saveDad()">שמור</button>
       <button class="mcancel" onclick="closeModal('dad-modal')">ביטול</button>
@@ -285,16 +530,17 @@ body{font-family:‘Rubik’,sans-serif;background:var(–dark);color:var(–tex
 
 <button class="gear" id="gear" onclick="openDadSettings()" style="display:none">⚙️</button>
 
-<!-- Firebase -->
+<!-- Chart.js -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
-  getFirestore, doc, getDoc, setDoc, updateDoc,
-  onSnapshot, collection, getDocs
+  getFirestore, doc, setDoc, onSnapshot, collection,
+  getDoc, deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// ── CONFIG ──
 const firebaseConfig = {
   apiKey: "AIzaSyB6WHGPHHy6k5cTPmjdKJla8Ud9Q5d7YAY",
   authDomain: "family-9e6a3.firebaseapp.com",
@@ -304,303 +550,490 @@ const firebaseConfig = {
   appId: "1:285640921311:web:d7c3a3d7f111993cfa196a"
 };
 
-const app = initializeApp(firebaseConfig);
-const db  = getFirestore(app);
+const fbApp = initializeApp(firebaseConfig);
+const db = getFirestore(fbApp);
 
-// ── COLORS ──
-const COLORS = ['#FF6B9D','#C77DFF','#4CC9F0','#06D6A0','#FFD166','#FF9F43'];
+// ── REFS ──
+const cfgRef  = () => doc(db,'wallet','config');
+const kidRef  = (id) => doc(db,'wallet','kid_'+id);
+const taskRef = (id) => doc(db,'wallet','tasks_'+id); // per-kid tasks doc
+const reqRef  = (id) => doc(db,'wallet','reqs_'+id);  // per-kid requests doc
 
 // ── STATE ──
-let D = { dad:{ name:'אבא', emoji:'👨', pin:'0000' }, kids:[] };
-let pinBuf='', pinTarget=null, editKidId=null;
-let childUnsub = null; // real-time listener for child view
+const COLORS = ['#FF6B9D','#C77DFF','#4CC9F0','#06D6A0','#FFD166','#FF9F43'];
+let D = { dad:{name:'אבא',emoji:'👨',pin:'0000'}, kids:[] };
+let pinBuf='', pinTarget=null, editKidId=null, currentKidId=null;
+let unsubs = [];
+let dadSelectedKid = null;
+let chartInstance = null;
 
-// ══════════════════════════════════════════════════════
-// FIRESTORE HELPERS
-// ══════════════════════════════════════════════════════
-const configRef = () => doc(db,'wallet','config');
-const kidRef    = (id) => doc(db,'wallet','kids_'+id);
-
+// ══ FIRESTORE ══
 async function loadAll() {
-  // Load config (dad settings)
-  const cfgSnap = await getDoc(configRef());
-  if (cfgSnap.exists()) {
-    D.dad = cfgSnap.data().dad || D.dad;
-    D.kids = cfgSnap.data().kids || [];
+  const snap = await getDoc(cfgRef());
+  if (snap.exists()) {
+    D.dad  = snap.data().dad  || D.dad;
+    D.kids = snap.data().kids || [];
   } else {
-    // First run — create defaults
-    await setDoc(configRef(), { dad: D.dad, kids: D.kids });
+    await setDoc(cfgRef(), {dad:D.dad, kids:[]});
   }
-  // Load each kid's balance+history from their own doc
   for (const k of D.kids) {
-    const snap = await getDoc(kidRef(k.id));
-    if (snap.exists()) {
-      k.balance = snap.data().balance ?? 0;
-      k.history = snap.data().history ?? [];
-      k.message = snap.data().message ?? '';
-    } else {
-      await setDoc(kidRef(k.id), { balance:0, history:[], message:'' });
-    }
+    const ks = await getDoc(kidRef(k.id));
+    if (ks.exists()) Object.assign(k, ks.data());
+    else await setDoc(kidRef(k.id),{balance:0,history:[],message:'',goal:null,graphData:[]});
+
+    const ts = await getDoc(taskRef(k.id));
+    k.tasks = ts.exists() ? (ts.data().tasks||[]) : [];
+
+    const rs = await getDoc(reqRef(k.id));
+    k.requests = rs.exists() ? (rs.data().requests||[]) : [];
   }
 }
 
 async function saveConfig() {
-  await setDoc(configRef(), { dad: D.dad, kids: D.kids.map(k=>({
-    id:k.id, name:k.name, emoji:k.emoji, pin:k.pin, ci:k.ci
-  }))});
-}
-
-async function saveKidData(kid) {
-  await setDoc(kidRef(kid.id), {
-    balance: kid.balance,
-    history: kid.history,
-    message: kid.message ?? ''
+  await setDoc(cfgRef(),{
+    dad: D.dad,
+    kids: D.kids.map(k=>({id:k.id,name:k.name,emoji:k.emoji,pin:k.pin,ci:k.ci}))
   });
 }
 
-// ══════════════════════════════════════════════════════
-// SCREENS
-// ══════════════════════════════════════════════════════
+async function saveKidData(k) {
+  await setDoc(kidRef(k.id),{
+    balance: k.balance||0,
+    history: k.history||[],
+    message: k.message||'',
+    goal: k.goal||null,
+    graphData: k.graphData||[]
+  });
+}
+
+async function saveKidTasks(k) {
+  await setDoc(taskRef(k.id),{ tasks: k.tasks||[] });
+}
+
+async function saveKidRequests(k) {
+  await setDoc(reqRef(k.id),{ requests: k.requests||[] });
+}
+
+// ══ SCREENS ══
 function show(id) {
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  document.getElementById('gear').style.display = id==='dad-view'?'block':'none';
-  if (id !== 'child-view' && childUnsub) { childUnsub(); childUnsub=null; }
+  document.getElementById('gear').style.display = id==='dad-view' ? 'block' : 'none';
+  if (id !== 'child-view') unsubs.forEach(u=>u()), unsubs=[];
 }
 
 function goHome() { show('home'); renderHome(); }
+window.goHome = goHome;
 
-// ══════════════════════════════════════════════════════
-// HOME
-// ══════════════════════════════════════════════════════
-function kidColor(k) { return COLORS[k.ci % COLORS.length]; }
+// ══ HOME ══
+function kidColor(k){ return COLORS[(k.ci||0)%COLORS.length]; }
+
+function countPendingRequests() {
+  return D.kids.reduce((sum,k)=>{
+    return sum + (k.requests||[]).filter(r=>r.status==='waiting').length;
+  },0);
+}
 
 function renderHome() {
   const g = document.getElementById('pgrid');
   g.innerHTML='';
-
   D.kids.forEach(k=>{
     const col = kidColor(k);
+    const pendingTasks = (k.tasks||[]).filter(t=>t.status==='done-wait').length;
     const d = document.createElement('div');
     d.className='pcard';
-    d.style.borderColor=col+'66';
+    d.style.borderColor=col+'55';
     d.innerHTML=`
       <span class="pe">${k.emoji}</span>
       <div class="pn">${k.name}</div>
-      <div class="pb">₪<span class="bv" style="color:${col}">${(k.balance||0).toFixed(2)}</span></div>`;
-    d.addEventListener('mouseenter',()=>d.style.boxShadow=`0 8px 28px ${col}44`);
+      <div class="pb">₪<span class="bv" style="color:${col}">${(k.balance||0).toFixed(2)}</span></div>
+      ${k.goal?`<div style="font-size:.72rem;color:var(--dim);margin-top:4px">🎯 ${k.goal.name}</div>`:''}
+    `;
+    if (pendingTasks>0) {
+      const b=document.createElement('div');
+      b.className='nbadge'; b.style.cssText='position:absolute;top:8px;left:8px;';
+      b.textContent=pendingTasks; d.style.position='relative'; d.appendChild(b);
+    }
+    d.addEventListener('mouseenter',()=>d.style.boxShadow=`0 8px 26px ${col}44`);
     d.addEventListener('mouseleave',()=>d.style.boxShadow='');
     d.onclick=()=>startPin({type:'kid',id:k.id});
     g.appendChild(d);
   });
 
+  const pending = countPendingRequests();
   const dad = document.createElement('div');
   dad.className='pcard dad-card';
-  dad.style.borderColor='rgba(255,159,67,.35)';
+  dad.style.borderColor='rgba(255,159,67,.3)';
   dad.innerHTML=`
     <span class="pe">${D.dad.emoji}</span>
-    <div class="pn">${D.dad.name}</div>
-    <div class="pb" style="color:var(--dim)">ניהול ארנקים</div>`;
+    <div class="pinfo">
+      <div class="pn">${D.dad.name}</div>
+      <div class="pb" style="color:var(--dim)">ניהול ארנקים</div>
+    </div>
+    ${pending>0?`<div class="nbadge">${pending}</div>`:''}
+  `;
   dad.onclick=()=>startPin({type:'dad'});
   g.appendChild(dad);
 }
 
-// ══════════════════════════════════════════════════════
-// PIN
-// ══════════════════════════════════════════════════════
+// ══ PIN ══
 function startPin(target) {
   pinTarget=target; pinBuf='';
   updDots(); document.getElementById('pin-err').textContent='';
-  if (target.type==='dad') {
-    document.getElementById('pin-av').textContent=D.dad.emoji;
-    document.getElementById('pin-who').textContent=`שלום ${D.dad.name} 👋`;
-  } else {
-    const k=D.kids.find(x=>x.id===target.id);
-    document.getElementById('pin-av').textContent=k.emoji;
-    document.getElementById('pin-who').textContent=`שלום ${k.name} 👋`;
-  }
+  const who = target.type==='dad' ? D.dad : D.kids.find(x=>x.id===target.id);
+  document.getElementById('pin-av').textContent=who.emoji;
+  document.getElementById('pin-who').textContent=`שלום ${who.name} 👋`;
   show('pin');
 }
-
-function pk(d) {
+window.pk = (d) => {
   if(pinBuf.length>=4)return;
   pinBuf+=d; updDots();
   if(pinBuf.length===4) setTimeout(checkPin,150);
-}
-function pdel() { pinBuf=pinBuf.slice(0,-1); updDots(); document.getElementById('pin-err').textContent=''; }
-function updDots() { for(let i=0;i<4;i++) document.getElementById('pd'+i).classList.toggle('on',i<pinBuf.length); }
-
-function checkPin() {
+};
+window.pdel = () => { pinBuf=pinBuf.slice(0,-1); updDots(); document.getElementById('pin-err').textContent=''; };
+function updDots(){ for(let i=0;i<4;i++) document.getElementById('pd'+i).classList.toggle('on',i<pinBuf.length); }
+function checkPin(){
   const correct = pinTarget.type==='dad' ? D.dad.pin : (D.kids.find(k=>k.id===pinTarget.id)?.pin||'');
-  if(pinBuf===correct) {
-    pinTarget.type==='dad' ? openDad() : openChild(pinTarget.id);
-  } else {
-    document.getElementById('pin-err').textContent='❌ קוד שגוי, נסה שנית';
+  if(pinBuf===correct){ pinTarget.type==='dad' ? openDad() : openChild(pinTarget.id); }
+  else {
+    document.getElementById('pin-err').textContent='❌ קוד שגוי';
     pinBuf=''; updDots();
     const dots=document.querySelector('.pin-dots');
     dots.style.animation='none'; dots.offsetHeight; dots.style.animation='shake .4s';
   }
 }
 
-// ══════════════════════════════════════════════════════
-// CHILD VIEW — real-time listener
-// ══════════════════════════════════════════════════════
+// ══ CHILD VIEW ══
 function openChild(kidId) {
+  currentKidId = kidId;
   const k = D.kids.find(x=>x.id===kidId);
-  const col = kidColor(k);
-
   document.getElementById('cv-av').textContent=k.emoji;
-  document.getElementById('cv-name').textContent=`היתרה של ${k.name}`;
-  document.getElementById('cv-card').style.borderTop=`3px solid ${col}55`;
-
-  renderChildData(k, col);
+  document.getElementById('cv-name').textContent=k.name;
+  document.getElementById('cv-card').style.borderTop=`3px solid ${kidColor(k)}55`;
+  switchTab('home');
+  renderChildHome(k);
+  renderChildTasks(k);
+  renderChildGoal(k);
+  renderChildRequests(k);
+  renderChildHist(k);
   show('child-view');
 
-  // Real-time listener
-  if (childUnsub) childUnsub();
-  childUnsub = onSnapshot(kidRef(kidId), snap => {
-    if (!snap.exists()) return;
-    const data = snap.data();
-    k.balance = data.balance ?? 0;
-    k.history = data.history ?? [];
-    k.message = data.message ?? '';
-    renderChildData(k, col);
-  });
+  // real-time listeners
+  unsubs.push(onSnapshot(kidRef(kidId), snap=>{
+    if(!snap.exists())return;
+    Object.assign(k, snap.data());
+    renderChildHome(k);
+    renderChildHist(k);
+    renderChildGoal(k);
+  }));
+  unsubs.push(onSnapshot(taskRef(kidId), snap=>{
+    if(!snap.exists())return;
+    k.tasks = snap.data().tasks||[];
+    renderChildTasks(k);
+  }));
+  unsubs.push(onSnapshot(reqRef(kidId), snap=>{
+    if(!snap.exists())return;
+    k.requests = snap.data().requests||[];
+    renderChildRequests(k);
+  }));
 }
 
-function renderChildData(k, col) {
+function renderChildHome(k) {
+  const col = kidColor(k);
+  const bal = k.balance||0;
   const amt = document.getElementById('cv-amt');
-  amt.innerHTML=`<span class="bal-nis" style="color:${col}">₪</span><span style="color:${col}">${(k.balance||0).toFixed(2)}</span>`;
-
-  const last=k.history?.[0];
+  amt.innerHTML=`<span class="bal-nis" style="color:${col}">₪</span><span style="color:${col}">${bal.toFixed(2)}</span>`;
+  const last=(k.history||[])[0];
   document.getElementById('cv-upd').textContent=last?`עודכן: ${last.date}`:'טרם עודכן';
-
   const bals=[[0,'🤷'],[1,'🌱'],[20,'😊'],[50,'😄✨'],[100,'🎉🎊🥳'],[200,'👑'],[500,'🏆']];
-  let em='😊'; for(const [t,e] of bals) if((k.balance||0)>=t) em=e;
+  let em='😊'; for(const[t,e] of bals) if(bal>=t) em=e;
   document.getElementById('cv-em').textContent=em;
 
-  // Messages
+  // goal bar
+  const gb = document.getElementById('cv-goal-bar');
+  if (k.goal && k.goal.target>0) {
+    const pct = Math.min(100, Math.round((bal/k.goal.target)*100));
+    gb.style.display='block';
+    gb.innerHTML=`
+      <div class="goal-bar-wrap">
+        <div class="goal-bar-top">
+          <span class="goal-title">🎯 ${k.goal.name}</span>
+          <span class="goal-pct">${pct}%</span>
+        </div>
+        <div class="goal-track"><div class="goal-fill" style="width:${pct}%;background:${col}"></div></div>
+        <div class="goal-amounts"><span>₪0</span><span>₪${k.goal.target}</span></div>
+        ${pct>=100?`<div class="goal-done">🎉 הגעת ליעד! כל הכבוד!</div>`:''}
+      </div>`;
+  } else { gb.style.display='none'; }
+
+  // messages
   const mb=document.getElementById('cv-msg');
-  const auto=autoMsg(k.balance||0, k.name);
+  const auto=autoMsg(bal,k.name);
   const personal=(k.message||'').trim();
   let mh='';
   if(personal) mh+=`<div class="msg-personal"><span class="msg-ic">💌</span><span>${personal}</span></div>`;
   if(auto) mh+=`<div class="msg-auto"><span class="msg-ic">${auto.i}</span><span>${auto.t}</span></div>`;
   mb.innerHTML=mh; mb.style.display=mh?'flex':'none';
+}
 
-  // History
-  const h=document.getElementById('cv-hist');
-  if(!(k.history||[]).length) { h.innerHTML='<div class="no-hist">אין עדיין תנועות</div>'; return; }
-  h.innerHTML=k.history.slice(0,20).map(tx=>`
+function renderChildTasks(k) {
+  const el = document.getElementById('cv-tasks-list');
+  const tasks = (k.tasks||[]).filter(t=>t.active!==false);
+  if(!tasks.length){ el.innerHTML='<div class="empty-state">אין משימות כרגע 😴</div>'; return; }
+  el.innerHTML = tasks.map(t=>{
+    const isDoneWait = t.status==='done-wait';
+    const isApproved = t.status==='approved';
+    return `
+      <div class="task-card">
+        <div class="task-emoji">${t.emoji||'✅'}</div>
+        <div class="task-body">
+          <div class="task-name">${t.name}</div>
+          <div class="task-bonus">+₪${t.bonus} בונוס</div>
+          ${isDoneWait?`<div class="task-status done-wait">⏳ ממתין לאישור אבא</div>`:''}
+          ${isApproved?`<div class="task-status approved">✅ אושר! הבונוס נוסף</div>`:''}
+        </div>
+        ${!isDoneWait&&!isApproved?
+          `<button class="btn-task-done" onclick="markTaskDone('${k.id}','${t.id}')">סיימתי!</button>`
+          :`<span style="font-size:1.4rem">${isDoneWait?'⏳':'🏅'}</span>`}
+      </div>`;
+  }).join('');
+}
+window.markTaskDone = async(kidId, taskId)=>{
+  const k=D.kids.find(x=>x.id===kidId);
+  const t=k.tasks.find(x=>x.id===taskId);
+  if(!t)return;
+  t.status='done-wait';
+  await saveKidTasks(k);
+  toast('📨 נשלח לאישור אבא!','info');
+};
+
+function renderChildGoal(k) {
+  const el = document.getElementById('cv-goal-setter');
+  const bal = k.balance||0;
+  if (k.goal) {
+    const pct = Math.min(100,Math.round((bal/k.goal.target)*100));
+    const col = kidColor(k);
+    el.innerHTML=`
+      <div class="current-goal">
+        <div style="font-size:.88rem;font-weight:700;margin-bottom:10px">🎯 ${k.goal.name}</div>
+        <div class="goal-track" style="margin-bottom:8px"><div class="goal-fill" style="width:${pct}%;background:${col}"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:.78rem;color:var(--dim)">
+          <span>₪${bal.toFixed(2)} מתוך ₪${k.goal.target}</span>
+          <span>${pct}%</span>
+        </div>
+        ${pct>=100?`<div style="color:var(--green);font-weight:700;text-align:center;margin-top:8px;font-size:.9rem">🎉 הגעת ליעד!</div>`:''}
+      </div>
+      <button class="btn-r" style="width:100%;margin-top:6px" onclick="clearGoal('${k.id}')">🗑️ מחק יעד</button>`;
+  } else {
+    el.innerHTML=`
+      <p style="color:var(--dim);font-size:.86rem;margin-bottom:14px">קבעי לעצמך מטרה — לאיזה דבר את חוסכת?</p>
+      <div class="iw" style="margin-bottom:8px"><label>שם היעד</label><input id="goal-name-${k.id}" placeholder="אוזניות, ספר, טיול..."></div>
+      <div class="iw" style="margin-bottom:10px"><label>סכום יעד ₪</label><input type="number" id="goal-target-${k.id}" placeholder="100" min="1"></div>
+      <button class="btn-y" style="width:100%" onclick="setGoal('${k.id}')">🎯 קבע יעד!</button>`;
+  }
+}
+window.setGoal = async(kidId)=>{
+  const k=D.kids.find(x=>x.id===kidId);
+  const name=document.getElementById('goal-name-'+kidId)?.value.trim();
+  const target=parseFloat(document.getElementById('goal-target-'+kidId)?.value);
+  if(!name||!target||target<=0){toast('מלאי שם וסכום',true);return;}
+  k.goal={name,target};
+  await saveKidData(k);
+  toast('🎯 יעד נקבע!');
+};
+window.clearGoal = async(kidId)=>{
+  const k=D.kids.find(x=>x.id===kidId);
+  k.goal=null;
+  await saveKidData(k);
+  toast('🗑️ יעד נמחק');
+};
+
+function renderChildRequests(k) {
+  const el = document.getElementById('cv-requests-list');
+  const reqs = (k.requests||[]).slice(0,10);
+  if(!reqs.length){ el.innerHTML='<div class="empty-state">אין בקשות עדיין</div>'; return; }
+  el.innerHTML=reqs.map(r=>`
+    <div class="req-item">
+      <div class="req-top">
+        <span class="req-name">${r.name}</span>
+        <span class="req-amt">₪${r.amount}</span>
+        <span class="req-badge ${r.status}">${r.status==='waiting'?'⏳ ממתין':r.status==='approved'?'✅ אושר':'❌ נדחה'}</span>
+      </div>
+      ${r.note?`<div class="req-note">${r.note}</div>`:''}
+      ${r.replyNote?`<div class="req-note" style="color:var(--yellow)">💬 אבא: ${r.replyNote}</div>`:''}
+    </div>`).join('');
+}
+window.sendRequest = async()=>{
+  const k=D.kids.find(x=>x.id===currentKidId);
+  const name=document.getElementById('req-name').value.trim();
+  const amount=parseFloat(document.getElementById('req-amt').value)||0;
+  const note=document.getElementById('req-note').value.trim();
+  if(!name){toast('מה הבקשה?',true);return;}
+  k.requests=[{id:'r'+Date.now(),name,amount,note,status:'waiting',date:nowStr()},...(k.requests||[])].slice(0,20);
+  await saveKidRequests(k);
+  document.getElementById('req-name').value='';
+  document.getElementById('req-amt').value='';
+  document.getElementById('req-note').value='';
+  toast('📨 הבקשה נשלחה לאבא!');
+};
+
+function renderChildHist(k) {
+  const el=document.getElementById('cv-hist');
+  const hist=k.history||[];
+  if(!hist.length){el.innerHTML='<div class="no-hist">אין עדיין תנועות</div>';return;}
+  el.innerHTML=hist.slice(0,25).map(tx=>`
     <div class="tx">
-      <div class="tx-ic">${tx.type==='add'?'⬆️':tx.type==='sub'?'⬇️':'📌'}</div>
+      <div class="tx-ic">${tx.type==='add'?'⬆️':tx.type==='sub'?'⬇️':tx.type==='bonus'?'🏅':'📌'}</div>
       <div class="tx-body">
         <div class="tx-note">${tx.note||(tx.type==='add'?'הפקדה':tx.type==='sub'?'משיכה':'עדכון')}</div>
         <div class="tx-date">${tx.date}</div>
       </div>
-      <div class="tx-amt ${tx.type==='add'?'pos':tx.type==='sub'?'neg':''}">
-        ${tx.type==='add'?'+':tx.type==='sub'?'-':''}₪${Math.abs(tx.amount).toFixed(2)}
+      <div class="tx-amt ${tx.type==='add'||tx.type==='bonus'?'pos':tx.type==='sub'?'neg':''}">
+        ${tx.type==='add'||tx.type==='bonus'?'+':tx.type==='sub'?'-':''}₪${Math.abs(tx.amount).toFixed(2)}
       </div>
     </div>`).join('');
 }
 
-function autoMsg(bal, name) {
-  if(bal===0) return {i:'🌱',t:`${name}, הכל מתחיל בשקל הראשון! 💪`};
-  if(bal<20)  return {i:'💪',t:`יש לך ₪${bal.toFixed(2)} — יפה! תמשיכי לצבור!`};
-  if(bal<50)  return {i:'⭐',t:`₪${bal.toFixed(2)} — את בדרך הנכונה! עוד קצת ל-50 שקל!`};
-  if(bal<100) return {i:'🚀',t:`כבר ₪${bal.toFixed(2)}! עוד קצת ל-100 שקל! 🎯`};
-  if(bal<200) return {i:'🎉',t:`מאה שקל ומעלה! ₪${bal.toFixed(2)} — את גדולה!`};
-  if(bal<500) return {i:'👑',t:`₪${bal.toFixed(2)} בארנק — את חוסכת כמו אלופה!`};
-  return {i:'🏆',t:`₪${bal.toFixed(2)} — עצום! חסכנית אמיתית!`};
+// tabs (child)
+function switchTab(name) {
+  document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.getElementById('ct-'+name).classList.add('active');
+  document.getElementById('ctab-'+name).classList.add('active');
+  if(name==='hist'){
+    const k=D.kids.find(x=>x.id===currentKidId);
+    if(k) renderChildHist(k);
+  }
 }
+window.switchTab=switchTab;
 
-// ══════════════════════════════════════════════════════
-// DAD VIEW
-// ══════════════════════════════════════════════════════
+// ══ DAD VIEW ══
 function openDad() {
-  const body=document.getElementById('dad-body');
-  body.innerHTML='';
-
-  D.kids.forEach(k=>{
-    const col=kidColor(k);
-    const recTx=(k.history||[]).slice(0,4).map(tx=>`
-      <div class="mtx">
-        <div class="mn">${tx.note||(tx.type==='add'?'הפקדה':tx.type==='sub'?'משיכה':'עדכון')}</div>
-        <div class="ma ${tx.type==='add'?'pos':tx.type==='sub'?'neg':'set'}">
-          ${tx.type==='add'?'+':tx.type==='sub'?'-':'='}₪${Math.abs(tx.amount).toFixed(2)}
-        </div>
-        <div class="md">${tx.date.split(' ')[0]}</div>
-      </div>`).join('');
-
-    const p=document.createElement('div');
-    p.className='kid-panel';
-    p.innerHTML=`
-      <div class="kph">
-        <div class="ke">${k.emoji}</div>
-        <div class="ki">
-          <div class="kn">${k.name}</div>
-          <div class="kb">יתרה: <span class="kbv" style="color:${col}">₪${(k.balance||0).toFixed(2)}</span></div>
-        </div>
-        <button onclick="openEditKid('${k.id}')" style="background:rgba(255,255,255,.06);border:none;border-radius:9px;padding:7px 11px;color:var(--dim);cursor:pointer;font-size:.8rem;">✏️ ערוך</button>
-      </div>
-      <div class="kactions">
-        <div class="arow">
-          <div class="iw"><label>הערה / סיבה</label><input type="text" id="note-${k.id}" placeholder="כסף כיס, ציון טוב..." maxlength="40"></div>
-        </div>
-        <div class="arow">
-          <div class="iw"><label>סכום ₪</label><input type="number" id="amt-${k.id}" placeholder="0.00" min="0" step="0.5"></div>
-          <button class="btn-g" onclick="addM('${k.id}')">+ הפקד</button>
-          <button class="btn-r" onclick="subM('${k.id}')">− הורד</button>
-        </div>
-        <div class="arow">
-          <div class="iw"><label>קבע יתרה ישירות</label><input type="number" id="set-${k.id}" placeholder="₪ סכום חדש" min="0" step="0.5"></div>
-          <button class="btn-y" onclick="setB('${k.id}')">קבע</button>
-        </div>
-        <div class="arow">
-          <div class="iw"><label>💌 הודעה אישית לילדה</label>
-            <input type="text" id="msg-${k.id}" placeholder="כל הכבוד! 💪" maxlength="80" value="${k.message||''}">
-          </div>
-          <button class="btn-p" onclick="saveMsg('${k.id}')">שלח</button>
-        </div>
-      </div>
-      ${(k.history||[]).length?`
-      <div class="divider"></div>
-      <div class="mini-hist">
-        <div class="sec-ttl">תנועות אחרונות</div>
-        ${recTx}
-      </div>`:''}`;
-    body.appendChild(p);
-  });
-
-  const add=document.createElement('div');
-  add.className='add-kid-btn';
-  add.innerHTML='<span style="font-size:1.4rem">➕</span> הוסף ילד/ה חדש/ה';
-  add.onclick=openAddKid;
-  body.appendChild(add);
-
+  dadSelectedKid = D.kids[0]?.id || null;
+  renderDadWallet();
+  renderDadTasks();
+  renderDadRequests();
+  renderDadKids();
+  switchDadTab('wallet');
   show('dad-view');
+
+  // live request badge
+  D.kids.forEach(k=>{
+    unsubs.push(onSnapshot(reqRef(k.id), snap=>{
+      if(!snap.exists())return;
+      k.requests=snap.data().requests||[];
+      updateDadBadge();
+      renderDadRequests();
+    }));
+    unsubs.push(onSnapshot(taskRef(k.id), snap=>{
+      if(!snap.exists())return;
+      k.tasks=snap.data().tasks||[];
+      renderDadTasks();
+    }));
+    unsubs.push(onSnapshot(kidRef(k.id), snap=>{
+      if(!snap.exists())return;
+      Object.assign(k,snap.data());
+      renderDadWallet();
+    }));
+  });
 }
 
-function nowStr() {
+function updateDadBadge() {
+  const total=countPendingRequests();
+  const el=document.getElementById('dtab-requests');
+  const existing=el.querySelector('.dnotif');
+  if(existing) existing.remove();
+  if(total>0){const b=document.createElement('div');b.className='dnotif';b.textContent=total;el.appendChild(b);}
+}
+
+function switchDadTab(name) {
+  document.querySelectorAll('.dad-tab-content').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.dad-tab').forEach(x=>x.classList.remove('active'));
+  document.getElementById('dtc-'+name).classList.add('active');
+  document.getElementById('dtab-'+name).classList.add('active');
+}
+window.switchDadTab=switchDadTab;
+
+function renderDadWallet() {
+  const sel=document.getElementById('dad-kid-select');
+  sel.innerHTML=D.kids.map(k=>`
+    <button class="ks-btn ${k.id===dadSelectedKid?'active':''}"
+      style="${k.id===dadSelectedKid?`border-color:${kidColor(k)};color:${kidColor(k)};`:''}"
+      onclick="selectDadKid('${k.id}')">${k.emoji} ${k.name}</button>`).join('');
+
+  const k=D.kids.find(x=>x.id===dadSelectedKid);
+  const panel=document.getElementById('dad-wallet-panel');
+  if(!k){panel.innerHTML='';return;}
+  const col=kidColor(k);
+  const recTx=(k.history||[]).slice(0,4).map(tx=>`
+    <div class="mtx">
+      <div class="mn">${tx.note||tx.type}</div>
+      <div class="ma ${tx.type==='add'||tx.type==='bonus'?'pos':tx.type==='sub'?'neg':'set'}">
+        ${tx.type==='add'||tx.type==='bonus'?'+':tx.type==='sub'?'-':'='}₪${Math.abs(tx.amount).toFixed(2)}
+      </div>
+      <div class="md">${tx.date?.split(' ')[0]||''}</div>
+    </div>`).join('');
+
+  panel.innerHTML=`
+    <div class="panel-section">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <span style="font-size:1.8rem">${k.emoji}</span>
+        <div>
+          <div style="font-weight:700">${k.name}</div>
+          <div style="font-size:.82rem;color:${col};font-weight:700">₪${(k.balance||0).toFixed(2)}</div>
+        </div>
+        <button onclick="openEditKid('${k.id}')" style="margin-right:auto;background:rgba(255,255,255,.06);border:none;border-radius:9px;padding:6px 10px;color:var(--dim);cursor:pointer;font-size:.78rem;">✏️ ערוך</button>
+      </div>
+      <div class="arow" style="margin-bottom:8px">
+        <div class="iw"><label>הערה</label><input type="text" id="note-${k.id}" placeholder="כסף כיס, ציון טוב..." maxlength="40"></div>
+      </div>
+      <div class="arow" style="margin-bottom:8px">
+        <div class="iw"><label>סכום ₪</label><input type="number" id="amt-${k.id}" placeholder="0" min="0" step="0.5"></div>
+        <button class="btn-g" onclick="addM('${k.id}')">+ הפקד</button>
+        <button class="btn-r" onclick="subM('${k.id}')">− הורד</button>
+      </div>
+      <div class="arow" style="margin-bottom:8px">
+        <div class="iw"><label>קבע יתרה ישירות</label><input type="number" id="set-${k.id}" placeholder="₪ סכום חדש" min="0" step="0.5"></div>
+        <button class="btn-y" onclick="setB('${k.id}')">קבע</button>
+      </div>
+      <div class="arow">
+        <div class="iw"><label>💌 הודעה אישית</label><input type="text" id="msg-${k.id}" placeholder="כל הכבוד! 💪" maxlength="80" value="${k.message||''}"></div>
+        <button class="btn-p" onclick="saveMsg('${k.id}')">שלח</button>
+      </div>
+    </div>
+    ${(k.history||[]).length?`
+    <div class="panel-section">
+      <h4>תנועות אחרונות</h4>
+      <div class="mini-hist">${recTx}</div>
+    </div>`:''}`;
+}
+
+window.selectDadKid = (id)=>{ dadSelectedKid=id; renderDadWallet(); };
+
+function nowStr(){
   const d=new Date();
   return d.toLocaleDateString('he-IL')+' '+d.toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'});
 }
+function addGraphPoint(k){
+  k.graphData=k.graphData||[];
+  k.graphData.push({date:new Date().toLocaleDateString('he-IL'),balance:k.balance||0});
+  if(k.graphData.length>30) k.graphData=k.graphData.slice(-30);
+}
 
-async function addM(id) {
+window.addM = async(id)=>{
   const amt=parseFloat(document.getElementById('amt-'+id).value);
   const note=document.getElementById('note-'+id).value.trim();
   if(!amt||amt<=0){toast('הכנס סכום תקין',true);return;}
   const k=D.kids.find(x=>x.id===id);
   k.balance=Math.round(((k.balance||0)+amt)*100)/100;
   k.history=[{type:'add',amount:amt,note:note||'הפקדה',date:nowStr()},...(k.history||[])].slice(0,60);
+  addGraphPoint(k);
   await saveKidData(k);
   toast(`✅ הופקדו ₪${amt.toFixed(2)} ל${k.name}`);
   document.getElementById('amt-'+id).value='';
   document.getElementById('note-'+id).value='';
-  openDad();
-}
-
-async function subM(id) {
+};
+window.subM = async(id)=>{
   const amt=parseFloat(document.getElementById('amt-'+id).value);
   const note=document.getElementById('note-'+id).value.trim();
   if(!amt||amt<=0){toast('הכנס סכום תקין',true);return;}
@@ -608,47 +1041,180 @@ async function subM(id) {
   if(amt>(k.balance||0)){toast('יתרה לא מספיקה',true);return;}
   k.balance=Math.round(((k.balance||0)-amt)*100)/100;
   k.history=[{type:'sub',amount:amt,note:note||'משיכה',date:nowStr()},...(k.history||[])].slice(0,60);
+  addGraphPoint(k);
   await saveKidData(k);
   toast(`✅ הורדו ₪${amt.toFixed(2)} מ${k.name}`);
   document.getElementById('amt-'+id).value='';
   document.getElementById('note-'+id).value='';
-  openDad();
-}
-
-async function setB(id) {
+};
+window.setB = async(id)=>{
   const val=parseFloat(document.getElementById('set-'+id).value);
   if(isNaN(val)||val<0){toast('הכנס יתרה תקינה',true);return;}
   const k=D.kids.find(x=>x.id===id);
   const old=k.balance||0;
   k.balance=Math.round(val*100)/100;
-  k.history=[{type:'set',amount:val,note:`עדכון: ₪${old.toFixed(2)} → ₪${val.toFixed(2)}`,date:nowStr()},...(k.history||[])].slice(0,60);
+  k.history=[{type:'set',amount:val,note:`עדכון: ₪${old.toFixed(2)}→₪${val.toFixed(2)}`,date:nowStr()},...(k.history||[])].slice(0,60);
+  addGraphPoint(k);
   await saveKidData(k);
-  toast(`✅ יתרת ${k.name} עודכנה ל-₪${val.toFixed(2)}`);
+  toast(`✅ יתרת ${k.name} עודכנה`);
   document.getElementById('set-'+id).value='';
-  openDad();
-}
-
-async function saveMsg(id) {
+};
+window.saveMsg = async(id)=>{
   const msg=document.getElementById('msg-'+id).value.trim();
   const k=D.kids.find(x=>x.id===id);
-  k.message=msg;
-  await saveKidData(k);
+  k.message=msg; await saveKidData(k);
   toast(msg?`💌 הודעה נשמרה ל${k.name}`:'🗑️ הודעה נמחקה');
+};
+
+// ── TASKS (dad) ──
+function renderDadTasks() {
+  const sel=document.getElementById('task-kid');
+  sel.innerHTML=D.kids.map(k=>`<option value="${k.id}">${k.emoji} ${k.name}</option>`).join('');
+
+  const el=document.getElementById('dad-tasks-list');
+  const allTasks=[];
+  D.kids.forEach(k=>(k.tasks||[]).forEach(t=>allTasks.push({...t,kidId:k.id,kidName:k.name,kidEmoji:k.emoji})));
+  if(!allTasks.length){el.innerHTML='<div class="empty-state">אין משימות עדיין</div>';return;}
+  el.innerHTML=allTasks.map(t=>{
+    const isDoneWait=t.status==='done-wait';
+    return `
+      <div class="task-row">
+        <span style="font-size:1.3rem">${t.emoji||'✅'}</span>
+        <div class="tr-body">
+          <div class="tr-name">${t.name}</div>
+          <div class="tr-meta">${t.kidEmoji} ${t.kidName} ${isDoneWait?'· <span style="color:var(--orange)">ממתין לאישור</span>':''}</div>
+        </div>
+        <div class="tr-bonus">+₪${t.bonus}</div>
+        <div class="tr-actions">
+          ${isDoneWait?`
+            <button class="btn-sm approve" onclick="approveTask('${t.kidId}','${t.id}')">✅ אשר</button>
+            <button class="btn-sm reject" onclick="rejectTask('${t.kidId}','${t.id}')">❌</button>
+          `:''}
+          <button class="btn-sm del" onclick="deleteTask('${t.kidId}','${t.id}')">🗑️</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+window.addTask = async()=>{
+  const name=document.getElementById('task-name').value.trim();
+  const bonus=parseFloat(document.getElementById('task-bonus').value)||0;
+  const emoji=document.getElementById('task-emoji').value.trim()||'✅';
+  const kidId=document.getElementById('task-kid').value;
+  if(!name){toast('הכנס שם משימה',true);return;}
+  const k=D.kids.find(x=>x.id===kidId);
+  k.tasks=[...(k.tasks||[]),{id:'t'+Date.now(),name,bonus,emoji,status:'active',active:true}];
+  await saveKidTasks(k);
+  toast(`✅ משימה נוספה ל${k.name}`);
+  document.getElementById('task-name').value='';
+  document.getElementById('task-bonus').value='';
+  document.getElementById('task-emoji').value='';
+};
+window.approveTask = async(kidId,taskId)=>{
+  const k=D.kids.find(x=>x.id===kidId);
+  const t=k.tasks.find(x=>x.id===taskId);
+  if(!t)return;
+  t.status='approved';
+  // add bonus
+  k.balance=Math.round(((k.balance||0)+t.bonus)*100)/100;
+  k.history=[{type:'bonus',amount:t.bonus,note:`בונוס: ${t.name}`,date:nowStr()},...(k.history||[])].slice(0,60);
+  addGraphPoint(k);
+  await saveKidData(k);
+  await saveKidTasks(k);
+  toast(`🏅 בונוס ₪${t.bonus} נוסף ל${k.name}!`);
+};
+window.rejectTask = async(kidId,taskId)=>{
+  const k=D.kids.find(x=>x.id===kidId);
+  const t=k.tasks.find(x=>x.id===taskId);
+  if(!t)return;
+  t.status='active';
+  await saveKidTasks(k);
+  toast('❌ משימה הוחזרה לפתוח');
+};
+window.deleteTask = async(kidId,taskId)=>{
+  const k=D.kids.find(x=>x.id===kidId);
+  k.tasks=k.tasks.filter(x=>x.id!==taskId);
+  await saveKidTasks(k);
+  toast('🗑️ משימה נמחקה');
+};
+
+// ── REQUESTS (dad) ──
+function renderDadRequests() {
+  updateDadBadge();
+  const el=document.getElementById('dad-requests-list');
+  const all=[];
+  D.kids.forEach(k=>(k.requests||[]).forEach(r=>all.push({...r,kidId:k.id,kidName:k.name,kidEmoji:k.emoji})));
+  const pending=all.filter(r=>r.status==='waiting');
+  const rest=all.filter(r=>r.status!=='waiting').slice(0,5);
+  if(!all.length){el.innerHTML='<div class="empty-state">אין בקשות עדיין</div>';return;}
+  const renderReq=(r,showActions)=>`
+    <div class="req-dad-item">
+      <div class="req-dad-top">
+        <span style="font-size:1.2rem">${r.kidEmoji}</span>
+        <span class="req-dad-name">${r.name}</span>
+        <span style="color:var(--yellow);font-weight:700">₪${r.amount}</span>
+      </div>
+      <div class="req-dad-from">${r.kidName} · ${r.date||''}</div>
+      ${r.note?`<div class="req-dad-note">${r.note}</div>`:''}
+      ${showActions?`
+        <div class="iw" style="margin:8px 0"><input type="text" id="reply-${r.id}" placeholder="הערה (אופציונלי)" maxlength="60"></div>
+        <div class="req-dad-actions">
+          <button class="btn-g" style="flex:1" onclick="approveReq('${r.kidId}','${r.id}')">✅ אשר</button>
+          <button class="btn-r" style="flex:1" onclick="rejectReq('${r.kidId}','${r.id}')">❌ דחה</button>
+        </div>`
+        :`<span class="req-badge ${r.status}">${r.status==='approved'?'✅ אושר':'❌ נדחה'}</span>`}
+    </div>`;
+  el.innerHTML=
+    (pending.length?`<div class="sec-ttl" style="padding:0 0 8px">⏳ ממתין לתשובה</div>`+pending.map(r=>renderReq(r,true)).join(''):'') +
+    (rest.length?`<div class="sec-ttl" style="padding:8px 0">היסטוריה</div>`+rest.map(r=>renderReq(r,false)).join(''):'');
+}
+window.approveReq = async(kidId,reqId)=>{
+  const k=D.kids.find(x=>x.id===kidId);
+  const r=k.requests.find(x=>x.id===reqId);
+  if(!r)return;
+  const reply=document.getElementById('reply-'+reqId)?.value.trim()||'';
+  r.status='approved'; r.replyNote=reply;
+  if(r.amount>0){
+    k.balance=Math.round(((k.balance||0)+r.amount)*100)/100;
+    k.history=[{type:'add',amount:r.amount,note:`בקשה אושרה: ${r.name}`,date:nowStr()},...(k.history||[])].slice(0,60);
+    addGraphPoint(k);
+    await saveKidData(k);
+  }
+  await saveKidRequests(k);
+  toast(`✅ בקשה אושרה ל${k.name}`);
+};
+window.rejectReq = async(kidId,reqId)=>{
+  const k=D.kids.find(x=>x.id===kidId);
+  const r=k.requests.find(x=>x.id===reqId);
+  if(!r)return;
+  const reply=document.getElementById('reply-'+reqId)?.value.trim()||'';
+  r.status='rejected'; r.replyNote=reply;
+  await saveKidRequests(k);
+  toast('❌ בקשה נדחתה');
+};
+
+// ── KIDS MANAGEMENT ──
+function renderDadKids() {
+  const el=document.getElementById('dad-kids-list');
+  el.innerHTML=D.kids.map(k=>`
+    <div class="panel-section" style="display:flex;align-items:center;gap:12px">
+      <span style="font-size:1.8rem">${k.emoji}</span>
+      <div style="flex:1">
+        <div style="font-weight:700">${k.name}</div>
+        <div style="font-size:.78rem;color:var(--dim)">PIN: ${k.pin} · ₪${(k.balance||0).toFixed(2)}</div>
+      </div>
+      <button onclick="openEditKid('${k.id}')" style="background:rgba(255,255,255,.07);border:none;border-radius:9px;padding:7px 12px;color:var(--dim);cursor:pointer;font-size:.82rem;">✏️ ערוך</button>
+    </div>`).join('');
 }
 
-// ══════════════════════════════════════════════════════
-// ADD / EDIT KID
-// ══════════════════════════════════════════════════════
-function openAddKid() {
+let editKidId=null;
+window.openAddKid=()=>{
   editKidId=null;
   document.getElementById('km-title').textContent='➕ הוסף ילד/ה';
-  document.getElementById('km-name').value='';
-  document.getElementById('km-emoji').value='';
-  document.getElementById('km-pin').value='';
+  ['km-name','km-emoji','km-pin'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('km-del').style.display='none';
   openModal('kid-modal');
-}
-function openEditKid(id) {
+};
+window.openEditKid=(id)=>{
   editKidId=id;
   const k=D.kids.find(x=>x.id===id);
   document.getElementById('km-title').textContent=`✏️ ערוך — ${k.name}`;
@@ -657,97 +1223,99 @@ function openEditKid(id) {
   document.getElementById('km-pin').value=k.pin;
   document.getElementById('km-del').style.display='block';
   openModal('kid-modal');
-}
-async function saveKid() {
+};
+window.saveKid=async()=>{
   const name=document.getElementById('km-name').value.trim();
   const emoji=document.getElementById('km-emoji').value.trim()||'👧';
   const pin=String(document.getElementById('km-pin').value).padStart(4,'0').slice(0,4);
   if(!name){toast('הכנס שם',true);return;}
-  if(!/^\d{4}$/.test(pin)){toast('קוד חייב להיות 4 ספרות',true);return;}
-  if(editKidId) {
+  if(!/^\d{4}$/.test(pin)){toast('PIN חייב להיות 4 ספרות',true);return;}
+  if(editKidId){
     const k=D.kids.find(x=>x.id===editKidId);
-    k.name=name; k.emoji=emoji; k.pin=pin;
-    toast(`✅ ${name} עודכן/ה`);
+    k.name=name;k.emoji=emoji;k.pin=pin;
   } else {
     const id='k'+Date.now();
     const ci=D.kids.length%COLORS.length;
-    D.kids.push({id,name,emoji,pin,ci,balance:0,history:[],message:''});
-    await saveKidData(D.kids[D.kids.length-1]);
-    toast(`✅ ${name} נוסף/ה!`);
+    const newK={id,name,emoji,pin,ci,balance:0,history:[],message:'',goal:null,graphData:[],tasks:[],requests:[]};
+    D.kids.push(newK);
+    await setDoc(kidRef(id),{balance:0,history:[],message:'',goal:null,graphData:[]});
+    await saveKidTasks(newK);
+    await saveKidRequests(newK);
   }
   await saveConfig();
-  closeModal('kid-modal'); openDad();
-}
-async function deleteKid() {
+  closeModal('kid-modal');
+  toast(editKidId?'✅ עודכן':'✅ ילד/ה נוסף/ה');
+  renderDadKids(); renderDadWallet(); renderDadTasks();
+};
+window.deleteKid=async()=>{
   if(!editKidId)return;
   const k=D.kids.find(x=>x.id===editKidId);
-  if(!confirm(`למחוק את ${k.name}? כל הנתונים יאבדו.`))return;
+  if(!confirm(`למחוק את ${k.name}?`))return;
   D.kids=D.kids.filter(x=>x.id!==editKidId);
+  if(dadSelectedKid===editKidId) dadSelectedKid=D.kids[0]?.id||null;
   await saveConfig();
-  toast(`🗑️ ${k.name} נמחק/ה`);
-  closeModal('kid-modal'); openDad();
-}
+  closeModal('kid-modal');
+  toast('🗑️ נמחק');
+  renderDadKids(); renderDadWallet();
+};
 
-// ══════════════════════════════════════════════════════
-// DAD SETTINGS
-// ══════════════════════════════════════════════════════
-function openDadSettings() {
+// ── DAD SETTINGS ──
+window.openDadSettings=()=>{
   document.getElementById('dm-name').value=D.dad.name;
   document.getElementById('dm-emoji').value=D.dad.emoji;
   document.getElementById('dm-pin').value=D.dad.pin;
   openModal('dad-modal');
-}
-async function saveDad() {
+};
+window.saveDad=async()=>{
   const name=document.getElementById('dm-name').value.trim()||'אבא';
   const emoji=document.getElementById('dm-emoji').value.trim()||'👨';
   const pin=String(document.getElementById('dm-pin').value).padStart(4,'0').slice(0,4);
-  if(!/^\d{4}$/.test(pin)){toast('קוד חייב להיות 4 ספרות',true);return;}
+  if(!/^\d{4}$/.test(pin)){toast('PIN חייב להיות 4 ספרות',true);return;}
   D.dad={name,emoji,pin};
   await saveConfig();
-  closeModal('dad-modal'); toast('✅ הגדרות נשמרו'); openDad();
-}
+  closeModal('dad-modal');
+  toast('✅ הגדרות נשמרו');
+};
 
-// ══════════════════════════════════════════════════════
-// MODAL / TOAST
-// ══════════════════════════════════════════════════════
-function openModal(id)  { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+// ── MODAL / TOAST ──
+window.openModal=(id)=>document.getElementById(id).classList.add('open');
+window.closeModal=(id)=>document.getElementById(id).classList.remove('open');
 document.querySelectorAll('.overlay').forEach(o=>{
-  o.addEventListener('click',e=>{ if(e.target===o) o.classList.remove('open'); });
+  o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');});
 });
-
-function toast(msg,err=false) {
+function toast(msg,type=''){
   const t=document.getElementById('toast');
-  t.textContent=msg; t.className='toast'+(err?' err':'');
-  t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2600);
+  t.textContent=msg;
+  t.className='toast'+(type==='err'?' err':type==='info'?' info':'');
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2600);
+}
+window.toast=toast;
+
+// AUTO MSG
+function autoMsg(bal,name){
+  if(bal===0) return{i:'🌱',t:`${name}, הכל מתחיל בשקל הראשון!`};
+  if(bal<20)  return{i:'💪',t:`₪${bal.toFixed(2)} — יפה! תמשיכי לצבור!`};
+  if(bal<50)  return{i:'⭐',t:`₪${bal.toFixed(2)} — בדרך הנכונה!`};
+  if(bal<100) return{i:'🚀',t:`כבר ₪${bal.toFixed(2)}! קרוב ל-100! 🎯`};
+  if(bal<200) return{i:'🎉',t:`₪${bal.toFixed(2)} — מאה ומעלה! גדולה!`};
+  if(bal<500) return{i:'👑',t:`₪${bal.toFixed(2)} — חוסכת כמו אלופה!`};
+  return{i:'🏆',t:`₪${bal.toFixed(2)} — חסכנית אמיתית!`};
 }
 
-// ══════════════════════════════════════════════════════
-// SHAKE + EXPOSE GLOBALS
-// ══════════════════════════════════════════════════════
+// SHAKE
 const s=document.createElement('style');
 s.textContent=`@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}`;
 document.head.appendChild(s);
 
-// Expose to inline onclick handlers
-Object.assign(window,{
-  pk, pdel, goHome,
-  openEditKid, openAddKid, saveKid, deleteKid,
-  openDadSettings, saveDad,
-  addM, subM, setB, saveMsg,
-  openModal, closeModal
-});
-
-// ══════════════════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════════════════
+// ── INIT ──
 try {
   await loadAll();
   show('home');
   renderHome();
 } catch(e) {
   console.error(e);
-  document.querySelector('#loading .load-txt').textContent='שגיאת חיבור — בדוק חיבור אינטרנט';
+  document.querySelector('#loading .load-txt').textContent='שגיאת חיבור — בדוק אינטרנט';
 }
 </script>
 
