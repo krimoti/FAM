@@ -608,25 +608,39 @@ const reqRef  = (id) => doc(db,'wallet','reqs_'+id);  // per-kid requests doc
 
 // ── STATE ──
 const COLORS = ['#FF6B9D','#C77DFF','#4CC9F0','#06D6A0','#FFD166','#FF9F43'];
-// ACCENT THEMES — each has: accent color, light variant for text-on-accent, bg tint
+// FULL BG THEMES — bg = main bg, card = card bg, accent = highlight, text = text color
 const THEMES = [
-  {name:'ורוד',    accent:'#FF6B9D', light:'#FFB3CE', bg:'rgba(255,107,157,.08)'},
-  {name:'סגול',   accent:'#C77DFF', light:'#DFB3FF', bg:'rgba(199,125,255,.08)'},
-  {name:'תכלת',   accent:'#4CC9F0', light:'#9EE5F8', bg:'rgba(76,201,240,.08)'},
-  {name:'ירוק',   accent:'#06D6A0', light:'#7EECD5', bg:'rgba(6,214,160,.08)'},
-  {name:'צהוב',   accent:'#FFD166', light:'#FFE9A3', bg:'rgba(255,209,102,.08)'},
-  {name:'כתום',   accent:'#FF9F43', light:'#FFCF9A', bg:'rgba(255,159,67,.08)'},
-  {name:'אדום',   accent:'#FF6B6B', light:'#FFA8A8', bg:'rgba(255,107,107,.08)'},
-  {name:'כחול',   accent:'#4361EE', light:'#9EB4FF', bg:'rgba(67,97,238,.08)'},
-  {name:'פוקסיה', accent:'#F72585', light:'#FC8DBF', bg:'rgba(247,37,133,.08)'},
-  {name:'ים',     accent:'#00B4D8', light:'#7FDFF0', bg:'rgba(0,180,216,.08)'},
-  {name:'ליים',   accent:'#80ED99', light:'#B8F5CA', bg:'rgba(128,237,153,.08)'},
-  {name:'לבנדר',  accent:'#AFA8E8', light:'#D4D0F5', bg:'rgba(175,168,232,.08)'},
+  {name:'לילה',     bg:'#12121F', card:'#1C1C2E', card2:'#252540', accent:'#FFD166', text:'#EEEEF8', dim:'#8888AA'},
+  {name:'ורוד',     bg:'#2D0A1A', card:'#3D1228', card2:'#4E1A35', accent:'#FF9DC8', text:'#FFE8F0', dim:'#C4789A'},
+  {name:'סגול',     bg:'#1A0A2E', card:'#2D1B4E', card2:'#3D2560', accent:'#C77DFF', text:'#EDE0FF', dim:'#9970CC'},
+  {name:'כחול כהה', bg:'#0A1628', card:'#112240', card2:'#1A3355', accent:'#4CC9F0', text:'#E0F4FF', dim:'#6CA8CC'},
+  {name:'ים',       bg:'#0A2233', card:'#103048', card2:'#184060', accent:'#00D4FF', text:'#D0F5FF', dim:'#5AABBF'},
+  {name:'ירוק יער', bg:'#0A1F0A', card:'#122412', card2:'#1A3320', accent:'#06D6A0', text:'#D0FFE8', dim:'#5AAA88'},
+  {name:'ליים',     bg:'#1A2A00', card:'#253800', card2:'#304800', accent:'#A8FF3E', text:'#EEFFD0', dim:'#88CC55'},
+  {name:'כתום',     bg:'#2A1400', card:'#3A1E00', card2:'#4A2800', accent:'#FF9F43', text:'#FFE8CC', dim:'#CC8844'},
+  {name:'בהיר',     bg:'#F0F0F8', card:'#FFFFFF', card2:'#E8E8F5', accent:'#4361EE', text:'#1A1A2E', dim:'#6666AA'},
+  {name:'ורוד בהיר',bg:'#FFF0F5', card:'#FFFFFF', card2:'#FFE0EC', accent:'#E0006A', text:'#2D0020', dim:'#AA4477'},
+  {name:'מנטה',     bg:'#E8FFF5', card:'#FFFFFF', card2:'#D0FFE8', accent:'#00875A', text:'#002A1A', dim:'#44AA77'},
+  {name:'שמיים',    bg:'#E8F4FF', card:'#FFFFFF', card2:'#D0E8FF', accent:'#0066CC', text:'#001A33', dim:'#4488BB'},
 ];
+
+// Check if bg is light (for text contrast)
+function isLight(hex){
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return (r*299+g*587+b*114)/1000 > 128;
+}
+
 const FONT_SIZES = [
-  {name:'קטן',   base:'14px', title:'1.3rem', bal:'3.2rem'},
-  {name:'רגיל',  base:'16px', title:'1.5rem', bal:'3.8rem'},
-  {name:'גדול',  base:'19px', title:'1.8rem', bal:'4.4rem'},
+  {name:'8',  base:'11px', bal:'2.4rem', title:'1.1rem'},
+  {name:'10', base:'13px', bal:'2.8rem', title:'1.2rem'},
+  {name:'12', base:'14px', bal:'3.0rem', title:'1.3rem'},
+  {name:'14', base:'15px', bal:'3.2rem', title:'1.4rem'},
+  {name:'16', base:'16px', bal:'3.5rem', title:'1.5rem'},
+  {name:'18', base:'17px', bal:'3.8rem', title:'1.6rem'},
+  {name:'20', base:'19px', bal:'4.0rem', title:'1.7rem'},
+  {name:'22', base:'21px', bal:'4.4rem', title:'1.9rem'},
+  {name:'24', base:'23px', bal:'4.8rem', title:'2.1rem'},
+  {name:'26', base:'25px', bal:'5.2rem', title:'2.3rem'},
 ];
 let D = { dad:{name:'אבא',emoji:'👨',pin:'0000'}, kids:[] };
 let pinBuf='', pinTarget=null, editKidId=null, currentKidId=null;
@@ -672,7 +686,7 @@ async function saveKidData(k) {
     graphData: k.graphData||[],
     avatar: k.avatar||'',
     themeIdx: k.themeIdx??0,
-    fontIdx: k.fontIdx??1
+    fontIdx: k.fontIdx??4
   });
 }
 
@@ -699,31 +713,29 @@ window.goHome = goHome;
 function kidColor(k){ return COLORS[(k.ci||0)%COLORS.length]; }
 function applyTheme(k){
   const t=THEMES[k.themeIdx??0];
-  const f=FONT_SIZES[k.fontIdx??1];
+  const f=FONT_SIZES[k.fontIdx??4];
   const r=document.documentElement;
-  // accent colors
-  r.style.setProperty('--accent', t.accent);
-  r.style.setProperty('--accent-light', t.light);
-  r.style.setProperty('--accent-bg', t.bg);
-  // recolor key vars
+  r.style.setProperty('--dark',  t.bg);
+  r.style.setProperty('--card',  t.card);
+  r.style.setProperty('--card2', t.card2);
+  r.style.setProperty('--text',  t.text);
+  r.style.setProperty('--dim',   t.dim);
   r.style.setProperty('--yellow', t.accent);
-  r.style.setProperty('--green', t.accent);
-  r.style.setProperty('--blue', t.light);
+  r.style.setProperty('--green',  t.accent);
+  r.style.setProperty('--blue',   t.accent);
   r.style.setProperty('--purple', t.accent);
-  // font size
-  r.style.fontSize = f.base;
-  r.style.setProperty('--fs-title', f.title);
-  r.style.setProperty('--fs-bal', f.bal);
+  r.style.setProperty('--orange', t.accent);
+  r.style.setProperty('--border', isLight(t.bg)?'rgba(0,0,0,.1)':'rgba(255,255,255,.07)');
+  document.body.style.background=t.bg;
+  document.body.style.color=t.text;
+  r.style.fontSize=f.base;
 }
 function resetTheme(){
   const r=document.documentElement;
-  r.style.setProperty('--yellow','#FFD166');
-  r.style.setProperty('--green','#06D6A0');
-  r.style.setProperty('--blue','#4CC9F0');
-  r.style.setProperty('--purple','#C77DFF');
-  r.style.setProperty('--accent','#FFD166');
-  r.style.setProperty('--accent-light','#FFE9A3');
-  r.style.setProperty('--accent-bg','rgba(255,209,102,.08)');
+  ['--dark','--card','--card2','--text','--dim',
+   '--yellow','--green','--blue','--purple','--orange','--border'].forEach(v=>r.style.removeProperty(v));
+  document.body.style.background='';
+  document.body.style.color='';
   r.style.fontSize='';
 }
 
@@ -816,7 +828,7 @@ function openChild(kidId) {
   }
   document.getElementById('cv-name').textContent=k.name;
   // apply font size vars to balance card
-  const f=FONT_SIZES[k.fontIdx??1];
+  const f=FONT_SIZES[k.fontIdx??4];
   const cvAmt=document.getElementById('cv-amt');
   if(cvAmt) cvAmt.style.fontSize=f.bal;
   const cvName=document.getElementById('cv-name');
@@ -1341,11 +1353,16 @@ function renderDadKids() {
 function renderKmThemePicker(active){
   const tp=document.getElementById('km-theme-picker');
   if(!tp)return;
-  tp.innerHTML=THEMES.map((t,i)=>`
-    <div class="theme-swatch ${active===i?'active':''}"
-      style="background:${t.accent};box-shadow:${active===i?'0 0 0 3px #fff,0 0 0 5px '+t.accent:'none'}"
-      title="${t.name}"
-      onclick="kmPickTheme(${i})"></div>`).join('');
+  tp.innerHTML=`<div style="display:flex;flex-wrap:wrap;gap:8px">` +
+    THEMES.map((t,i)=>`
+      <div onclick="kmPickTheme(${i})"
+        style="width:38px;height:38px;border-radius:10px;cursor:pointer;
+               background:linear-gradient(135deg,${t.card},${t.bg});
+               border:3px solid ${active===i?t.accent:'transparent'};
+               box-shadow:${active===i?'0 0 10px '+t.accent+'88':'none'};
+               position:relative;overflow:hidden;transition:all .2s">
+        <div style="position:absolute;bottom:0;left:0;right:0;background:${t.accent};height:10px"></div>
+      </div>`).join('') + '</div>';
 }
 window.kmPickTheme=(i)=>{ kmThemeIdx=i; renderKmThemePicker(i); };
 
@@ -1496,23 +1513,33 @@ window.saveChildAvatar=async(e)=>{
 function renderChildDesign(k){
   const tp=document.getElementById('cv-theme-picker');
   if(tp){
-    tp.innerHTML=THEMES.map((t,i)=>`
-      <div class="theme-swatch ${(k.themeIdx??0)===i?'active':''}"
-        style="background:${t.accent};box-shadow:${(k.themeIdx??0)===i?'0 0 0 3px #fff,0 0 0 5px '+t.accent:'none'}"
-        title="${t.name}"
-        onclick="setKidTheme('${k.id}',${i})"></div>`).join('');
+    tp.innerHTML=`<div style="display:flex;flex-wrap:wrap;gap:10px">` +
+      THEMES.map((t,i)=>`
+        <div onclick="setKidTheme('${k.id}',${i})"
+          style="width:48px;height:48px;border-radius:14px;cursor:pointer;
+                 background:linear-gradient(135deg,${t.card},${t.bg});
+                 border:3px solid ${(k.themeIdx??0)===i?t.accent:'transparent'};
+                 box-shadow:${(k.themeIdx??0)===i?'0 0 12px '+t.accent+'88':'none'};
+                 transition:all .2s;position:relative;overflow:hidden">
+          <div style="position:absolute;bottom:0;left:0;right:0;background:${t.accent};height:12px"></div>
+        </div>`).join('') + '</div>';
   }
   // font size picker
   const fp=document.getElementById('cv-font-picker');
   if(fp){
-    fp.innerHTML=FONT_SIZES.map((f,i)=>`
-      <button onclick="setKidFont('${k.id}',${i})"
-        style="flex:1;border:2px solid ${(k.fontIdx??1)===i?'var(--yellow)':'rgba(255,255,255,.1)'};
-               background:${(k.fontIdx??1)===i?'rgba(255,209,102,.15)':'var(--card2)'};
-               border-radius:12px;padding:10px;color:var(--text);cursor:pointer;
-               font-family:'Rubik';font-size:${f.base};font-weight:600;">
-        ${f.name}
-      </button>`).join('');
+    fp.innerHTML=`<div style="display:flex;flex-direction:column;gap:8px;width:100%">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:.8rem;color:var(--dim);white-space:nowrap">א קטן</span>
+        <input type="range" min="0" max="9" value="${k.fontIdx??4}"
+          style="flex:1;accent-color:var(--yellow)"
+          oninput="previewFont('${k.id}',this.value)"
+          onchange="setKidFont('${k.id}',this.value)">
+        <span style="font-size:.8rem;color:var(--dim);white-space:nowrap">א גדול</span>
+      </div>
+      <div id="font-preview-${k.id}" style="text-align:center;font-size:${FONT_SIZES[k.fontIdx??4].base};color:var(--text);padding:8px;background:var(--card2);border-radius:10px">
+        גודל: ${FONT_SIZES[k.fontIdx??4].name} — ₪123.45
+      </div>
+    </div>`;
   }
   // avatar preview
   const av=document.getElementById('cv-avatar-preview');
@@ -1522,15 +1549,20 @@ function renderChildDesign(k){
   }
 }
 
+window.previewFont=(kidId,idx)=>{
+  const f=FONT_SIZES[parseInt(idx)];
+  const prev=document.getElementById('font-preview-'+kidId);
+  if(prev){ prev.style.fontSize=f.base; prev.textContent=`גודל: ${f.name} — ₪123.45`; }
+};
 window.setKidFont=async(kidId,idx)=>{
   const k=D.kids.find(x=>x.id===kidId);
   if(!k)return;
-  k.fontIdx=idx;
+  k.fontIdx=parseInt(idx);
   applyTheme(k);
   await saveKidData(k);
   renderChildDesign(k);
   // reapply font to balance
-  const f=FONT_SIZES[idx];
+  const f=FONT_SIZES[parseInt(idx)];
   const cvAmt=document.getElementById('cv-amt');
   if(cvAmt) cvAmt.style.fontSize=f.bal;
   const cvName=document.getElementById('cv-name');
