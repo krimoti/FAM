@@ -1206,7 +1206,7 @@ function renderDadKids() {
     </div>`).join('');
 }
 
-let editKidId=null;
+
 window.openAddKid=()=>{
   editKidId=null;
   document.getElementById('km-title').textContent='➕ הוסף ילד/ה';
@@ -1314,8 +1314,20 @@ try {
   show('home');
   renderHome();
 } catch(e) {
-  console.error(e);
-  document.querySelector('#loading .load-txt').textContent='שגיאת חיבור — בדוק אינטרנט';
+  const loadEl = document.getElementById('loading');
+  loadEl.innerHTML = `
+    <div style="padding:30px 24px;text-align:center;max-width:360px">
+      <div style="font-size:2.5rem;margin-bottom:12px">❌</div>
+      <div style="font-family:'Fredoka One';font-size:1.3rem;color:#FF6B6B;margin-bottom:10px">שגיאת חיבור</div>
+      <div style="background:#1C1C2E;border-radius:14px;padding:14px;font-size:.78rem;color:#FF6B6B;text-align:left;direction:ltr;word-break:break-all;margin-bottom:16px;line-height:1.6">
+        ${e.message || e.toString()}
+      </div>
+      <div style="font-size:.82rem;color:#8888AA;line-height:1.7">
+        קוד שגיאה: <b style="color:#FFD166">${e.code || 'לא ידוע'}</b><br>
+        שלח צילום מסך זה
+      </div>
+      <button onclick="location.reload()" style="margin-top:16px;background:#FFD166;border:none;border-radius:12px;padding:12px 28px;font-family:'Fredoka One';font-size:1rem;cursor:pointer;color:#1A1A2E">נסה שוב</button>
+    </div>`;
 }
 </script>
 
