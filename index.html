@@ -312,7 +312,7 @@ transition:transform .1s,box-shadow .15s;white-space:nowrap;
 
 /* THEME PICKER */
 .theme-picker{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
-.theme-swatch{width:36px;height:36px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:transform .15s,border-color .15s;}
+.theme-swatch{width:40px;height:40px;border-radius:50%;cursor:pointer;transition:transform .2s,box-shadow .2s;}
 .theme-swatch.active{border-color:#fff;transform:scale(1.15);}
 
 /* AVATAR */
@@ -421,7 +421,9 @@ transition:transform .1s,box-shadow .15s;white-space:nowrap;
   <div id="ct-design" class="tab-content">
     <div style="padding:16px">
       <div class="sec-ttl">🎨 ערכת צבעים</div>
-      <div class="theme-picker" id="cv-theme-picker" style="margin-bottom:20px"></div>
+      <div class="theme-picker" id="cv-theme-picker" style="margin-bottom:20px;gap:10px"></div>
+      <div class="sec-ttl" style="margin-top:18px">🔡 גודל טקסט</div>
+      <div style="display:flex;gap:8px;margin-bottom:20px" id="cv-font-picker"></div>
       <div class="sec-ttl">📸 תמונת פרופיל</div>
       <div style="text-align:center;margin-bottom:12px">
         <div id="cv-avatar-preview" style="font-size:4rem;margin-bottom:8px"></div>
@@ -606,13 +608,25 @@ const reqRef  = (id) => doc(db,'wallet','reqs_'+id);  // per-kid requests doc
 
 // ── STATE ──
 const COLORS = ['#FF6B9D','#C77DFF','#4CC9F0','#06D6A0','#FFD166','#FF9F43'];
+// ACCENT THEMES — each has: accent color, light variant for text-on-accent, bg tint
 const THEMES = [
-  {bg:'#12121F',card:'#1C1C2E',card2:'#252540'},  // dark (default)
-  {bg:'#1A0A2E',card:'#2D1B4E',card2:'#3D2560'},  // purple night
-  {bg:'#0A1628',card:'#112240',card2:'#1A3355'},  // ocean blue
-  {bg:'#0A1F0A',card:'#122412',card2:'#1A3320'},  // forest
-  {bg:'#2A0A14',card:'#3D1020',card2:'#521525'},  // ruby
-  {bg:'#1A1400',card:'#2E2400',card2:'#3D3200'},  // golden
+  {name:'ורוד',    accent:'#FF6B9D', light:'#FFB3CE', bg:'rgba(255,107,157,.08)'},
+  {name:'סגול',   accent:'#C77DFF', light:'#DFB3FF', bg:'rgba(199,125,255,.08)'},
+  {name:'תכלת',   accent:'#4CC9F0', light:'#9EE5F8', bg:'rgba(76,201,240,.08)'},
+  {name:'ירוק',   accent:'#06D6A0', light:'#7EECD5', bg:'rgba(6,214,160,.08)'},
+  {name:'צהוב',   accent:'#FFD166', light:'#FFE9A3', bg:'rgba(255,209,102,.08)'},
+  {name:'כתום',   accent:'#FF9F43', light:'#FFCF9A', bg:'rgba(255,159,67,.08)'},
+  {name:'אדום',   accent:'#FF6B6B', light:'#FFA8A8', bg:'rgba(255,107,107,.08)'},
+  {name:'כחול',   accent:'#4361EE', light:'#9EB4FF', bg:'rgba(67,97,238,.08)'},
+  {name:'פוקסיה', accent:'#F72585', light:'#FC8DBF', bg:'rgba(247,37,133,.08)'},
+  {name:'ים',     accent:'#00B4D8', light:'#7FDFF0', bg:'rgba(0,180,216,.08)'},
+  {name:'ליים',   accent:'#80ED99', light:'#B8F5CA', bg:'rgba(128,237,153,.08)'},
+  {name:'לבנדר',  accent:'#AFA8E8', light:'#D4D0F5', bg:'rgba(175,168,232,.08)'},
+];
+const FONT_SIZES = [
+  {name:'קטן',   base:'14px', title:'1.3rem', bal:'3.2rem'},
+  {name:'רגיל',  base:'16px', title:'1.5rem', bal:'3.8rem'},
+  {name:'גדול',  base:'19px', title:'1.8rem', bal:'4.4rem'},
 ];
 let D = { dad:{name:'אבא',emoji:'👨',pin:'0000'}, kids:[] };
 let pinBuf='', pinTarget=null, editKidId=null, currentKidId=null;
@@ -657,7 +671,8 @@ async function saveKidData(k) {
     goal: k.goal||null,
     graphData: k.graphData||[],
     avatar: k.avatar||'',
-    themeIdx: k.themeIdx??0
+    themeIdx: k.themeIdx??0,
+    fontIdx: k.fontIdx??1
   });
 }
 
@@ -684,15 +699,32 @@ window.goHome = goHome;
 function kidColor(k){ return COLORS[(k.ci||0)%COLORS.length]; }
 function applyTheme(k){
   const t=THEMES[k.themeIdx??0];
-  document.documentElement.style.setProperty('--dark',t.bg);
-  document.documentElement.style.setProperty('--card',t.card);
-  document.documentElement.style.setProperty('--card2',t.card2);
+  const f=FONT_SIZES[k.fontIdx??1];
+  const r=document.documentElement;
+  // accent colors
+  r.style.setProperty('--accent', t.accent);
+  r.style.setProperty('--accent-light', t.light);
+  r.style.setProperty('--accent-bg', t.bg);
+  // recolor key vars
+  r.style.setProperty('--yellow', t.accent);
+  r.style.setProperty('--green', t.accent);
+  r.style.setProperty('--blue', t.light);
+  r.style.setProperty('--purple', t.accent);
+  // font size
+  r.style.fontSize = f.base;
+  r.style.setProperty('--fs-title', f.title);
+  r.style.setProperty('--fs-bal', f.bal);
 }
 function resetTheme(){
-  const t=THEMES[0];
-  document.documentElement.style.setProperty('--dark',t.bg);
-  document.documentElement.style.setProperty('--card',t.card);
-  document.documentElement.style.setProperty('--card2',t.card2);
+  const r=document.documentElement;
+  r.style.setProperty('--yellow','#FFD166');
+  r.style.setProperty('--green','#06D6A0');
+  r.style.setProperty('--blue','#4CC9F0');
+  r.style.setProperty('--purple','#C77DFF');
+  r.style.setProperty('--accent','#FFD166');
+  r.style.setProperty('--accent-light','#FFE9A3');
+  r.style.setProperty('--accent-bg','rgba(255,209,102,.08)');
+  r.style.fontSize='';
 }
 
 function countPendingRequests() {
@@ -783,6 +815,12 @@ function openChild(kidId) {
     cvAv.textContent=k.emoji;
   }
   document.getElementById('cv-name').textContent=k.name;
+  // apply font size vars to balance card
+  const f=FONT_SIZES[k.fontIdx??1];
+  const cvAmt=document.getElementById('cv-amt');
+  if(cvAmt) cvAmt.style.fontSize=f.bal;
+  const cvName=document.getElementById('cv-name');
+  if(cvName) cvName.style.fontSize=f.title;
   document.getElementById('cv-card').style.borderTop=`3px solid ${kidColor(k)}55`;
   applyTheme(k);
   switchTab('home');
@@ -1305,7 +1343,8 @@ function renderKmThemePicker(active){
   if(!tp)return;
   tp.innerHTML=THEMES.map((t,i)=>`
     <div class="theme-swatch ${active===i?'active':''}"
-      style="background:linear-gradient(135deg,${t.card},${t.bg})"
+      style="background:${t.accent};box-shadow:${active===i?'0 0 0 3px #fff,0 0 0 5px '+t.accent:'none'}"
+      title="${t.name}"
       onclick="kmPickTheme(${i})"></div>`).join('');
 }
 window.kmPickTheme=(i)=>{ kmThemeIdx=i; renderKmThemePicker(i); };
@@ -1455,13 +1494,25 @@ window.saveChildAvatar=async(e)=>{
 };
 
 function renderChildDesign(k){
-  // theme picker
   const tp=document.getElementById('cv-theme-picker');
   if(tp){
     tp.innerHTML=THEMES.map((t,i)=>`
       <div class="theme-swatch ${(k.themeIdx??0)===i?'active':''}"
-        style="background:linear-gradient(135deg,${t.card},${t.bg})"
+        style="background:${t.accent};box-shadow:${(k.themeIdx??0)===i?'0 0 0 3px #fff,0 0 0 5px '+t.accent:'none'}"
+        title="${t.name}"
         onclick="setKidTheme('${k.id}',${i})"></div>`).join('');
+  }
+  // font size picker
+  const fp=document.getElementById('cv-font-picker');
+  if(fp){
+    fp.innerHTML=FONT_SIZES.map((f,i)=>`
+      <button onclick="setKidFont('${k.id}',${i})"
+        style="flex:1;border:2px solid ${(k.fontIdx??1)===i?'var(--yellow)':'rgba(255,255,255,.1)'};
+               background:${(k.fontIdx??1)===i?'rgba(255,209,102,.15)':'var(--card2)'};
+               border-radius:12px;padding:10px;color:var(--text);cursor:pointer;
+               font-family:'Rubik';font-size:${f.base};font-weight:600;">
+        ${f.name}
+      </button>`).join('');
   }
   // avatar preview
   const av=document.getElementById('cv-avatar-preview');
@@ -1471,6 +1522,20 @@ function renderChildDesign(k){
   }
 }
 
+window.setKidFont=async(kidId,idx)=>{
+  const k=D.kids.find(x=>x.id===kidId);
+  if(!k)return;
+  k.fontIdx=idx;
+  applyTheme(k);
+  await saveKidData(k);
+  renderChildDesign(k);
+  // reapply font to balance
+  const f=FONT_SIZES[idx];
+  const cvAmt=document.getElementById('cv-amt');
+  if(cvAmt) cvAmt.style.fontSize=f.bal;
+  const cvName=document.getElementById('cv-name');
+  if(cvName) cvName.style.fontSize=f.title;
+};
 window.setKidTheme=async(kidId,idx)=>{
   const k=D.kids.find(x=>x.id===kidId);
   if(!k)return;
