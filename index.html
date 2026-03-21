@@ -385,6 +385,7 @@ transition:transform .1s,box-shadow .15s;white-space:nowrap;
       <span class="bal-em" id="cv-em"></span>
     </div>
     <div id="cv-goal-bar" style="display:none"></div>
+    <div id="cv-savings-card" style="display:none"></div>
     <div class="msg-box" id="cv-msg" style="display:none"></div>
   </div>
 
@@ -469,7 +470,10 @@ transition:transform .1s,box-shadow .15s;white-space:nowrap;
 <div class="screen" id="dad-view">
   <div class="dad-hdr">
     <button class="dback" onclick="goHome()">← חזרה</button>
-    <h1>🛠️ ניהול ארנקים</h1>
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <h1>🛠️ ניהול ארנקים</h1>
+      <button onclick="doBackup()" style="background:rgba(255,255,255,.07);border:none;border-radius:10px;padding:7px 12px;color:var(--dim);cursor:pointer;font-family:'Rubik';font-size:.8rem;">💾 גיבוי</button>
+    </div>
     <p>עדכן יתרות • משימות • בקשות</p>
   </div>
 
@@ -568,6 +572,23 @@ transition:transform .1s,box-shadow .15s;white-space:nowrap;
     <div class="mfield"><label>שם</label><input id="dm-name" placeholder="אבא" maxlength="14"></div>
     <div class="mfield"><label>אימוג'י</label><input id="dm-emoji" placeholder="👨" maxlength="4"></div>
     <div class="mfield"><label>PIN (4 ספרות)</label><input id="dm-pin" type="number" placeholder="0000"></div>
+    <div class="mfield">
+      <label>🎨 ערכת צבעים</label>
+      <div id="dm-theme-picker" style="margin-top:6px"></div>
+    </div>
+    <div class="mfield">
+      <label>🔡 גודל טקסט</label>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:6px">
+        <span style="font-size:.8rem;color:var(--dim)">א</span>
+        <input type="range" min="0" max="9" id="dm-font-slider" value="4"
+          style="flex:1;accent-color:var(--yellow)"
+          oninput="previewDadFont(this.value)">
+        <span style="font-size:.8rem;color:var(--dim)">א</span>
+      </div>
+      <div id="dm-font-preview" style="text-align:center;font-size:16px;color:var(--text);padding:6px;background:var(--card2);border-radius:10px;margin-top:6px">
+        גודל רגיל — ₪123.45
+      </div>
+    </div>
     <div class="mbtns">
       <button class="msave" onclick="saveDad()">שמור</button>
       <button class="mcancel" onclick="closeModal('dad-modal')">ביטול</button>
@@ -672,7 +693,7 @@ async function loadAll() {
 
 async function saveConfig() {
   await setDoc(cfgRef(),{
-    dad: D.dad,
+    dad: {...D.dad},  // includes themeIdx, fontIdx
     kids: D.kids.map(k=>({id:k.id,name:k.name,emoji:k.emoji,pin:k.pin,ci:k.ci}))
   });
 }
@@ -880,6 +901,7 @@ function renderChildHome(k) {
   if (k.goal && k.goal.target>0) {
     const pct = Math.min(100, Math.round((bal/k.goal.target)*100));
     gb.style.display='block';
+    const funnyMsg = getFunnyGoalMsg(pct, k.goal.name);
     gb.innerHTML=`
       <div class="goal-bar-wrap">
         <div class="goal-bar-top">
@@ -888,9 +910,12 @@ function renderChildHome(k) {
         </div>
         <div class="goal-track"><div class="goal-fill" style="width:${pct}%;background:${col}"></div></div>
         <div class="goal-amounts"><span>₪0</span><span>₪${k.goal.target}</span></div>
-        ${pct>=100?`<div class="goal-done">🎉 הגעת ליעד! כל הכבוד!</div>`:''}
+        <div style="text-align:center;margin-top:8px;font-size:.85rem;line-height:1.4">${funnyMsg}</div>
       </div>`;
   } else { gb.style.display='none'; }
+
+  // savings card
+  renderSavingsCard(k);
 
   // messages
   const mb=document.getElementById('cv-msg');
@@ -1039,6 +1064,7 @@ window.switchTab=switchTab;
 
 // ══ DAD VIEW ══
 function openDad() {
+  applyTheme({themeIdx:D.dad.themeIdx??0, fontIdx:D.dad.fontIdx??4});
   dadSelectedKid = D.kids[0]?.id || null;
   renderDadWallet();
   renderDadTasks();
@@ -1131,7 +1157,21 @@ function renderDadWallet() {
         <button class="btn-p" onclick="saveMsg('${k.id}')">שלח</button>
       </div>
       <div style="border-top:1px solid var(--border);margin-top:10px;padding-top:10px">
-        <div style="font-size:.75rem;color:var(--dim);margin-bottom:7px">🗑️ מחיקת היסטוריה</div>
+        <div style="font-size:.75rem;color:var(--dim);margin-bottom:7px">📈 חיסכון + ריבית</div>
+        <div class="arow" style="margin-bottom:6px">
+          <div class="iw"><label>הפקד לחיסכון ₪</label><input type="number" id="sav-amt-${k.id}" placeholder="0" min="0" step="1"></div>
+          <button class="btn-b" onclick="addSavings('${k.id}')">הפקד</button>
+        </div>
+        <div class="arow">
+          <div class="iw"><label>ריבית שנתית %</label><input type="number" id="sav-rate-${k.id}" placeholder="3.9" step="0.1" min="0" max="100" value="${k.savingsRate??3.9}"></div>
+          <button class="btn-y" onclick="saveSavingsRate('${k.id}')">שמור</button>
+        </div>
+        <div style="margin-top:8px;font-size:.8rem;color:var(--green)">
+          💰 חיסכון נצבר: ₪<span id="sav-total-${k.id}">${(k.savings||0).toFixed(2)}</span>
+        </div>
+      </div>
+      <div style="border-top:1px solid var(--border);margin-top:10px;padding-top:10px">
+        <div style="font-size:.75rem;color:var(--dim);margin-bottom:7px">🗑️ מחיקת היסטוריה (לא כולל חיסכון)</div>
         <div class="arow">
           <div class="iw">
             <select id="hist-range-${k.id}">
@@ -1434,6 +1474,11 @@ window.openDadSettings=()=>{
   document.getElementById('dm-name').value=D.dad.name;
   document.getElementById('dm-emoji').value=D.dad.emoji;
   document.getElementById('dm-pin').value=D.dad.pin;
+  dmThemeIdx=D.dad.themeIdx??0;
+  const slider=document.getElementById('dm-font-slider');
+  if(slider) slider.value=D.dad.fontIdx??4;
+  previewDadFont(D.dad.fontIdx??4);
+  renderDmThemePicker(dmThemeIdx);
   openModal('dad-modal');
 };
 window.saveDad=async()=>{
@@ -1441,10 +1486,164 @@ window.saveDad=async()=>{
   const emoji=document.getElementById('dm-emoji').value.trim()||'👨';
   const pin=String(document.getElementById('dm-pin').value).padStart(4,'0').slice(0,4);
   if(!/^\d{4}$/.test(pin)){toast('PIN חייב להיות 4 ספרות',true);return;}
-  D.dad={name,emoji,pin};
+  const fontIdx=parseInt(document.getElementById('dm-font-slider')?.value??4);
+  D.dad={name,emoji,pin,themeIdx:dmThemeIdx,fontIdx};
+  // apply dad theme
+  applyTheme({themeIdx:dmThemeIdx,fontIdx});
   await saveConfig();
   closeModal('dad-modal');
   toast('✅ הגדרות נשמרו');
+};
+
+// ── FUNNY GOAL MESSAGES ──
+function getFunnyGoalMsg(pct, goalName){
+  if(pct>=100) return `🎉🎊🥳 וואוווו!!! הגעת ל${goalName}!! את גאונה! הכספת בוכה מרוב שמחה! 💸`;
+  if(pct>=80)  return `🔥🔥 כמעט שם!! ${goalName} כבר מריח אותך! עוד קצת ואת מגיעה! 🚀`;
+  if(pct>=60)  return `😤💪 ${pct}%! המטרה רואה אותך! ${goalName} בחיל ורעד! התארגנו שם! 🏃‍♀️💨`;
+  if(pct>=40)  return `🐢 לאט לאט... ${goalName} מחכה בסבלנות. היא לא הולכת לשום מקום! 😴`;
+  if(pct>=20)  return `🌱 התחלנו! ${goalName} עוד לא יודעת מה מחכה לה... 😈`;
+  if(pct>0)    return `🐣 ${pct}%... זה... משהו? ${goalName} צוחקת קצת. בואי נוכיח לה! 😤`;
+  return `😱 0%!!! ${goalName} בטוחה שאת שכחת אותה! הציגי לה שאת רצינית! 💥`;
+}
+
+// ── DAD THEME ──
+let dmThemeIdx=0;
+window.previewDadFont=(val)=>{
+  const f=FONT_SIZES[parseInt(val)];
+  const prev=document.getElementById('dm-font-preview');
+  if(prev){prev.style.fontSize=f.base; prev.textContent=`גודל ${f.name} — ₪123.45`;}
+};
+function renderDmThemePicker(active){
+  const tp=document.getElementById('dm-theme-picker');
+  if(!tp)return;
+  tp.innerHTML=`<div style="display:flex;flex-wrap:wrap;gap:8px">` +
+    THEMES.map((t,i)=>`
+      <div onclick="dmPickTheme(${i})"
+        style="width:38px;height:38px;border-radius:10px;cursor:pointer;
+               background:linear-gradient(135deg,${t.card},${t.bg});
+               border:3px solid ${active===i?t.accent:'transparent'};
+               box-shadow:${active===i?'0 0 10px '+t.accent+'88':'none'};
+               position:relative;overflow:hidden;transition:all .2s">
+        <div style="position:absolute;bottom:0;left:0;right:0;background:${t.accent};height:10px"></div>
+      </div>`).join('') + '</div>';
+}
+window.dmPickTheme=(i)=>{ dmThemeIdx=i; renderDmThemePicker(i); };
+
+// ── SAVINGS ──
+function renderSavingsCard(k){
+  const el=document.getElementById('cv-savings-card');
+  if(!el)return;
+  const savings=k.savings||0;
+  if(savings<=0){el.style.display='none';return;}
+  const rate=(k.savingsRate??3.9)/100;
+  const monthlyRate=rate/12;
+  const monthlyInterest=savings*monthlyRate;
+  const yearlyInterest=savings*rate;
+  const col=kidColor(k);
+
+  // recommendations
+  const recs=getSavingsRecs(k);
+
+  el.style.display='block';
+  el.innerHTML=`
+    <div style="margin:12px 16px 0;background:linear-gradient(135deg,rgba(6,214,160,.1),rgba(6,214,160,.04));
+      border:1px solid rgba(6,214,160,.25);border-radius:20px;padding:16px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <span style="font-size:1.4rem">🏦</span>
+        <span style="font-weight:700;font-size:.95rem">חיסכון + ריבית</span>
+        <span style="margin-right:auto;background:rgba(6,214,160,.15);color:#06D6A0;
+          border-radius:99px;padding:2px 10px;font-size:.75rem;font-weight:700">
+          ${k.savingsRate??3.9}% שנתי
+        </span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+        <div style="background:rgba(255,255,255,.05);border-radius:12px;padding:10px;text-align:center">
+          <div style="font-size:.72rem;color:var(--dim);margin-bottom:3px">חיסכון נוכחי</div>
+          <div style="font-size:1.2rem;font-weight:700;color:#06D6A0">₪${savings.toFixed(2)}</div>
+        </div>
+        <div style="background:rgba(255,255,255,.05);border-radius:12px;padding:10px;text-align:center">
+          <div style="font-size:.72rem;color:var(--dim);margin-bottom:3px">ריבית החודש</div>
+          <div style="font-size:1.2rem;font-weight:700;color:${col}">+₪${monthlyInterest.toFixed(2)}</div>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,.04);border-radius:12px;padding:10px;margin-bottom:10px">
+        <div style="font-size:.76rem;color:var(--dim);margin-bottom:4px">📅 תחזית שנתית</div>
+        <div style="font-size:.88rem">
+          בעוד שנה: <b style="color:#06D6A0">₪${(savings+yearlyInterest).toFixed(2)}</b>
+          <span style="color:var(--dim);font-size:.78rem"> (+₪${yearlyInterest.toFixed(2)} ריבית)</span>
+        </div>
+      </div>
+      ${recs.length?`
+      <div style="font-size:.78rem;color:var(--dim);margin-bottom:6px">💡 המלצות</div>
+      ${recs.map(r=>`<div style="background:rgba(255,255,255,.04);border-radius:10px;padding:8px 10px;margin-bottom:6px;font-size:.82rem">${r}</div>`).join('')}
+      `:''}
+    </div>`;
+}
+
+function getSavingsRecs(k){
+  const recs=[];
+  const savings=k.savings||0;
+  const rate=(k.savingsRate??3.9)/100;
+  const monthlyInterest=savings*rate/12;
+
+  if(k.goal && k.goal.target>0){
+    const bal=k.balance||0;
+    const needed=k.goal.target-bal;
+    if(needed>0){
+      const monthsNeeded=Math.ceil(needed/((monthlyInterest||0)+10));
+      recs.push(`🎯 כדי להגיע ל${k.goal.name} תוך ${monthsNeeded} חודשים — חסכי עוד כ-₪${Math.ceil(needed/monthsNeeded)} בחודש`);
+    }
+  }
+  if(savings<500) recs.push('🌱 כשתגיעי ל-₪500 בחיסכון הריבית תתחיל להיות מורגשת!');
+  if(savings>=500 && savings<2000) recs.push('📈 כל ₪100 שמוסיפים לחיסכון = עוד ₪'+((100*rate/12).toFixed(2))+' ריבית לחודש!');
+  if(savings>=2000) recs.push('🏆 חיסכון מרשים! שקלי להגדיל את ההפקדה החודשית ב-10%');
+  if(monthlyInterest>0) recs.push(`💰 הכסף עובד בשבילך! החודש תרוויחי ₪${monthlyInterest.toFixed(2)} בלי לעשות כלום 🎉`);
+  return recs;
+}
+
+window.addSavings=async(kidId)=>{
+  const amt=parseFloat(document.getElementById('sav-amt-'+kidId)?.value);
+  if(!amt||amt<=0){toast('הכנס סכום',true);return;}
+  const k=D.kids.find(x=>x.id===kidId);
+  k.savings=(k.savings||0)+amt;
+  k.history=[{type:'savings',amount:amt,note:`הפקדה לחיסכון`,date:nowStr(),protected:true},...(k.history||[])].slice(0,60);
+  await saveKidData(k);
+  document.getElementById('sav-amt-'+kidId).value='';
+  const el=document.getElementById('sav-total-'+kidId);
+  if(el) el.textContent=(k.savings).toFixed(2);
+  toast(`🏦 ₪${amt.toFixed(2)} נוסף לחיסכון של ${k.name}!`);
+};
+window.saveSavingsRate=async(kidId)=>{
+  const rate=parseFloat(document.getElementById('sav-rate-'+kidId)?.value);
+  if(isNaN(rate)||rate<0||rate>100){toast('ריבית לא תקינה',true);return;}
+  const k=D.kids.find(x=>x.id===kidId);
+  k.savingsRate=rate;
+  await saveKidData(k);
+  toast(`✅ ריבית עודכנה ל-${rate}%`);
+};
+
+// ── BACKUP ──
+window.doBackup=async()=>{
+  const backup={
+    date: new Date().toISOString(),
+    dad: D.dad,
+    kids: D.kids.map(k=>({
+      id:k.id, name:k.name, emoji:k.emoji, pin:k.pin, ci:k.ci,
+      themeIdx:k.themeIdx, fontIdx:k.fontIdx,
+      balance:k.balance, savings:k.savings, savingsRate:k.savingsRate,
+      history:k.history, goal:k.goal, message:k.message,
+      tasks:k.tasks, requests:k.requests
+    }))
+  };
+  const json=JSON.stringify(backup, null, 2);
+  const blob=new Blob([json],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`arnak-mishpacha-backup-${new Date().toLocaleDateString('he-IL').replace(/\//g,'-')}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('💾 גיבוי הורד בהצלחה!');
 };
 
 // ── HISTORY CLEAR ──
@@ -1455,7 +1654,7 @@ window.clearHistory = async(kidId)=>{
   if(!k)return;
   if(!confirm(`למחוק היסטוריה (${range==='week'?'שבוע':range==='month'?'חודש':'הכל'}) של ${k.name}?`))return;
   if(range==='all'){
-    k.history=[];
+    k.history=(k.history||[]).filter(tx=>tx.protected);
   } else {
     const days=range==='week'?7:30;
     const cutoff=Date.now()-days*24*60*60*1000;
