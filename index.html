@@ -309,8 +309,23 @@ transition:transform .1s,box-shadow .15s;white-space:nowrap;
 
 .gear{position:fixed;top:14px;right:13px;z-index:200;background:rgba(255,255,255,.06);border:none;border-radius:10px;padding:8px 10px;cursor:pointer;font-size:1rem;}
 .empty-state{color:var(–dim);text-align:center;padding:24px 16px;font-size:.86rem;}
-</style>
 
+/* THEME PICKER */
+.theme-picker{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+.theme-swatch{width:36px;height:36px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:transform .15s,border-color .15s;}
+.theme-swatch.active{border-color:#fff;transform:scale(1.15);}
+
+/* AVATAR */
+.avatar-wrap{position:relative;display:inline-block;cursor:pointer;}
+.avatar-img{width:72px;height:72px;border-radius:50%;object-fit:cover;border:3px solid;}
+.avatar-emoji{font-size:3rem;display:block;}
+.avatar-edit{position:absolute;bottom:0;right:0;background:var(–yellow);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:.7rem;border:2px solid var(–dark);}
+.pcard-avatar{width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid;}
+
+/* HISTORY CLEAR */
+.hist-clear-row{display:flex;gap:8px;align-items:flex-end;margin-bottom:12px;}
+
+</style>
 </head>
 <body>
 <div class="bg"><span></span><span></span><span></span></div>
@@ -403,6 +418,19 @@ transition:transform .1s,box-shadow .15s;white-space:nowrap;
     </div>
   </div>
 
+  <div id="ct-design" class="tab-content">
+    <div style="padding:16px">
+      <div class="sec-ttl">🎨 ערכת צבעים</div>
+      <div class="theme-picker" id="cv-theme-picker" style="margin-bottom:20px"></div>
+      <div class="sec-ttl">📸 תמונת פרופיל</div>
+      <div style="text-align:center;margin-bottom:12px">
+        <div id="cv-avatar-preview" style="font-size:4rem;margin-bottom:8px"></div>
+      </div>
+      <input type="file" id="cv-avatar-file" accept="image/*" style="display:none" onchange="saveChildAvatar(event)">
+      <button onclick="document.getElementById('cv-avatar-file').click()" style="width:100%;background:var(--card2);border:none;border-radius:14px;padding:14px;color:var(--text);cursor:pointer;font-family:'Rubik';font-size:.9rem;font-weight:600">📁 העלה תמונה מהגלריה</button>
+    </div>
+  </div>
+
   <div id="ct-hist" class="tab-content">
     <div class="hist-pad">
       <div class="sec-ttl">📋 היסטוריה</div>
@@ -427,6 +455,9 @@ transition:transform .1s,box-shadow .15s;white-space:nowrap;
     </div>
     <div class="tab" onclick="switchTab('hist')" id="ctab-hist">
       <span class="ti">📋</span><span class="tl">היסטוריה</span>
+    </div>
+    <div class="tab" onclick="switchTab('design')" id="ctab-design">
+      <span class="ti">🎨</span><span class="tl">עיצוב</span>
     </div>
   </div>
 </div>
@@ -505,6 +536,20 @@ transition:transform .1s,box-shadow .15s;white-space:nowrap;
     <div class="mfield"><label>שם</label><input id="km-name" placeholder="שם" maxlength="14"></div>
     <div class="mfield"><label>אימוג'י</label><input id="km-emoji" placeholder="👧" maxlength="4"></div>
     <div class="mfield"><label>PIN (4 ספרות)</label><input id="km-pin" type="number" placeholder="1234"></div>
+    <div class="mfield">
+      <label>🎨 ערכת צבעים</label>
+      <div class="theme-picker" id="km-theme-picker"></div>
+    </div>
+    <div class="mfield">
+      <label>📸 תמונת פרופיל</label>
+      <div style="display:flex;align-items:center;gap:12px;margin-top:4px">
+        <div id="km-avatar-preview" style="font-size:2.5rem">👧</div>
+        <div style="flex:1">
+          <input type="file" id="km-avatar-file" accept="image/*" style="display:none" onchange="previewAvatar(event)">
+          <button onclick="document.getElementById('km-avatar-file').click()" style="background:rgba(255,255,255,.07);border:none;border-radius:10px;padding:9px 14px;color:var(--text);cursor:pointer;font-family:'Rubik';font-size:.85rem;width:100%">📁 בחר תמונה</button>
+        </div>
+      </div>
+    </div>
     <div class="mbtns">
       <button class="msave" onclick="saveKid()">שמור</button>
       <button class="mcancel" onclick="closeModal('kid-modal')">ביטול</button>
@@ -561,6 +606,14 @@ const reqRef  = (id) => doc(db,'wallet','reqs_'+id);  // per-kid requests doc
 
 // ── STATE ──
 const COLORS = ['#FF6B9D','#C77DFF','#4CC9F0','#06D6A0','#FFD166','#FF9F43'];
+const THEMES = [
+  {bg:'#12121F',card:'#1C1C2E',card2:'#252540'},  // dark (default)
+  {bg:'#1A0A2E',card:'#2D1B4E',card2:'#3D2560'},  // purple night
+  {bg:'#0A1628',card:'#112240',card2:'#1A3355'},  // ocean blue
+  {bg:'#0A1F0A',card:'#122412',card2:'#1A3320'},  // forest
+  {bg:'#2A0A14',card:'#3D1020',card2:'#521525'},  // ruby
+  {bg:'#1A1400',card:'#2E2400',card2:'#3D3200'},  // golden
+];
 let D = { dad:{name:'אבא',emoji:'👨',pin:'0000'}, kids:[] };
 let pinBuf='', pinTarget=null, editKidId=null, currentKidId=null;
 let unsubs = [];
@@ -602,7 +655,9 @@ async function saveKidData(k) {
     history: k.history||[],
     message: k.message||'',
     goal: k.goal||null,
-    graphData: k.graphData||[]
+    graphData: k.graphData||[],
+    avatar: k.avatar||'',
+    themeIdx: k.themeIdx??0
   });
 }
 
@@ -622,11 +677,23 @@ function show(id) {
   if (id !== 'child-view') unsubs.forEach(u=>u()), unsubs=[];
 }
 
-function goHome() { show('home'); renderHome(); }
+function goHome() { resetTheme(); show('home'); renderHome(); }
 window.goHome = goHome;
 
 // ══ HOME ══
 function kidColor(k){ return COLORS[(k.ci||0)%COLORS.length]; }
+function applyTheme(k){
+  const t=THEMES[k.themeIdx??0];
+  document.documentElement.style.setProperty('--dark',t.bg);
+  document.documentElement.style.setProperty('--card',t.card);
+  document.documentElement.style.setProperty('--card2',t.card2);
+}
+function resetTheme(){
+  const t=THEMES[0];
+  document.documentElement.style.setProperty('--dark',t.bg);
+  document.documentElement.style.setProperty('--card',t.card);
+  document.documentElement.style.setProperty('--card2',t.card2);
+}
 
 function countPendingRequests() {
   return D.kids.reduce((sum,k)=>{
@@ -644,7 +711,9 @@ function renderHome() {
     d.className='pcard';
     d.style.borderColor=col+'55';
     d.innerHTML=`
-      <span class="pe">${k.emoji}</span>
+      ${k.avatar
+        ? `<img src="${k.avatar}" class="pcard-avatar" style="border-color:${col};margin:0 auto 6px">`
+        : `<span class="pe">${k.emoji}</span>`}
       <div class="pn">${k.name}</div>
       <div class="pb">₪<span class="bv" style="color:${col}">${(k.balance||0).toFixed(2)}</span></div>
       ${k.goal?`<div style="font-size:.72rem;color:var(--dim);margin-top:4px">🎯 ${k.goal.name}</div>`:''}
@@ -707,15 +776,22 @@ function checkPin(){
 function openChild(kidId) {
   currentKidId = kidId;
   const k = D.kids.find(x=>x.id===kidId);
-  document.getElementById('cv-av').textContent=k.emoji;
+  const cvAv=document.getElementById('cv-av');
+  if(k.avatar){
+    cvAv.innerHTML=`<img src="${k.avatar}" style="width:72px;height:72px;border-radius:50%;object-fit:cover;border:3px solid ${kidColor(k)};margin-bottom:4px">`;
+  } else {
+    cvAv.textContent=k.emoji;
+  }
   document.getElementById('cv-name').textContent=k.name;
   document.getElementById('cv-card').style.borderTop=`3px solid ${kidColor(k)}55`;
+  applyTheme(k);
   switchTab('home');
   renderChildHome(k);
   renderChildTasks(k);
   renderChildGoal(k);
   renderChildRequests(k);
   renderChildHist(k);
+  renderChildDesign(k);
   show('child-view');
 
   // real-time listeners
@@ -904,6 +980,10 @@ function switchTab(name) {
     const k=D.kids.find(x=>x.id===currentKidId);
     if(k) renderChildHist(k);
   }
+  if(name==='design'){
+    const k=D.kids.find(x=>x.id===currentKidId);
+    if(k) renderChildDesign(k);
+  }
 }
 window.switchTab=switchTab;
 
@@ -999,6 +1079,19 @@ function renderDadWallet() {
       <div class="arow">
         <div class="iw"><label>💌 הודעה אישית</label><input type="text" id="msg-${k.id}" placeholder="כל הכבוד! 💪" maxlength="80" value="${k.message||''}"></div>
         <button class="btn-p" onclick="saveMsg('${k.id}')">שלח</button>
+      </div>
+      <div style="border-top:1px solid var(--border);margin-top:10px;padding-top:10px">
+        <div style="font-size:.75rem;color:var(--dim);margin-bottom:7px">🗑️ מחיקת היסטוריה</div>
+        <div class="arow">
+          <div class="iw">
+            <select id="hist-range-${k.id}">
+              <option value="week">שבוע אחרון</option>
+              <option value="month">חודש אחרון</option>
+              <option value="all">הכל</option>
+            </select>
+          </div>
+          <button class="btn-r" onclick="clearHistory('${k.id}')">מחק</button>
+        </div>
       </div>
     </div>
     ${(k.history||[]).length?`
@@ -1207,21 +1300,39 @@ function renderDadKids() {
 }
 
 
+function renderKmThemePicker(active){
+  const tp=document.getElementById('km-theme-picker');
+  if(!tp)return;
+  tp.innerHTML=THEMES.map((t,i)=>`
+    <div class="theme-swatch ${active===i?'active':''}"
+      style="background:linear-gradient(135deg,${t.card},${t.bg})"
+      onclick="kmPickTheme(${i})"></div>`).join('');
+}
+window.kmPickTheme=(i)=>{ kmThemeIdx=i; renderKmThemePicker(i); };
+
+let kmThemeIdx=0;
 window.openAddKid=()=>{
-  editKidId=null;
+  editKidId=null; kmAvatarData=''; kmThemeIdx=0;
   document.getElementById('km-title').textContent='➕ הוסף ילד/ה';
   ['km-name','km-emoji','km-pin'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('km-del').style.display='none';
+  document.getElementById('km-avatar-preview').innerHTML='<span style="font-size:2.5rem">👧</span>';
+  renderKmThemePicker(0);
   openModal('kid-modal');
 };
 window.openEditKid=(id)=>{
-  editKidId=id;
+  editKidId=id; kmAvatarData='';
   const k=D.kids.find(x=>x.id===id);
+  kmThemeIdx=k.themeIdx??0;
   document.getElementById('km-title').textContent=`✏️ ערוך — ${k.name}`;
   document.getElementById('km-name').value=k.name;
   document.getElementById('km-emoji').value=k.emoji;
   document.getElementById('km-pin').value=k.pin;
   document.getElementById('km-del').style.display='block';
+  const prev=document.getElementById('km-avatar-preview');
+  if(k.avatar) prev.innerHTML=`<img src="${k.avatar}" style="width:60px;height:60px;border-radius:50%;object-fit:cover">`;
+  else prev.innerHTML=`<span style="font-size:2.5rem">${k.emoji}</span>`;
+  renderKmThemePicker(kmThemeIdx);
   openModal('kid-modal');
 };
 window.saveKid=async()=>{
@@ -1233,12 +1344,15 @@ window.saveKid=async()=>{
   if(editKidId){
     const k=D.kids.find(x=>x.id===editKidId);
     k.name=name;k.emoji=emoji;k.pin=pin;
+    k.themeIdx=kmThemeIdx;
+    if(kmAvatarData) k.avatar=kmAvatarData;
+    await saveKidData(k);
   } else {
     const id='k'+Date.now();
     const ci=D.kids.length%COLORS.length;
-    const newK={id,name,emoji,pin,ci,balance:0,history:[],message:'',goal:null,graphData:[],tasks:[],requests:[]};
+    const newK={id,name,emoji,pin,ci,themeIdx:kmThemeIdx,avatar:kmAvatarData||'',balance:0,history:[],message:'',goal:null,graphData:[],tasks:[],requests:[]};
     D.kids.push(newK);
-    await setDoc(kidRef(id),{balance:0,history:[],message:'',goal:null,graphData:[]});
+    await setDoc(kidRef(id),{balance:0,history:[],message:'',goal:null,graphData:[],avatar:kmAvatarData||'',themeIdx:kmThemeIdx});
     await saveKidTasks(newK);
     await saveKidRequests(newK);
   }
@@ -1275,6 +1389,95 @@ window.saveDad=async()=>{
   await saveConfig();
   closeModal('dad-modal');
   toast('✅ הגדרות נשמרו');
+};
+
+// ── HISTORY CLEAR ──
+window.clearHistory = async(kidId)=>{
+  const rangeEl=document.getElementById('hist-range-'+kidId);
+  const range=rangeEl?rangeEl.value:'all';
+  const k=D.kids.find(x=>x.id===kidId);
+  if(!k)return;
+  if(!confirm(`למחוק היסטוריה (${range==='week'?'שבוע':range==='month'?'חודש':'הכל'}) של ${k.name}?`))return;
+  if(range==='all'){
+    k.history=[];
+  } else {
+    const days=range==='week'?7:30;
+    const cutoff=Date.now()-days*24*60*60*1000;
+    k.history=(k.history||[]).filter(tx=>{
+      try{
+        const parts=tx.date.split(' ')[0].split('.');
+        const d=new Date(+parts[2],+parts[1]-1,+parts[0]);
+        return d.getTime()>cutoff;
+      }catch{return false;}
+    });
+  }
+  await saveKidData(k);
+  toast('🗑️ היסטוריה נמחקה');
+};
+
+// ── AVATAR ──
+let kmAvatarData='';
+window.previewAvatar=(e)=>{
+  const file=e.target.files[0]; if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    kmAvatarData=ev.target.result;
+    const prev=document.getElementById('km-avatar-preview');
+    prev.innerHTML=`<img src="${ev.target.result}" style="width:60px;height:60px;border-radius:50%;object-fit:cover">`;
+  };
+  reader.readAsDataURL(file);
+};
+
+window.saveChildAvatar=async(e)=>{
+  const file=e.target.files[0]; if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async ev=>{
+    const k=D.kids.find(x=>x.id===currentKidId);
+    if(!k)return;
+    // resize to max 200x200
+    const img=new Image();
+    img.onload=async()=>{
+      const canvas=document.createElement('canvas');
+      const max=200; let w=img.width,h=img.height;
+      if(w>h){if(w>max){h=h*max/w;w=max;}}else{if(h>max){w=w*max/h;h=max;}}
+      canvas.width=w; canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      k.avatar=canvas.toDataURL('image/jpeg',0.7);
+      await saveKidData(k);
+      renderChildDesign(k);
+      const cvAv=document.getElementById('cv-av');
+      cvAv.innerHTML=`<img src="${k.avatar}" style="width:72px;height:72px;border-radius:50%;object-fit:cover;border:3px solid ${kidColor(k)};margin-bottom:4px">`;
+      toast('📸 תמונה עודכנה!');
+    };
+    img.src=ev.target.result;
+  };
+  reader.readAsDataURL(file);
+};
+
+function renderChildDesign(k){
+  // theme picker
+  const tp=document.getElementById('cv-theme-picker');
+  if(tp){
+    tp.innerHTML=THEMES.map((t,i)=>`
+      <div class="theme-swatch ${(k.themeIdx??0)===i?'active':''}"
+        style="background:linear-gradient(135deg,${t.card},${t.bg})"
+        onclick="setKidTheme('${k.id}',${i})"></div>`).join('');
+  }
+  // avatar preview
+  const av=document.getElementById('cv-avatar-preview');
+  if(av){
+    if(k.avatar) av.innerHTML=`<img src="${k.avatar}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid ${kidColor(k)}">`;
+    else av.textContent=k.emoji;
+  }
+}
+
+window.setKidTheme=async(kidId,idx)=>{
+  const k=D.kids.find(x=>x.id===kidId);
+  if(!k)return;
+  k.themeIdx=idx;
+  applyTheme(k);
+  await saveKidData(k);
+  renderChildDesign(k);
 };
 
 // ── MODAL / TOAST ──
