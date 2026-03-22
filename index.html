@@ -645,6 +645,14 @@ async function saveKidReqs(k){ await setDoc(reqRef(k.id),{requests:k.requests||[
 
 // ── THEME ──
 function kidColor(k){ return COLORS[(k.ci||0)%COLORS.length]; }
+
+const DEFAULT_PRIZES=[
+  {id:'p1',name:'בחירת ארוחת ערב',emoji:'🍕',price:50,desc:'את/ה בוחר/ת מה לאכול הערב'},
+  {id:'p2',name:'שעת מסך נוספת',emoji:'📱',price:30,desc:'+1 שעת טלוויזיה/מחשב'},
+  {id:'p3',name:'יציאה לקפה',emoji:'☕',price:80,desc:'יציאה עם אבא/אמא לקפה'},
+  {id:'p4',name:'פעילות לבחירה',emoji:'🎡',price:120,desc:'פעילות מיוחדת שתבחר/י'},
+  {id:'p5',name:'הפסקת מטלות יום',emoji:'🛋️',price:100,desc:'יום אחד ללא מטלות'},
+];
 function g(k, female, male){ return (k.gender||'f')==='f' ? female : male; }
 // g(k,'חסכנית','חסכן'), g(k,'גדולה','גדול'), g(k,'אלופה','אלוף')
 
@@ -1203,14 +1211,7 @@ window.sendReq=async(kidId)=>{
 
 // ── CHILD STORE ──
 function renderChildStore(el,k){
-  const DEFAULT_PRIZES=[
-    {id:'p1',name:'בחירת ארוחת ערב',emoji:'🍕',price:50,desc:'אתה/את בוחר/ת מה לאכול הערב'},
-    {id:'p2',name:'שעת מסך נוספת',emoji:'📱',price:30,desc:'+1 שעת טלוויזיה/מחשב'},
-    {id:'p3',name:'יציאה לקפה',emoji:'☕',price:80,desc:'יציאה עם אבא/אמא לקפה'},
-    {id:'p4',name:'פעילות לבחירה',emoji:'🎡',price:120,desc:'פעילות מיוחדת שתבחר/י'},
-    {id:'p5',name:'הפסקת מטלות יום',emoji:'🛋️',price:100,desc:'יום אחד ללא מטלות'},
-  ];
-  const prizes=(k.prizes&&k.prizes.length)?k.prizes:DEFAULT_PRIZES;
+  const prizes=(k.prizes&&k.prizes.length)?k.prizes:(D.dad.globalPrizes&&D.dad.globalPrizes.length)?D.dad.globalPrizes:DEFAULT_PRIZES;
   const bal=k.balance||0;
   const gd=(f,m)=>g(k,f,m);
 
@@ -1360,6 +1361,7 @@ function openDad(){
     {icon:'✅',label:'משימות'},
     {icon:'💌',label:'בקשות',badge:'dad-req-badge'},
     {icon:'👥',label:'ילדים'},
+    {icon:'🎁',label:'פרסים'},
     {icon:'🏆',label:'כבוד'},
   ];
   let dadSelectedKid=D.kids[0]?.id||null;
@@ -1369,6 +1371,7 @@ function openDad(){
     (el)=>renderDadTasks(el),
     (el)=>renderDadRequests(el),
     (el)=>renderDadKids(el),
+    (el)=>renderDadPrizes(el),
     (el)=>renderLeaderboard(el),
   ];
 
@@ -1554,6 +1557,152 @@ function checkAutoInterest(k){
   k.history=[{type:'savings',amount:interest,note:`ריבית חודשית (${k.savingsRate??3.9}%)`,date:nowStr(),protected:true},...(k.history||[])].slice(0,60);
   saveKidData(k);
 }
+
+// ── DAD PRIZES MANAGEMENT ──
+function renderDadPrizes(el){
+  if(!el)return;
+  el.innerHTML=`<div class="sec-pad">
+    <div class="sec-ttl">🎁 ניהול חנות פרסים</div>
+    <div class="kid-select" id="prizes-kid-sel">${D.kids.map(k=>`
+      <button class="ks-btn" onclick="selectPrizesKid('${k.id}')" id="pks-${k.id}"
+        style="border-color:${kidColor(k)}44">${k.emoji} ${k.name}</button>`).join('')}
+      <button class="ks-btn" onclick="selectPrizesKid('__all__')" id="pks-__all__">🌐 כולם</button>
+    </div>
+    <div id="prizes-content"></div>
+  </div>`;
+
+  selectPrizesKid(D.kids[0]?.id||'__all__');
+}
+
+let currentPrizesKid='__all__';
+window.selectPrizesKid=(kidId)=>{
+  currentPrizesKid=kidId;
+  // highlight selected
+  document.querySelectorAll('[id^="pks-"]').forEach(b=>{ b.classList.remove('active'); b.style.fontWeight='400'; });
+  const active=document.getElementById('pks-'+kidId);
+  if(active){ active.classList.add('active'); active.style.fontWeight='700'; }
+
+  const el=document.getElementById('prizes-content');
+  if(!el)return;
+
+  // get prizes for this kid or global
+  let prizes, kidObj=null;
+  if(kidId==='__all__'){
+    prizes=D.dad.globalPrizes||DEFAULT_PRIZES;
+  } else {
+    kidObj=D.kids.find(x=>x.id===kidId);
+    prizes=(kidObj?.prizes&&kidObj.prizes.length)?kidObj.prizes:[...(D.dad.globalPrizes||DEFAULT_PRIZES)];
+  }
+
+  el.innerHTML=`
+    <div class="card-block">
+      <h4>➕ הוסף פרס</h4>
+      <div class="arow" style="margin-bottom:7px">
+        <div class="iw"><label>שם הפרס</label><input id="pname-${kidId}" placeholder="בחירת ארוחה..." maxlength="30"></div>
+        <div class="iw" style="max-width:80px"><label>מחיר ₪</label><input type="number" id="pprice-${kidId}" placeholder="50" min="1"></div>
+      </div>
+      <div class="arow" style="margin-bottom:7px">
+        <div class="iw"><label>אימוג'י</label><input id="pemoji-${kidId}" placeholder="🎁" maxlength="4"></div>
+        <div class="iw"><label>תיאור קצר</label><input id="pdesc-${kidId}" placeholder="פירוט..." maxlength="50"></div>
+      </div>
+      <button class="btn-y btn-full" onclick="addPrize('${kidId}')">➕ הוסף פרס</button>
+    </div>
+    <div class="card-block">
+      <h4>📋 הפרסים הקיימים ${kidObj?`של ${kidObj.name}`:'(לכולם)'}</h4>
+      ${prizes.length?prizes.map(p=>`
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+          <span style="font-size:1.4rem">${p.emoji}</span>
+          <div style="flex:1">
+            <div style="font-size:.88rem;font-weight:600">${p.name}</div>
+            <div style="font-size:.74rem;color:var(--dim)">${p.desc||''}</div>
+          </div>
+          <div style="font-family:'Fredoka One';color:var(--yellow);font-size:.95rem">₪${p.price}</div>
+          <button onclick="editPrize('${kidId}','${p.id}')"
+            style="background:rgba(255,255,255,.06);border:none;border-radius:8px;padding:5px 8px;color:var(--dim);cursor:pointer;font-size:.78rem">✏️</button>
+          <button onclick="deletePrize('${kidId}','${p.id}')"
+            style="background:rgba(255,107,107,.1);border:none;border-radius:8px;padding:5px 8px;color:var(--red);cursor:pointer;font-size:.78rem">🗑️</button>
+        </div>`).join('')
+      :'<div class="empty-state">אין פרסים עדיין</div>'}
+    </div>`;
+};
+
+function getPrizesArr(kidId){
+  if(kidId==='__all__') return D.dad.globalPrizes||[...DEFAULT_PRIZES];
+  const k=D.kids.find(x=>x.id===kidId);
+  return (k?.prizes&&k.prizes.length)?k.prizes:[...(D.dad.globalPrizes||DEFAULT_PRIZES)];
+}
+async function setPrizesArr(kidId, arr){
+  if(kidId==='__all__'){
+    D.dad.globalPrizes=arr;
+    await saveConfig();
+  } else {
+    const k=D.kids.find(x=>x.id===kidId);
+    if(k){ k.prizes=arr; await saveKidData(k); }
+  }
+}
+
+window.addPrize=async(kidId)=>{
+  const name=document.getElementById('pname-'+kidId)?.value.trim();
+  const price=parseFloat(document.getElementById('pprice-'+kidId)?.value);
+  const emoji=document.getElementById('pemoji-'+kidId)?.value.trim()||'🎁';
+  const desc=document.getElementById('pdesc-'+kidId)?.value.trim()||'';
+  if(!name||!price||price<=0){toast('הכנס שם ומחיר',true);return;}
+  const prizes=getPrizesArr(kidId);
+  prizes.push({id:'p'+Date.now(),name,price,emoji,desc});
+  await setPrizesArr(kidId,prizes);
+  toast(`✅ פרס "${name}" נוסף`);
+  selectPrizesKid(kidId);
+  ['pname-','pprice-','pemoji-','pdesc-'].forEach(pre=>{
+    const el=document.getElementById(pre+kidId); if(el) el.value='';
+  });
+};
+
+window.deletePrize=async(kidId,prizeId)=>{
+  const prizes=getPrizesArr(kidId).filter(p=>p.id!==prizeId);
+  await setPrizesArr(kidId,prizes);
+  toast('🗑️ פרס נמחק');
+  selectPrizesKid(kidId);
+};
+
+// edit prize — open inline edit
+window.editPrize=(kidId,prizeId)=>{
+  const prizes=getPrizesArr(kidId);
+  const p=prizes.find(x=>x.id===prizeId); if(!p)return;
+  const el=document.getElementById('prizes-content');
+  // inject edit form at top
+  const editDiv=document.createElement('div');
+  editDiv.className='card-block';
+  editDiv.style.borderColor='rgba(255,209,102,.3)';
+  editDiv.innerHTML=`
+    <h4 style="color:var(--yellow)">✏️ עריכת פרס</h4>
+    <div class="arow" style="margin-bottom:7px">
+      <div class="iw"><label>שם</label><input id="edit-pname" value="${p.name}" maxlength="30"></div>
+      <div class="iw" style="max-width:80px"><label>מחיר ₪</label><input type="number" id="edit-pprice" value="${p.price}" min="1"></div>
+    </div>
+    <div class="arow" style="margin-bottom:7px">
+      <div class="iw"><label>אימוג'י</label><input id="edit-pemoji" value="${p.emoji}" maxlength="4"></div>
+      <div class="iw"><label>תיאור</label><input id="edit-pdesc" value="${p.desc||''}" maxlength="50"></div>
+    </div>
+    <div class="arow">
+      <button class="btn-y" style="flex:1" onclick="saveEditPrize('${kidId}','${prizeId}')">💾 שמור</button>
+      <button class="btn-r" style="flex:1" onclick="selectPrizesKid('${kidId}')">ביטול</button>
+    </div>`;
+  el.prepend(editDiv);
+};
+
+window.saveEditPrize=async(kidId,prizeId)=>{
+  const name=document.getElementById('edit-pname')?.value.trim();
+  const price=parseFloat(document.getElementById('edit-pprice')?.value);
+  const emoji=document.getElementById('edit-pemoji')?.value.trim()||'🎁';
+  const desc=document.getElementById('edit-pdesc')?.value.trim()||'';
+  if(!name||!price||price<=0){toast('הכנס שם ומחיר',true);return;}
+  const prizes=getPrizesArr(kidId);
+  const p=prizes.find(x=>x.id===prizeId); if(!p)return;
+  p.name=name; p.price=price; p.emoji=emoji; p.desc=desc;
+  await setPrizesArr(kidId,prizes);
+  toast('✅ פרס עודכן');
+  selectPrizesKid(kidId);
+};
 
 // ── LEADERBOARD ──
 function renderLeaderboard(el){
