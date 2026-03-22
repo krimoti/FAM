@@ -2029,16 +2029,31 @@ function renderTasksList(){
   const all=[];
   D.kids.forEach(k=>(k.tasks||[]).forEach(t=>all.push({...t,kidId:k.id,kidName:k.name,kidEmoji:k.emoji})));
   if(!all.length){el.innerHTML='<div class="empty-state">אין משימות</div>';return;}
-  el.innerHTML=all.map(t=>`<div style="display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid var(--border)">
+  el.innerHTML=all.map(t=>`<div style="display:flex;align-items:center;gap:9px;padding:10px 0;border-bottom:1px solid var(--border)">
     <span style="font-size:1.2rem">${t.emoji||'✅'}</span>
-    <div style="flex:1"><div style="font-size:.86rem;font-weight:600">${t.name}</div>
-      <div style="font-size:.74rem;color:var(--dim)">${t.kidEmoji} ${t.kidName}${t.status==='done-wait'?' · <span style="color:var(--orange)">ממתין</span>':''}</div></div>
+    <div style="flex:1">
+      <div style="font-size:.86rem;font-weight:600">${t.name}</div>
+      <div style="font-size:.74rem;color:var(--dim)">${t.kidEmoji} ${t.kidName}
+        ${t.status==='done-wait'?' · <span style="color:var(--orange)">⏳ ממתין</span>':''}
+        ${t.status==='approved'?' · <span style="color:var(--green)">✅ אושר</span>':''}
+      </div>
+    </div>
     <div style="font-size:.82rem;color:var(--green);font-weight:700">+₪${t.bonus}</div>
-    <div style="display:flex;gap:5px">
-      ${t.status==='done-wait'?`
-        <button style="background:rgba(6,214,160,.15);color:var(--green);border:none;border-radius:7px;padding:5px 8px;cursor:pointer;font-size:.74rem;font-weight:600" onclick="approveTask('${t.kidId}','${t.id}')">✅</button>
-        <button style="background:rgba(255,107,107,.12);color:var(--red);border:none;border-radius:7px;padding:5px 8px;cursor:pointer;font-size:.74rem" onclick="rejectTask('${t.kidId}','${t.id}')">❌</button>`:''}
-      <button style="background:rgba(255,255,255,.06);color:var(--dim);border:none;border-radius:7px;padding:5px 8px;cursor:pointer;font-size:.74rem" onclick="delTask('${t.kidId}','${t.id}')">🗑️</button>
+    <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
+      <div style="display:flex;gap:4px">
+        ${t.status==='done-wait'?`
+          <button style="background:rgba(6,214,160,.15);color:var(--green);border:none;border-radius:7px;padding:5px 9px;cursor:pointer;font-size:.74rem;font-weight:700" onclick="approveTask('${t.kidId}','${t.id}')">✅</button>
+          <button style="background:rgba(255,107,107,.12);color:var(--red);border:none;border-radius:7px;padding:5px 9px;cursor:pointer;font-size:.74rem" onclick="rejectTask('${t.kidId}','${t.id}')">❌</button>`:''}
+        <button style="background:rgba(255,255,255,.06);color:var(--dim);border:none;border-radius:7px;padding:5px 8px;cursor:pointer;font-size:.74rem" onclick="delTask('${t.kidId}','${t.id}')">🗑️</button>
+      </div>
+      ${t.status==='approved'?`
+        <button onclick="revokeBonus('${t.kidId}','${t.id}')"
+          style="background:linear-gradient(135deg,rgba(255,107,107,.15),rgba(255,107,107,.08));
+                 border:1px solid rgba(255,107,107,.35);border-radius:8px;
+                 padding:5px 10px;color:#FF6B6B;cursor:pointer;
+                 font-size:.72rem;font-family:'Rubik';font-weight:700;white-space:nowrap">
+          ↩️ בטל בונוס
+        </button>`:''}
     </div>
   </div>`).join('');
 }
@@ -2071,6 +2086,56 @@ window.rejectTask=async(kidId,taskId)=>{
 window.delTask=async(kidId,taskId)=>{
   const k=D.kids.find(x=>x.id===kidId);
   k.tasks=k.tasks.filter(x=>x.id!==taskId); await saveKidTasks(k); toast('🗑️ נמחק'); renderTasksList();
+};
+
+window.revokeBonus=async(kidId,taskId)=>{
+  const k=D.kids.find(x=>x.id===kidId);
+  const t=k.tasks.find(x=>x.id===taskId);
+  if(!k||!t)return;
+
+  // Strong warning
+  const confirmed=confirm(
+    `⚠️ ביטול בונוס — פעולה לא הפיכה!\n\n` +
+    `המטלה: "${t.name}"\n` +
+    `הבונוס שניתן: ₪${t.bonus}\n` +
+    `הילד/ה: ${k.name}\n\n` +
+    `₪${t.bonus} יקוזזו מיתרת ${k.name}.\n` +
+    `האם אתה בטוח?`
+  );
+  if(!confirmed)return;
+
+  // Double confirm for safety
+  const confirmed2=confirm(`אישור סופי: לקזז ₪${t.bonus} מ${k.name}?`);
+  if(!confirmed2){toast('בוטל — לא בוצע שינוי');return;}
+
+  // Deduct bonus
+  const newBal=Math.round(((k.balance||0)-t.bonus)*100)/100;
+  if(newBal<0){
+    const proceed=confirm(
+      `⚠️ שים לב: ל${k.name} יש רק ₪${(k.balance||0).toFixed(2)}.\n` +
+      `הקיזוז יוריד את היתרה ל-₪${newBal.toFixed(2)} (מינוס).\n` +
+      `להמשיך בכל זאת?`
+    );
+    if(!proceed)return;
+  }
+
+  k.balance=Math.round(((k.balance||0)-t.bonus)*100)/100;
+  k.history=[{
+    type:'sub',
+    amount:t.bonus,
+    note:`↩️ ביטול בונוס: ${t.name}`,
+    date:nowStr()
+  },...(k.history||[])].slice(0,60);
+
+  // Reset task to active
+  t.status='active';
+
+  await saveKidData(k);
+  await saveKidTasks(k);
+  toast(`↩️ בונוס ₪${t.bonus} בוטל — יתרת ${k.name} עודכנה`,'info');
+  renderTasksList();
+  // refresh wallet panel if visible
+  renderDadWallet(document.getElementById('dad-track-slide-0'),kidId,()=>{});
 };
 
 // ── DAD REQUESTS ──
