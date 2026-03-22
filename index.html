@@ -465,7 +465,10 @@ border:1px solid rgba(6,214,160,.2);
       <div class="tname" id="dname"></div>
       <div style="font-size:.72rem;color:var(--dim)">לוח ניהול</div>
     </div>
-    <button onclick="doBackup()" style="background:rgba(255,255,255,.06);border:none;border-radius:9px;padding:6px 10px;color:var(--dim);cursor:pointer;font-family:'Rubik';font-size:.76rem;margin-left:6px">💾</button>
+    <button onclick="doBackup()" style="background:rgba(255,255,255,.06);border:none;border-radius:9px;padding:6px 10px;color:var(--dim);cursor:pointer;font-family:'Rubik';font-size:.76rem;margin-left:4px" title="גיבוי">💾</button>
+    <label style="background:rgba(255,255,255,.06);border:none;border-radius:9px;padding:6px 10px;color:var(--dim);cursor:pointer;font-family:'Rubik';font-size:.76rem;margin-left:4px" title="שחזור">
+      ♻️<input type="file" id="restore-file" accept=".json" style="display:none" onchange="doRestore(event)">
+    </label>
     <button class="tlogout" onclick="logout()">יציאה</button>
   </div>
   <div class="slides-track" id="dad-track"></div>
@@ -481,6 +484,15 @@ border:1px solid rgba(6,214,160,.2);
     <div class="mfield"><label>שם</label><input id="km-name" maxlength="14"></div>
     <div class="mfield"><label>אימוג'י</label><input id="km-emoji" maxlength="4" placeholder="👧"></div>
     <div class="mfield"><label>PIN (4 ספרות)</label><input id="km-pin" type="number"></div>
+    <div class="mfield">
+      <label>👤 מגדר</label>
+      <div style="display:flex;gap:8px;margin-top:5px">
+        <button id="km-gender-f" onclick="setKmGender('f')"
+          style="flex:1;border:2px solid rgba(255,107,157,.5);border-radius:11px;padding:10px;background:rgba(255,107,157,.15);color:#EEEEF8;cursor:pointer;font-family:'Rubik';font-size:.88rem;font-weight:600">👧 בת</button>
+        <button id="km-gender-m" onclick="setKmGender('m')"
+          style="flex:1;border:2px solid rgba(76,201,240,.2);border-radius:11px;padding:10px;background:transparent;color:#8888AA;cursor:pointer;font-family:'Rubik';font-size:.88rem">👦 בן</button>
+      </div>
+    </div>
     <div class="mfield"><label>🎨 ערכת צבעים</label><div id="km-theme-picker" style="margin-top:6px"></div></div>
     <div class="mfield">
       <label>📸 תמונת פרופיל</label>
@@ -633,6 +645,8 @@ async function saveKidReqs(k){ await setDoc(reqRef(k.id),{requests:k.requests||[
 
 // ── THEME ──
 function kidColor(k){ return COLORS[(k.ci||0)%COLORS.length]; }
+function g(k, female, male){ return (k.gender||'f')==='f' ? female : male; }
+// g(k,'חסכנית','חסכן'), g(k,'גדולה','גדול'), g(k,'אלופה','אלוף')
 
 function applyTheme(themeIdx, fontIdx){
   const t=THEMES[themeIdx??0];
@@ -923,7 +937,7 @@ function openChild(kidId){
   // header
   const cav=document.getElementById('cav');
   cav.innerHTML=k.avatar?`<img src="${k.avatar}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid ${kidColor(k)}">`:`<span>${k.emoji}</span>`;
-  cav.onclick=()=>goSlide('child-track','child-tabs','child-dots',5,childRenderFns);
+  cav.onclick=()=>goSlide('child-track','child-tabs','child-dots',6,childRenderFns);
   document.getElementById('cname').textContent=k.name;
   document.getElementById('gear').style.display='none';
 
@@ -934,6 +948,7 @@ function openChild(kidId){
     {icon:'🎯',label:'יעד'},
     {icon:'✅',label:'משימות'},
     {icon:'💌',label:'בקשות',badge:'child-req-badge'},
+    {icon:'🎁',label:'חנות'},
     {icon:'🎨',label:'עיצוב'},
   ];
 
@@ -943,6 +958,7 @@ function openChild(kidId){
     (el)=>renderChildGoal(el,k),
     (el)=>renderChildTasks(el,k),
     (el)=>renderChildRequests(el,k),
+    (el)=>renderChildStore(el,k),
     (el)=>renderChildDesign(el,k),
   ];
 
@@ -990,7 +1006,7 @@ function renderChildHome(el,k){
     </div>`;
   }
 
-  const auto=autoMsg(bal,k.name);
+  const auto=autoMsg(bal,k.name,k);
   const personal=(k.message||'').trim();
   const msgs=(personal?`<div style="background:linear-gradient(135deg,rgba(255,209,102,.13),rgba(255,159,67,.07));border:1px solid rgba(255,209,102,.28);border-radius:13px;padding:11px 13px;font-size:.84rem;display:flex;gap:8px;color:var(--yellow);font-weight:600;margin:0 16px 8px"><span>💌</span><span>${personal}</span></div>`:'')+
              (auto?`<div style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:13px;padding:11px 13px;font-size:.84rem;display:flex;gap:8px;color:var(--dim);margin:0 16px 8px"><span>${auto.i}</span><span>${auto.t}</span></div>`:'');
@@ -1016,7 +1032,41 @@ function renderChildSavings(el,k){
   const col=kidColor(k);
   const recs=getSavingsRecs(k);
 
+  // Draw graph
+  const graphData=k.graphData||[];
+  let graphHtml='';
+  if(graphData.length>1){
+    const vals=graphData.map(p=>p.balance);
+    const min=Math.min(...vals); const max=Math.max(...vals);
+    const range=max-min||1;
+    const W=300; const H=80;
+    const pts=graphData.slice(-20).map((p,i,arr)=>{
+      const x=i/(arr.length-1)*W;
+      const y=H-((p.balance-min)/range)*H;
+      return `${x},${y}`;
+    }).join(' ');
+    graphHtml=`
+      <div style="background:var(--card);border-radius:16px;padding:14px;margin-bottom:10px">
+        <div style="font-size:.78rem;color:var(--dim);margin-bottom:8px">📊 גרף יתרה</div>
+        <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:80px;overflow:visible">
+          <defs>
+            <linearGradient id="gr" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="${kidColor(k)}" stop-opacity=".3"/>
+              <stop offset="100%" stop-color="${kidColor(k)}" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <polygon points="${pts} ${W},${H} 0,${H}" fill="url(#gr)"/>
+          <polyline points="${pts}" fill="none" stroke="${kidColor(k)}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div style="display:flex;justify-content:space-between;font-size:.7rem;color:var(--dim);margin-top:4px">
+          <span>${graphData[Math.max(0,graphData.length-20)]?.date||''}</span>
+          <span>${graphData[graphData.length-1]?.date||''}</span>
+        </div>
+      </div>`;
+  }
+
   el.innerHTML=`<div class="sec-pad">
+    ${graphHtml}
     <div class="sec-ttl">📈 חיסכון + ריבית</div>
     <div class="sav-card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
@@ -1151,6 +1201,67 @@ window.sendReq=async(kidId)=>{
   toast('📨 נשלח לאבא!');
 };
 
+// ── CHILD STORE ──
+function renderChildStore(el,k){
+  const DEFAULT_PRIZES=[
+    {id:'p1',name:'בחירת ארוחת ערב',emoji:'🍕',price:50,desc:'אתה/את בוחר/ת מה לאכול הערב'},
+    {id:'p2',name:'שעת מסך נוספת',emoji:'📱',price:30,desc:'+1 שעת טלוויזיה/מחשב'},
+    {id:'p3',name:'יציאה לקפה',emoji:'☕',price:80,desc:'יציאה עם אבא/אמא לקפה'},
+    {id:'p4',name:'פעילות לבחירה',emoji:'🎡',price:120,desc:'פעילות מיוחדת שתבחר/י'},
+    {id:'p5',name:'הפסקת מטלות יום',emoji:'🛋️',price:100,desc:'יום אחד ללא מטלות'},
+  ];
+  const prizes=(k.prizes&&k.prizes.length)?k.prizes:DEFAULT_PRIZES;
+  const bal=k.balance||0;
+  const gd=(f,m)=>g(k,f,m);
+
+  el.innerHTML=`<div class="sec-pad">
+    <div class="sec-ttl">🎁 חנות הפרסים</div>
+    <div style="background:var(--card);border-radius:14px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;gap:10px">
+      <span style="font-size:1.4rem">💰</span>
+      <div>
+        <div style="font-size:.78rem;color:var(--dim)">היתרה ${gd('שלך','שלך')}</div>
+        <div style="font-family:'Fredoka One';font-size:1.3rem;color:${kidColor(k)}">₪${bal.toFixed(2)}</div>
+      </div>
+    </div>
+    ${prizes.map(p=>{
+      const canBuy=bal>=p.price;
+      return `<div style="background:var(--card);border-radius:16px;padding:14px;margin-bottom:9px;
+               border:1px solid ${canBuy?kidColor(k)+'44':'var(--border)'}">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:2rem">${p.emoji}</span>
+          <div style="flex:1">
+            <div style="font-weight:700;font-size:.9rem">${p.name}</div>
+            <div style="font-size:.76rem;color:var(--dim);margin-top:2px">${p.desc}</div>
+          </div>
+          <div style="text-align:left">
+            <div style="font-family:'Fredoka One';color:var(--yellow);font-size:1rem">₪${p.price}</div>
+            <button onclick="buyPrize('${k.id}','${p.id}','${p.name}',${p.price})"
+              style="margin-top:5px;background:${canBuy?'var(--yellow)':'rgba(255,255,255,.08)'};
+                     border:none;border-radius:9px;padding:6px 12px;
+                     color:${canBuy?'#1A1A2E':'#8888AA'};
+                     cursor:${canBuy?'pointer':'default'};
+                     font-family:'Rubik';font-size:.78rem;font-weight:700">
+              ${canBuy?'קנה! 🛒':'חסר ₪'+(p.price-bal).toFixed(0)}
+            </button>
+          </div>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+window.buyPrize=async(kidId,prizeId,prizeName,price)=>{
+  const k=D.kids.find(x=>x.id===kidId);
+  if(!k||(k.balance||0)<price){toast('אין מספיק כסף',true);return;}
+  if(!confirm(`לקנות "${prizeName}" תמורת ₪${price}?`))return;
+  k.balance=Math.round(((k.balance||0)-price)*100)/100;
+  k.history=[{type:'sub',amount:price,note:`🎁 פרס: ${prizeName}`,date:nowStr()},...(k.history||[])].slice(0,60);
+  // send request to dad
+  k.requests=[{id:'prize'+Date.now(),name:`🎁 פרס: ${prizeName}`,amount:0,note:`נקנה תמורת ₪${price}`,status:'waiting',date:nowStr()},...(k.requests||[])].slice(0,20);
+  await saveKidData(k);
+  await saveKidReqs(k);
+  toast(`🎉 קנית "${prizeName}"! הודעה נשלחה לאבא`);
+};
+
 // ── CHILD DESIGN ──
 function renderChildDesign(el,k){
   const col=kidColor(k);
@@ -1249,6 +1360,7 @@ function openDad(){
     {icon:'✅',label:'משימות'},
     {icon:'💌',label:'בקשות',badge:'dad-req-badge'},
     {icon:'👥',label:'ילדים'},
+    {icon:'🏆',label:'כבוד'},
   ];
   let dadSelectedKid=D.kids[0]?.id||null;
 
@@ -1257,6 +1369,7 @@ function openDad(){
     (el)=>renderDadTasks(el),
     (el)=>renderDadRequests(el),
     (el)=>renderDadKids(el),
+    (el)=>renderLeaderboard(el),
   ];
 
   buildCarousel('dad-carousel','dad-track','dad-tabs','dad-dots',tabs,dadRenderFns);
@@ -1442,6 +1555,68 @@ function checkAutoInterest(k){
   saveKidData(k);
 }
 
+// ── LEADERBOARD ──
+function renderLeaderboard(el){
+  if(!el)return;
+  const now=new Date();
+  const weekStart=new Date(now); weekStart.setDate(now.getDate()-now.getDay());
+  weekStart.setHours(0,0,0,0);
+
+  // calc weekly earnings per kid
+  const rankings=D.kids.map(k=>{
+    const weekEarnings=(k.history||[])
+      .filter(tx=>{
+        if(tx.type!=='add'&&tx.type!=='bonus')return false;
+        try{const p=tx.date.split(' ')[0].split('.');return new Date(+p[2],+p[1]-1,+p[0])>=weekStart;}
+        catch{return false;}
+      })
+      .reduce((s,tx)=>s+(tx.amount||0),0);
+    return {...k,weekEarnings};
+  }).sort((a,b)=>b.weekEarnings-a.weekEarnings);
+
+  const medals=['🥇','🥈','🥉'];
+  const gd=(k,f,m)=>g(k,f,m);
+
+  el.innerHTML=`<div class="sec-pad">
+    <div class="sec-ttl">🏆 לוח הכבוד השבועי</div>
+    <div style="font-size:.74rem;color:var(--dim);margin-bottom:12px">
+      שבוע מ-${weekStart.toLocaleDateString('he-IL')}
+    </div>
+    ${rankings.length?rankings.map((k,i)=>`
+      <div style="background:${i===0?'linear-gradient(135deg,rgba(255,209,102,.15),rgba(255,159,67,.08))':'var(--card)'};
+           border:1px solid ${i===0?'rgba(255,209,102,.3)':'var(--border)'};
+           border-radius:16px;padding:14px 16px;margin-bottom:10px;
+           display:flex;align-items:center;gap:12px">
+        <div style="font-size:2rem">${medals[i]||'🎖️'}</div>
+        <div style="font-size:1.8rem">${k.avatar?`<img src="${k.avatar}" style="width:40px;height:40px;border-radius:50%;object-fit:cover">`:`${k.emoji}`}</div>
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:.95rem">${k.name}</div>
+          <div style="font-size:.78rem;color:var(--dim)">יתרה כוללת: ₪${(k.balance||0).toFixed(2)}</div>
+        </div>
+        <div style="text-align:left">
+          <div style="font-family:'Fredoka One';font-size:1.2rem;color:${i===0?'var(--yellow)':'var(--green)'}">+₪${k.weekEarnings.toFixed(2)}</div>
+          <div style="font-size:.7rem;color:var(--dim)">השבוע</div>
+        </div>
+      </div>`).join('')
+    :'<div class="empty-state">אין נתונים לשבוע זה</div>'}
+    <div style="background:var(--card);border-radius:14px;padding:14px;margin-top:8px">
+      <div style="font-size:.8rem;font-weight:700;margin-bottom:8px">📊 השוואת יתרות</div>
+      ${D.kids.map(k=>{
+        const maxBal=Math.max(...D.kids.map(x=>x.balance||0),1);
+        const pct=Math.round(((k.balance||0)/maxBal)*100);
+        return `<div style="margin-bottom:8px">
+          <div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:3px">
+            <span>${k.emoji} ${k.name}</span><span style="color:var(--green)">₪${(k.balance||0).toFixed(2)}</span>
+          </div>
+          <div style="height:8px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden">
+            <div style="width:${pct}%;height:100%;background:${kidColor(k)};border-radius:99px;transition:width .6s"></div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
 // ── DAD TASKS ──
 function renderDadTasks(el){
   if(!el)return;
@@ -1590,10 +1765,24 @@ window.pickTheme=(containerId,idx)=>{
   renderThemePicker(containerId,idx);
 };
 
+let kmGender='f';
+window.setKmGender=(g)=>{
+  kmGender=g;
+  const bf=document.getElementById('km-gender-f');
+  const bm=document.getElementById('km-gender-m');
+  if(!bf||!bm)return;
+  if(g==='f'){
+    bf.style.background='rgba(255,107,157,.2)';bf.style.borderColor='rgba(255,107,157,.6)';bf.style.color='#EEEEF8';bf.style.fontWeight='700';
+    bm.style.background='transparent';bm.style.borderColor='rgba(76,201,240,.2)';bm.style.color='#8888AA';bm.style.fontWeight='400';
+  } else {
+    bm.style.background='rgba(76,201,240,.15)';bm.style.borderColor='rgba(76,201,240,.6)';bm.style.color='#EEEEF8';bm.style.fontWeight='700';
+    bf.style.background='transparent';bf.style.borderColor='rgba(255,107,157,.2)';bf.style.color='#8888AA';bf.style.fontWeight='400';
+  }
+};
 window.openAddKid=()=>{
-  editKidId=null; kmAvatarData=''; kmThemeIdx=0;
+  editKidId=null; kmAvatarData=''; kmThemeIdx=0; kmGender='f';
   document.getElementById('km-title').textContent='➕ הוסף ילד/ה';
-  ['km-name','km-emoji','km-pin'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['km-name','km-emoji','km-pin'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';}); setTimeout(()=>setKmGender('f'),50);
   document.getElementById('km-del').style.display='none';
   document.getElementById('km-av-prev').innerHTML='<span style="font-size:2.2rem">👧</span>';
   renderThemePicker('km-theme-picker',0);
@@ -1602,10 +1791,12 @@ window.openAddKid=()=>{
 window.openEditKid=(id)=>{
   editKidId=id; kmAvatarData='';
   const k=D.kids.find(x=>x.id===id); kmThemeIdx=k.themeIdx??0;
+  kmGender=k.gender||'f';
   document.getElementById('km-title').textContent=`✏️ ערוך — ${k.name}`;
   document.getElementById('km-name').value=k.name;
   document.getElementById('km-emoji').value=k.emoji;
   document.getElementById('km-pin').value=k.pin;
+  setTimeout(()=>setKmGender(k.gender||'f'),50);
   document.getElementById('km-del').style.display='block';
   const prev=document.getElementById('km-av-prev');
   prev.innerHTML=k.avatar?`<img src="${k.avatar}" style="width:52px;height:52px;border-radius:50%;object-fit:cover">`:`<span style="font-size:2.2rem">${k.emoji}</span>`;
@@ -1629,12 +1820,12 @@ window.saveKid=async()=>{
   if(!/^\d{4}$/.test(pin)){toast('PIN חייב 4 ספרות',true);return;}
   if(editKidId){
     const k=D.kids.find(x=>x.id===editKidId);
-    k.name=name; k.emoji=emoji; k.pin=pin; k.themeIdx=kmThemeIdx;
+    k.name=name; k.emoji=emoji; k.pin=pin; k.themeIdx=kmThemeIdx; k.gender=kmGender;
     if(kmAvatarData) k.avatar=kmAvatarData;
     await saveKidData(k);
   } else {
     const id='k'+Date.now(); const ci=D.kids.length%COLORS.length;
-    const nk={id,name,emoji,pin,ci,themeIdx:kmThemeIdx,fontIdx:4,avatar:kmAvatarData||'',balance:0,savings:0,savingsRate:3.9,lastSavingsMonth:'',history:[],message:'',goal:null,graphData:[],tasks:[],requests:[]};
+    const nk={id,name,emoji,pin,ci,themeIdx:kmThemeIdx,fontIdx:4,gender:kmGender,avatar:kmAvatarData||'',balance:0,savings:0,savingsRate:3.9,lastSavingsMonth:'',history:[],message:'',goal:null,graphData:[],tasks:[],requests:[]};
     D.kids.push(nk);
     await saveKidData(nk); await saveKidTasks(nk); await saveKidReqs(nk);
   }
@@ -1687,6 +1878,37 @@ window.saveDad=async()=>{
   document.getElementById('dav').innerHTML=`<span>${emoji}</span>`;
 };
 
+// ── RESTORE ──
+window.doRestore=async(e)=>{
+  const file=e.target.files[0]; if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async ev=>{
+    try {
+      const backup=JSON.parse(ev.target.result);
+      if(!backup.dad||!backup.kids){toast('קובץ גיבוי לא תקין',true);return;}
+      if(!confirm(`שחזור מ-${new Date(backup.date).toLocaleDateString('he-IL')}?\nכל הנתונים הנוכחיים יוחלפו!`))return;
+      
+      D.dad={...D.dad,...backup.dad};
+      D.kids=backup.kids;
+      
+      // save all to Firebase
+      await saveConfig();
+      for(const k of D.kids){
+        await saveKidData(k);
+        if(k.tasks) await saveKidTasks(k);
+        if(k.requests) await saveKidReqs(k);
+      }
+      toast('✅ שוחזר בהצלחה!');
+      // reload
+      setTimeout(()=>location.reload(),1500);
+    } catch(err){
+      toast('שגיאה בשחזור: '+err.message,true);
+    }
+  };
+  reader.readAsText(file);
+  e.target.value='';
+};
+
 // ── BACKUP ──
 window.doBackup=async()=>{
   const backup={date:new Date().toISOString(),dad:D.dad,kids:D.kids.map(k=>({...k}))};
@@ -1722,24 +1944,26 @@ function getFunnyGoalMsg(pct,goalName){
   ];
   return styles[Math.floor(Math.random()*styles.length)];
 }
-function autoMsg(bal,name){
+function autoMsg(bal,name,kid){
+  const gd=(f,m)=>g(kid||{gender:'f'},f,m);
   if(bal===0)return{i:'🌱',t:`${name}, הכל מתחיל בשקל הראשון!`};
-  if(bal<20) return{i:'💪',t:`₪${bal.toFixed(2)} — יפה! תמשיכי לצבור!`};
-  if(bal<50) return{i:'⭐',t:`₪${bal.toFixed(2)} — בדרך הנכונה!`};
+  if(bal<20) return{i:'💪',t:`₪${bal.toFixed(2)} — יפה! ${gd('תמשיכי','תמשיך')} לצבור!`};
+  if(bal<50) return{i:'⭐',t:`₪${bal.toFixed(2)} — ${gd('בדרך הנכונה','בדרך הנכון')}!`};
   if(bal<100)return{i:'🚀',t:`כבר ₪${bal.toFixed(2)}! קרוב ל-100!`};
-  if(bal<200)return{i:'🎉',t:`₪${bal.toFixed(2)} — מאה ומעלה!`};
-  if(bal<500)return{i:'👑',t:`₪${bal.toFixed(2)} — חוסכת כמו אלופה!`};
-  return{i:'🏆',t:`₪${bal.toFixed(2)} — חסכנית אמיתית!`};
+  if(bal<200)return{i:'🎉',t:`₪${bal.toFixed(2)} — מאה ומעלה! ${gd('גדולה','גדול')}!`};
+  if(bal<500)return{i:'👑',t:`₪${bal.toFixed(2)} — ${gd('חוסכת','חוסך')} כמו ${gd('אלופה','אלוף')}!`};
+  return{i:'🏆',t:`₪${bal.toFixed(2)} — ${gd('חסכנית','חסכן')} אמיתי${gd('ת','')}`};
 }
 function getSavingsRecs(k){
   const recs=[];
   const savings=k.savings||0;
   const rate=(k.savingsRate??3.9)/100;
   const monthly=savings*rate/12;
-  if(savings<500)recs.push('🌱 כשתגיעי ל-₪500 הריבית תתחיל להיות מורגשת!');
+  const gd=(f,m)=>g(k,f,m);
+  if(savings<500)recs.push(`🌱 כש${gd('תגיעי','תגיע')} ל-₪500 הריבית תתחיל להיות מורגשת!`);
   if(savings>=500&&savings<2000)recs.push(`📈 כל ₪100 שמוסיפים = עוד ₪${((100*rate/12).toFixed(2))} ריבית לחודש!`);
-  if(savings>=2000)recs.push('🏆 חיסכון מרשים! שקלי להגדיל ב-10%');
-  if(monthly>0)recs.push(`💰 הכסף עובד! החודש: +₪${monthly.toFixed(2)} ריבית 🎉`);
+  if(savings>=2000)recs.push(`🏆 חיסכון מרשים! ${gd('שקלי','שקול')} להגדיל ב-10%`);
+  if(monthly>0)recs.push(`💰 הכסף עובד ${gd('בשבילך','בשבילך')}! החודש: +₪${monthly.toFixed(2)} ריבית 🎉`);
   if(k.goal&&k.goal.target>(k.balance||0)){
     const needed=k.goal.target-(k.balance||0);
     const months=monthly>0?Math.ceil(needed/monthly):999;
