@@ -132,12 +132,15 @@ flex-shrink:0;position:relative;z-index:10;
 
 /* slides container */
 .slides-track{
-flex:1;display:flex;overflow:hidden;position:relative;
+flex:1;position:relative;overflow:hidden;
 }
 .slide{
-min-width:100%;height:100%;overflow-y:auto;overflow-x:hidden;
-padding-bottom:80px;transition:none;
+position:absolute;top:0;left:0;width:100%;height:100%;
+overflow-y:auto;overflow-x:hidden;
+padding-bottom:80px;
 -webkit-overflow-scrolling:touch;
+transition:transform .32s cubic-bezier(.4,0,.2,1);
+will-change:transform;
 }
 
 /* swipe indicator dots */
@@ -286,7 +289,7 @@ border:1px solid rgba(6,214,160,.2);
 .toast.info{background:var(–blue);color:#0A0A1A;}
 
 /* ══ MODAL ══ */
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:5000;align-items:flex-end;justify-content:center;}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9000;align-items:flex-end;justify-content:center;}
 .overlay.open{display:flex;}
 .modal{background:var(–card);border-radius:24px 24px 0 0;padding:24px 20px 36px;width:100%;max-width:460px;animation:slideUp .26s cubic-bezier(.34,1.3,.64,1);max-height:86vh;overflow-y:auto;}
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
@@ -300,7 +303,7 @@ border:1px solid rgba(6,214,160,.2);
 .mbtns .msave{background:var(–yellow);color:var(–dark);}
 .mbtns .mcancel{background:rgba(255,255,255,.07);color:var(–text);}
 .mdel{width:100%;border:none;border-radius:10px;padding:10px;background:rgba(255,107,107,.1);color:var(–red);font-family:‘Fredoka One’;font-size:.88rem;cursor:pointer;margin-top:7px;}
-.gear{position:fixed;top:14px;right:13px;z-index:200;background:rgba(255,255,255,.06);border:none;border-radius:10px;padding:8px 10px;cursor:pointer;font-size:1rem;}
+.gear{position:fixed;top:14px;right:13px;z-index:8000;background:rgba(255,255,255,.06);border:none;border-radius:10px;padding:8px 10px;cursor:pointer;font-size:1rem;}
 
 /* ══ SPIN ══ */
 .spin{width:44px;height:44px;border:3px solid rgba(255,209,102,.2);border-top-color:var(–yellow);border-radius:50%;animation:spin .8s linear infinite;}
@@ -332,22 +335,32 @@ border:1px solid rgba(6,214,160,.2);
 <!-- ══ LOGIN ══ -->
 
 <div class="screen" id="login">
-  <div class="login-logo">💰 ארנק חכם<br><span style="font-size:1rem;font-family:Rubik;color:var(--dim)">מי את/ה?</span></div>
-  <div class="login-users" id="login-users"></div>
-  <div class="login-pin-wrap" id="login-pin">
-    <div class="pin-who" id="lpin-who"></div>
-    <div class="pin-dots">
-      <div class="pin-dot" id="lpd0"></div><div class="pin-dot" id="lpd1"></div>
-      <div class="pin-dot" id="lpd2"></div><div class="pin-dot" id="lpd3"></div>
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 28px;gap:20px;">
+    <div style="font-family:'Fredoka One';font-size:2.4rem;color:var(--yellow);text-align:center;text-shadow:0 0 40px rgba(255,209,102,.3)">💰 ארנק חכם</div>
+    <div style="color:var(--dim);font-size:.9rem;text-align:center;margin-bottom:4px">הכנס פרטים להתחברות</div>
+    <div style="width:100%;max-width:320px;display:flex;flex-direction:column;gap:12px;">
+      <div>
+        <label style="display:block;font-size:.74rem;color:var(--dim);margin-bottom:5px">שם משתמש</label>
+        <input id="login-username" type="text" placeholder="הכנס שם משתמש"
+          style="width:100%;background:var(--card);border:1.5px solid rgba(255,255,255,.1);border-radius:14px;padding:14px 16px;color:var(--text);font-family:'Rubik';font-size:1rem;outline:none;transition:border-color .2s"
+          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+          onfocus="this.style.borderColor='var(--yellow)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+      </div>
+      <div>
+        <label style="display:block;font-size:.74rem;color:var(--dim);margin-bottom:5px">סיסמה</label>
+        <input id="login-password" type="password" placeholder="הכנס סיסמה (4 ספרות)"
+          style="width:100%;background:var(--card);border:1.5px solid rgba(255,255,255,.1);border-radius:14px;padding:14px 16px;color:var(--text);font-family:'Rubik';font-size:1rem;outline:none;transition:border-color .2s"
+          inputmode="numeric" maxlength="4"
+          onfocus="this.style.borderColor='var(--yellow)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'"
+          onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <div id="login-err" style="color:var(--red);font-size:.84rem;text-align:center;height:18px;"></div>
+      <button onclick="doLogin()"
+        style="width:100%;background:var(--yellow);border:none;border-radius:14px;padding:15px;font-family:'Fredoka One';font-size:1.1rem;cursor:pointer;color:#1A1A2E;transition:opacity .15s"
+        onmousedown="this.style.opacity='.8'" onmouseup="this.style.opacity='1'">
+        כניסה 🚀
+      </button>
     </div>
-    <div class="pin-err" id="lpin-err"></div>
-    <div class="keypad">
-      <button class="kk" onclick="pk('1')">1</button><button class="kk" onclick="pk('2')">2</button><button class="kk" onclick="pk('3')">3</button>
-      <button class="kk" onclick="pk('4')">4</button><button class="kk" onclick="pk('5')">5</button><button class="kk" onclick="pk('6')">6</button>
-      <button class="kk" onclick="pk('7')">7</button><button class="kk" onclick="pk('8')">8</button><button class="kk" onclick="pk('9')">9</button>
-      <div class="kk emp"></div><button class="kk" onclick="pk('0')">0</button><button class="kk del" onclick="pdel()">⌫</button>
-    </div>
-    <button class="btn-back" onclick="cancelPin()">← חזרה</button>
   </div>
 </div>
 
@@ -427,6 +440,12 @@ border:1px solid rgba(6,214,160,.2);
       </div>
       <div id="dm-font-prev" style="text-align:center;font-size:15px;color:var(--text);padding:6px;background:var(--card2);border-radius:9px;margin-top:6px">גודל רגיל — ₪123.45</div>
     </div>
+    <div class="mfield">
+      <label>🎬 סוג מסך פתיחה</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:6px" id="dm-splash-type-picker">
+        <!-- rendered by JS -->
+      </div>
+    </div>
     <div class="mfield"><label>⏱️ זמן מסך פתיחה (שניות)</label><input type="number" id="dm-splash-dur" placeholder="3" min="1" max="10" step="0.5"></div>
     <div class="mfield"><label>💬 כיתוב מסך פתיחה</label><input id="dm-splash-text" placeholder="המשפחה שלנו" maxlength="30"></div>
     <div class="mbtns">
@@ -489,7 +508,7 @@ const FONT_SIZES = [
 ];
 
 // ── STATE ──
-let D = { dad:{name:'אבא',emoji:'👨',pin:'0000',themeIdx:0,fontIdx:4,splashDur:3,splashText:'המשפחה שלנו'}, kids:[] };
+let D = { dad:{name:'אבא',emoji:'👨',pin:'0000',themeIdx:0,fontIdx:4,splashDur:3,splashText:'המשפחה שלנו',splashType:'money'}, kids:[] };
 let currentUser = null; // {type:'dad'} or {type:'kid', id}
 let pinBuf='', pinTarget=null;
 let unsubs=[];
@@ -566,6 +585,28 @@ function resetTheme(){
 }
 
 // ── SPLASH ──
+const SPLASH_TYPES = {
+  money:  {label:'💰 כסף',    items:['💰','🪙','💵','💴','💶','💷','🏦','💎','💸','✨','🤑','💳']},
+  flowers:{label:'🌸 פרחים',  items:['🌸','🌺','🌻','🌹','💐','🌷','🌼','🌿','🍀','🌱','🌾','🎋']},
+  animals:{label:'🐾 חיות',   items:['🐶','🐱','🦊','🐰','🐼','🦁','🐸','🦋','🐬','🦄','🐧','🦜']},
+  dolls:  {label:'🧸 בובות',  items:['🧸','👾','🎮','🪆','🎪','🎠','🎡','🎢','🎯','🎨','🎭','🎬']},
+};
+
+function renderSplashTypePicker(){
+  const el=document.getElementById('dm-splash-type-picker');
+  if(!el)return;
+  const cur=D.dad.splashType||'money';
+  el.innerHTML=Object.entries(SPLASH_TYPES).map(([k,v])=>`
+    <button onclick="pickSplashType('${k}')"
+      style="background:${cur===k?'rgba(255,209,102,.2)':'rgba(255,255,255,.05)'};
+             border:2px solid ${cur===k?'var(--yellow)':'rgba(255,255,255,.1)'};
+             border-radius:12px;padding:10px 8px;color:var(--text);cursor:pointer;
+             font-family:'Rubik';font-size:.84rem;font-weight:${cur===k?'700':'400'}">
+      ${v.label}
+    </button>`).join('');
+}
+window.pickSplashType=(type)=>{ D.dad.splashType=type; renderSplashTypePicker(); };
+
 function runSplash(onDone){
   const dur = (D.dad.splashDur||3)*1000;
   const title = document.getElementById('splash-title');
@@ -573,25 +614,25 @@ function runSplash(onDone){
   title.textContent = '💰 ארנק חכם';
   sub.textContent   = D.dad.splashText||'המשפחה שלנו';
 
-  // coins rain
+  const type = D.dad.splashType||'money';
+  const items = SPLASH_TYPES[type]?.items || SPLASH_TYPES.money.items;
+
   const container = document.getElementById('splash-coins');
   container.innerHTML='';
-  const coins=['💰','🪙','💵','💴','💶','💷','🏦','💎','✨'];
-  for(let i=0;i<22;i++){
+  for(let i=0;i<24;i++){
     const c=document.createElement('div');
     c.className='coin';
-    c.textContent=coins[Math.floor(Math.random()*coins.length)];
+    c.textContent=items[Math.floor(Math.random()*items.length)];
     c.style.left=Math.random()*100+'%';
-    c.style.fontSize=(1.5+Math.random()*2)+'rem';
-    const d=0.2+Math.random()*2;
-    const delay=Math.random()*(dur/1000-d);
+    c.style.fontSize=(1.4+Math.random()*2.2)+'rem';
+    const d=0.3+Math.random()*2;
+    const delay=Math.random()*Math.max(0.5,(dur/1000-d-0.5));
     c.style.animationDuration=d+'s';
     c.style.animationDelay=delay+'s';
     container.appendChild(c);
   }
 
-  // progress bar duration
-  document.getElementById('splash-bar').style.animationDuration=(dur/1000-1.1)+'s';
+  document.getElementById('splash-bar').style.animationDuration=Math.max(0.5,(dur/1000-1.1))+'s';
 
   setTimeout(()=>{
     const s=document.getElementById('splash');
@@ -603,72 +644,45 @@ function runSplash(onDone){
 // ── LOGIN ──
 function showLogin(){
   resetTheme();
-  renderLoginUsers();
+  const uEl=document.getElementById('login-username');
+  const pEl=document.getElementById('login-password');
+  if(uEl){uEl.value='';} if(pEl){pEl.value='';}
+  const eEl=document.getElementById('login-err');
+  if(eEl) eEl.textContent='';
   show('login');
 }
 
-function renderLoginUsers(){
-  const el=document.getElementById('login-users');
-  el.innerHTML='';
-  // dad
-  const dad=document.createElement('div');
-  dad.className='login-card';
-  dad.style.borderColor='rgba(255,159,67,.3)';
-  dad.innerHTML=`
-    <div class="lc-av">${D.dad.emoji}</div>
-    <div><div class="lc-name">${D.dad.name}</div><div class="lc-hint">ניהול ארנקים</div></div>`;
-  dad.onclick=()=>startPin({type:'dad'});
-  el.appendChild(dad);
-  // kids
-  D.kids.forEach(k=>{
-    const col=kidColor(k);
-    const d=document.createElement('div');
-    d.className='login-card';
-    d.style.borderColor=col+'44';
-    d.innerHTML=`
-      <div class="lc-av">${k.avatar?`<img src="${k.avatar}">`:`${k.emoji}`}</div>
-      <div>
-        <div class="lc-name">${k.name}</div>
-        <div class="lc-hint" style="color:${col}">₪${(k.balance||0).toFixed(2)}</div>
-      </div>`;
-    d.onclick=()=>startPin({type:'kid',id:k.id});
-    el.appendChild(d);
-  });
+window.doLogin=()=>{
+  const username=(document.getElementById('login-username')?.value||'').trim().toLowerCase();
+  const password=(document.getElementById('login-password')?.value||'').trim();
+  const errEl=document.getElementById('login-err');
+
+  // check dad
+  if(username===D.dad.name.toLowerCase()||username==='אבא'||username===D.dad.name){
+    if(password===D.dad.pin){
+      errEl.textContent=''; currentUser={type:'dad'}; openDad();
+    } else { errEl.textContent='❌ סיסמה שגויה'; shake(document.getElementById('login-password')); }
+    return;
+  }
+  // check kids
+  const k=D.kids.find(x=>x.name.toLowerCase()===username||x.name===username);
+  if(k){
+    if(password===k.pin){
+      errEl.textContent=''; currentUser={type:'kid',id:k.id}; openChild(k.id);
+    } else { errEl.textContent='❌ סיסמה שגויה'; shake(document.getElementById('login-password')); }
+    return;
+  }
+  errEl.textContent='❌ שם משתמש לא קיים';
+  shake(document.getElementById('login-username'));
+};
+
+function shake(el){
+  if(!el)return;
+  el.style.animation='none'; el.offsetHeight; el.style.animation='shake .4s';
 }
 
-// ── PIN ──
-function startPin(target){
-  pinTarget=target; pinBuf='';
-  updDots(); document.getElementById('lpin-err').textContent='';
-  const who=target.type==='dad'?D.dad:D.kids.find(x=>x.id===target.id);
-  document.getElementById('lpin-who').textContent=`שלום ${who.name} 👋`;
-  document.getElementById('login-users').style.display='none';
-  document.getElementById('login-pin').classList.add('show');
-}
-window.cancelPin=()=>{
-  document.getElementById('login-users').style.display='flex';
-  document.getElementById('login-pin').classList.remove('show');
-};
-window.pk=(d)=>{
-  if(pinBuf.length>=4)return;
-  pinBuf+=d; updDots();
-  if(pinBuf.length===4)setTimeout(checkPin,150);
-};
-window.pdel=()=>{ pinBuf=pinBuf.slice(0,-1); updDots(); document.getElementById('lpin-err').textContent=''; };
-function updDots(){ for(let i=0;i<4;i++) document.getElementById('lpd'+i).classList.toggle('on',i<pinBuf.length); }
-function checkPin(){
-  const correct=pinTarget.type==='dad'?D.dad.pin:(D.kids.find(k=>k.id===pinTarget.id)?.pin||'');
-  if(pinBuf===correct){
-    currentUser=pinTarget;
-    if(pinTarget.type==='dad') openDad();
-    else openChild(pinTarget.id);
-  } else {
-    document.getElementById('lpin-err').textContent='❌ קוד שגוי';
-    pinBuf=''; updDots();
-    const dots=document.querySelector('.pin-dots');
-    dots.style.animation='none'; dots.offsetHeight; dots.style.animation='shake .4s';
-  }
-}
+// keep empty stubs for pk/pdel/cancelPin to avoid errors
+window.pk=()=>{};window.pdel=()=>{};window.cancelPin=()=>{};
 window.logout=()=>{ unsubs.forEach(u=>u()); unsubs=[]; resetTheme(); document.getElementById('gear').style.display='none'; showLogin(); };
 
 // ══════════════════════════════════════
@@ -719,12 +733,7 @@ function goSlide(trackId,tabsId,dotsId,idx,renderFns){
   else dadSlideIdx=idx;
 
   const track=document.getElementById(trackId);
-  track.style.transition='transform .3s cubic-bezier(.4,0,.2,1)';
-  track.style.transform=`translateX(${idx*100}%)`;
-  // RTL: mirror
   const slides=track.querySelectorAll('.slide');
-  track.style.transform=`translateX(${-idx * (100/slides.length)}%)`;
-  // simpler: move each slide
   slides.forEach((s,i)=>{
     s.style.transform=`translateX(${(i-idx)*100}%)`;
   });
@@ -733,13 +742,12 @@ function goSlide(trackId,tabsId,dotsId,idx,renderFns){
   document.querySelectorAll('#'+dotsId+' .sdot').forEach((d,i)=>d.classList.toggle('active',i===idx));
 
   const slide=document.getElementById(trackId+'-slide-'+idx);
-  renderFns[idx](slide);
+  if(slide && slide.innerHTML.trim()==='') renderFns[idx](slide);
 }
 
 // position slides initially
 function initSlides(trackId){
   const slides=document.getElementById(trackId).querySelectorAll('.slide');
-  slides.forEach((s,i)=>{ s.style.position='absolute'; s.style.top='0'; s.style.left='0'; s.style.width='100%'; });
   slides.forEach((s,i)=>{ s.style.transform=`translateX(${i*100}%)`; });
 }
 
@@ -1488,6 +1496,7 @@ function initDadModal(){
   document.getElementById('dm-emoji').value=D.dad.emoji;
   document.getElementById('dm-pin').value=D.dad.pin;
   document.getElementById('dm-splash-dur').value=D.dad.splashDur||3;
+  renderSplashTypePicker();
   document.getElementById('dm-splash-text').value=D.dad.splashText||'המשפחה שלנו';
   dmThemeIdx=D.dad.themeIdx??0;
   const slider=document.getElementById('dm-font-slider');
@@ -1509,7 +1518,7 @@ window.saveDad=async()=>{
   const splashText=document.getElementById('dm-splash-text').value.trim()||'המשפחה שלנו';
   const fontIdx=parseInt(document.getElementById('dm-font-slider').value??4);
   if(!/^\d{4}$/.test(pin)){toast('PIN חייב 4 ספרות',true);return;}
-  D.dad={name,emoji,pin,themeIdx:dmThemeIdx,fontIdx,splashDur,splashText};
+  D.dad={name,emoji,pin,themeIdx:dmThemeIdx,fontIdx,splashDur,splashText,splashType:D.dad.splashType||'money'};
   applyTheme(dmThemeIdx,fontIdx);
   await saveConfig(); closeModal('dad-modal'); toast('✅ נשמר');
   document.getElementById('dname').textContent=name;
