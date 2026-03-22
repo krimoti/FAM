@@ -75,6 +75,49 @@ animation-delay:1.1s;
 @keyframes splashBar{to{width:100%;}}
 @keyframes splashOut{to{opacity:0;transform:scale(1.05);}}
 
+/* STARS BURST ANIMATION */
+.stars-container{position:absolute;inset:0;overflow:hidden;}
+.star-burst{
+position:absolute;
+animation:starBurst ease-out forwards;
+opacity:0;
+}
+@keyframes starBurst{
+0%  {opacity:0;transform:translate(0,0) scale(0) rotate(0deg);}
+15% {opacity:1;transform:translate(var(–tx),var(–ty)) scale(1.3) rotate(90deg);}
+60% {opacity:1;transform:translate(var(–tx2),var(–ty2)) scale(1) rotate(180deg);}
+100%{opacity:0;transform:translate(var(–tx3),var(–ty3)) scale(0.2) rotate(360deg);}
+}
+.star-orbit{
+position:absolute;
+left:50%;top:50%;
+animation:starOrbit linear infinite;
+transform-origin:0 0;
+}
+@keyframes starOrbit{
+from{transform:rotate(0deg) translateX(var(–r)) rotate(0deg);}
+to{transform:rotate(360deg) translateX(var(–r)) rotate(-360deg);}
+}
+.star-twinkle{
+position:absolute;
+animation:twinkle ease-in-out infinite alternate;
+}
+@keyframes twinkle{
+0%{opacity:.2;transform:scale(.5);}
+100%{opacity:1;transform:scale(1.3);}
+}
+.center-star{
+position:absolute;left:50%;top:40%;
+transform:translate(-50%,-50%);
+font-size:5rem;
+animation:centerPulse 1s ease-in-out infinite alternate;
+z-index:2;
+}
+@keyframes centerPulse{
+from{transform:translate(-50%,-50%) scale(1);filter:drop-shadow(0 0 10px gold);}
+to{transform:translate(-50%,-50%) scale(1.15);filter:drop-shadow(0 0 30px gold);}
+}
+
 /* UNICORN ANIMATION */
 .unicorn-wrap{
 position:absolute;
@@ -447,7 +490,16 @@ border:1px solid rgba(6,214,160,.2);
       <div class="tname" id="cname"></div>
       <div class="tsync"><span class="sync-dot"></span> מסונכרן</div>
     </div>
-    <button class="tlogout" onclick="logout()">יציאה</button>
+    <button onclick="logout()"
+      style="background:linear-gradient(135deg,rgba(255,107,107,.2),rgba(255,107,107,.1));
+             border:1.5px solid rgba(255,107,107,.4);border-radius:12px;
+             padding:9px 16px;color:#FF6B6B;cursor:pointer;font-family:'Rubik';
+             font-size:.88rem;font-weight:700;display:flex;align-items:center;gap:5px;
+             transition:all .18s;white-space:nowrap"
+      onmouseenter="this.style.background='rgba(255,107,107,.25)'"
+      onmouseleave="this.style.background='linear-gradient(135deg,rgba(255,107,107,.2),rgba(255,107,107,.1))'">
+      <span style="font-size:1rem">🚪</span> יציאה
+    </button>
   </div>
   <div class="slides-track" id="child-track">
     <!-- slides injected by JS -->
@@ -469,7 +521,16 @@ border:1px solid rgba(6,214,160,.2);
     <label style="background:rgba(255,255,255,.06);border:none;border-radius:9px;padding:6px 10px;color:var(--dim);cursor:pointer;font-family:'Rubik';font-size:.76rem;margin-left:4px" title="שחזור">
       ♻️<input type="file" id="restore-file" accept=".json" style="display:none" onchange="doRestore(event)">
     </label>
-    <button class="tlogout" onclick="logout()">יציאה</button>
+    <button onclick="logout()"
+      style="background:linear-gradient(135deg,rgba(255,107,107,.2),rgba(255,107,107,.1));
+             border:1.5px solid rgba(255,107,107,.4);border-radius:12px;
+             padding:9px 16px;color:#FF6B6B;cursor:pointer;font-family:'Rubik';
+             font-size:.88rem;font-weight:700;display:flex;align-items:center;gap:5px;
+             transition:all .18s;white-space:nowrap"
+      onmouseenter="this.style.background='rgba(255,107,107,.25)'"
+      onmouseleave="this.style.background='linear-gradient(135deg,rgba(255,107,107,.2),rgba(255,107,107,.1))'">
+      <span style="font-size:1rem">🚪</span> יציאה
+    </button>
   </div>
   <div class="slides-track" id="dad-track"></div>
   <div class="swipe-dots" id="dad-dots"></div>
@@ -690,6 +751,7 @@ const SPLASH_TYPES = {
   dolls:  {label:'🧸 בובות',  items:['🧸','👾','🎮','🪆','🎪','🎠','🎡','🎢','🎯','🎨','🎭','🎬']},
   dog:    {label:'🐕 כלב',    items:[]},
   unicorn:{label:'🦄 חד קרן',  items:[]},
+  stars:  {label:'⭐ כוכבים',  items:[]},
 };
 
 function renderSplashTypePicker(){
@@ -790,6 +852,66 @@ function runSplash(onDone){
       pw.style.right=(10+i*11)+'%';
       pw.style.animationDelay=(0.5+i*0.3)+'s';
       container.appendChild(pw);
+    }
+  } else if(type==='stars'){
+    // Center big star
+    const center=document.createElement('div');
+    center.className='center-star';
+    center.textContent='⭐';
+    container.appendChild(center);
+
+    // Orbiting stars at different radii
+    const orbitItems=['🌟','💫','✨','⭐','🌙','☀️'];
+    [60,110,160].forEach((r,ri)=>{
+      const count=4+ri*2;
+      for(let i=0;i<count;i++){
+        const s=document.createElement('div');
+        s.className='star-orbit';
+        s.style.setProperty('--r',r+'px');
+        s.style.animationDuration=(3+ri*1.5+(i%3)*0.5)+'s';
+        s.style.animationDelay=-(i/count*3)+'s';
+        s.style.marginTop='-14px';
+        s.style.marginLeft='-14px';
+        s.innerHTML=`<span style="font-size:${1.2-ri*0.2}rem">${orbitItems[i%orbitItems.length]}</span>`;
+        container.appendChild(s);
+      }
+    });
+
+    // Burst stars from center outward
+    const burstItems=['⭐','🌟','💫','✨','💥','🌠'];
+    for(let i=0;i<30;i++){
+      const s=document.createElement('div');
+      s.className='star-burst';
+      const angle=Math.random()*360;
+      const d1=80+Math.random()*100;
+      const d2=150+Math.random()*150;
+      const d3=200+Math.random()*200;
+      const rad=angle*Math.PI/180;
+      s.style.setProperty('--tx',Math.cos(rad)*d1+'px');
+      s.style.setProperty('--ty',Math.sin(rad)*d1+'px');
+      s.style.setProperty('--tx2',Math.cos(rad)*d2+'px');
+      s.style.setProperty('--ty2',Math.sin(rad)*d2+'px');
+      s.style.setProperty('--tx3',Math.cos(rad)*d3+'px');
+      s.style.setProperty('--ty3',Math.sin(rad)*d3+'px');
+      s.style.left='50%'; s.style.top='42%';
+      s.style.fontSize=(0.8+Math.random()*1.2)+'rem';
+      s.style.animationDuration=(0.8+Math.random()*1.5)+'s';
+      s.style.animationDelay=(Math.random()*(dur/1000*0.7))+'s';
+      s.textContent=burstItems[Math.floor(Math.random()*burstItems.length)];
+      container.appendChild(s);
+    }
+
+    // Twinkling background stars
+    for(let i=0;i<20;i++){
+      const s=document.createElement('div');
+      s.className='star-twinkle';
+      s.style.left=Math.random()*100+'%';
+      s.style.top=Math.random()*100+'%';
+      s.style.fontSize=(0.6+Math.random()*1)+'rem';
+      s.style.animationDuration=(0.5+Math.random()*1.5)+'s';
+      s.style.animationDelay=Math.random()*2+'s';
+      s.textContent=['⭐','✨','💫'][Math.floor(Math.random()*3)];
+      container.appendChild(s);
     }
   } else if(type!=='unicorn') {
     const items = SPLASH_TYPES[type]?.items || SPLASH_TYPES.money.items;
@@ -901,9 +1023,10 @@ function buildCarousel(containerId, trackId, tabsId, dotsId, tabs, renderFns){
       const info=carouselRenderFns[trackId];
       if(!info)return;
       const cur=trackId==='child-track'?childSlideIdx:dadSlideIdx;
-      // dx<0 = swipe left = go to next (index+1)
-      const next=dx<0?Math.min(cur+1,info.count-1):Math.max(cur-1,0);
-      if(next!==cur) goSlide(trackId,info.tabsId,info.dotsId,next,info.fns);
+      // dx<0 = swipe left = next, wrap around
+      const count=info.count;
+      const next=dx<0?(cur+1)%count:(cur-1+count)%count;
+      goSlide(trackId,info.tabsId,info.dotsId,next,info.fns);
     }
   },{passive:true});
 
@@ -1174,6 +1297,10 @@ window.markTaskDone=async(kidId,taskId)=>{
 
 // ── CHILD REQUESTS ──
 function renderChildRequests(el,k){
+  // auto-clean rejected that are seen
+  const reqs=k.requests||[];
+  const toShow=reqs.filter(r=>!(r.seen&&r.status==='rejected'));
+
   el.innerHTML=`<div class="sec-pad">
     <div class="sec-ttl">💌 שלח/י בקשה לאבא</div>
     <div class="card-block">
@@ -1185,16 +1312,51 @@ function renderChildRequests(el,k){
       <button class="btn-p btn-full" onclick="sendReq('${k.id}')">📨 שלח בקשה</button>
     </div>
     <div class="sec-ttl">הבקשות שלי</div>`+
-    ((k.requests||[]).length?
-      (k.requests||[]).slice(0,10).map(r=>`<div class="req-item">
-        <div class="req-top"><span class="req-name">${r.name}</span><span class="req-amt">₪${r.amount}</span>
-        <span class="req-badge ${r.status}">${r.status==='waiting'?'⏳':r.status==='approved'?'✅':'❌'}</span></div>
+    (toShow.length?
+      toShow.slice(0,10).map(r=>`<div class="req-item" id="ri-${r.id}">
+        <div class="req-top">
+          <span class="req-name">${r.name}</span>
+          <span class="req-amt">${r.amount?'₪'+r.amount:''}</span>
+          <span class="req-badge ${r.status}">${r.status==='waiting'?'⏳ ממתין':r.status==='approved'?'✅ אושר':'❌ נדחה'}</span>
+        </div>
         ${r.note?`<div class="req-note">${r.note}</div>`:''}
-        ${r.replyNote?`<div class="req-note" style="color:var(--yellow)">💬 ${r.replyNote}</div>`:''}
+        ${r.replyNote?`<div class="req-note" style="color:var(--yellow)">💬 אבא: ${r.replyNote}</div>`:''}
+        ${r.status!=='waiting'?`
+          <div style="text-align:left;margin-top:6px">
+            <button onclick="removeReq('${k.id}','${r.id}')"
+              style="background:rgba(255,107,107,.12);border:1px solid rgba(255,107,107,.3);
+                     border-radius:9px;padding:6px 14px;color:#FF6B6B;
+                     cursor:pointer;font-size:.8rem;font-family:'Rubik';font-weight:600">
+              🗑️ הסר
+            </button>
+          </div>`:''}
       </div>`).join('')
-      :'<div class="empty-state">אין בקשות עדיין</div>')+
+      :'<div class="empty-state">אין בקשות כרגע 🎉</div>')+
     '</div>';
+
+  // mark non-waiting as seen
+  let changed=false;
+  (k.requests||[]).forEach(r=>{ if(r.status!=='waiting'&&!r.seen){r.seen=true;changed=true;} });
+  if(changed) saveKidReqs(k);
 }
+
+window.removeReq=async(kidId,reqId)=>{
+  const k=D.kids.find(x=>x.id===kidId);
+  if(!k)return;
+  k.requests=(k.requests||[]).filter(r=>r.id!==reqId);
+  await saveKidReqs(k);
+  const el=document.getElementById('ri-'+reqId);
+  if(el){
+    el.style.transition='all .3s ease';
+    el.style.opacity='0';
+    el.style.maxHeight='0';
+    el.style.overflow='hidden';
+    el.style.padding='0';
+    el.style.margin='0';
+    setTimeout(()=>el.remove(),320);
+  }
+  toast('🗑️ הבקשה הוסרה');
+};
 window.sendReq=async(kidId)=>{
   const k=D.kids.find(x=>x.id===kidId);
   const name=document.getElementById('rqnm-'+kidId)?.value.trim();
@@ -1453,9 +1615,18 @@ function renderDadWallet(el,selectedKidId,onSelect){
     </div>
     <div class="card-block">
       <h4>🗑️ מחיקת היסטוריה</h4>
-      <div class="arow">
-        <div class="iw"><select id="hrange-${k.id}"><option value="week">שבוע</option><option value="month">חודש</option><option value="all">הכל</option></select></div>
-        <button class="btn-r" onclick="clearHistory('${k.id}')">מחק</button>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+        <button onclick="selectHistRange('${k.id}','week')" class="btn-b" style="font-family:'Rubik';font-size:.78rem;padding:7px 12px">שבוע אחרון</button>
+        <button onclick="selectHistRange('${k.id}','month')" class="btn-b" style="font-family:'Rubik';font-size:.78rem;padding:7px 12px">חודש אחרון</button>
+        <button onclick="selectHistRange('${k.id}','all')" class="btn-b" style="font-family:'Rubik';font-size:.78rem;padding:7px 12px">כל ההיסטוריה</button>
+      </div>
+      <div id="hist-sel-${k.id}" style="max-height:200px;overflow-y:auto;display:none"></div>
+      <div id="hist-sel-actions-${k.id}" style="display:none;margin-top:8px">
+        <div class="arow">
+          <button class="btn-g" style="flex:1" onclick="selectAllHist('${k.id}',true)">✓ בחר הכל</button>
+          <button class="btn-b" style="flex:1" onclick="selectAllHist('${k.id}',false)">✗ בטל הכל</button>
+          <button class="btn-r" style="flex:1" onclick="deleteSelectedHist('${k.id}')">🗑️ מחק נבחרים</button>
+        </div>
       </div>
     </div>
     ${recTx?`<div class="card-block"><h4>תנועות אחרונות</h4>${recTx}</div>`:''}
@@ -1526,6 +1697,72 @@ window.saveSavingsRate=async(id)=>{
   const k=D.kids.find(x=>x.id===id); k.savingsRate=rate; await saveKidData(k);
   toast(`✅ ריבית ${rate}%`);
 };
+// history selection
+let _histSelected={};
+window.selectHistRange=(kidId,range)=>{
+  const k=D.kids.find(x=>x.id===kidId); if(!k)return;
+  const now=Date.now();
+  const days=range==='week'?7:range==='month'?30:36500;
+  const cutoff=now-days*24*60*60*1000;
+
+  const eligible=(k.history||[]).filter(tx=>{
+    if(tx.protected)return false;
+    if(range==='all')return true;
+    try{const p=tx.date.split(' ')[0].split('.');return new Date(+p[2],+p[1]-1,+p[0]).getTime()>cutoff;}
+    catch{return false;}
+  });
+
+  if(!eligible.length){toast('אין תנועות לטווח זה');return;}
+
+  // init all selected
+  _histSelected[kidId]={};
+  eligible.forEach(tx=>_histSelected[kidId][tx.date+tx.note]=true);
+
+  const el=document.getElementById('hist-sel-'+kidId);
+  const actEl=document.getElementById('hist-sel-actions-'+kidId);
+  if(!el||!actEl)return;
+  el.style.display='block'; actEl.style.display='block';
+
+  el.innerHTML=eligible.map(tx=>{
+    const key=tx.date+tx.note;
+    const icon=tx.type==='add'||tx.type==='bonus'?'⬆️':tx.type==='sub'?'⬇️':tx.type==='savings'?'🏦':'📌';
+    const amt=(tx.type==='add'||tx.type==='bonus'?'+':tx.type==='sub'?'-':'')+'₪'+Math.abs(tx.amount||0).toFixed(2);
+    return `<label style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);cursor:pointer">
+      <input type="checkbox" id="hchk-${kidId}-${encodeURIComponent(key)}" checked
+        onchange="_histSelected['${kidId}']['${key}']=this.checked"
+        style="width:16px;height:16px;accent-color:var(--yellow)">
+      <span style="font-size:1rem">${icon}</span>
+      <span style="flex:1;font-size:.8rem">${tx.note||tx.type}</span>
+      <span style="font-size:.78rem;color:${tx.type==='sub'?'var(--red)':'var(--green)'}">${amt}</span>
+      <span style="font-size:.68rem;color:var(--dim)">${tx.date.split(' ')[0]}</span>
+    </label>`;
+  }).join('');
+};
+
+window.selectAllHist=(kidId,val)=>{
+  if(!_histSelected[kidId])return;
+  Object.keys(_histSelected[kidId]).forEach(k=>_histSelected[kidId][k]=val);
+  document.querySelectorAll(`[id^="hchk-${kidId}-"]`).forEach(cb=>cb.checked=val);
+};
+
+window.deleteSelectedHist=async(kidId)=>{
+  const k=D.kids.find(x=>x.id===kidId); if(!k)return;
+  const sel=_histSelected[kidId]||{};
+  const toDelete=new Set(Object.keys(sel).filter(key=>sel[key]));
+  if(!toDelete.size){toast('לא נבחרו תנועות',true);return;}
+  if(!confirm(`למחוק ${toDelete.size} תנועות?`))return;
+  k.history=(k.history||[]).filter(tx=>!toDelete.has(tx.date+tx.note)||tx.protected);
+  await saveKidData(k);
+  // hide
+  const el=document.getElementById('hist-sel-'+kidId);
+  const actEl=document.getElementById('hist-sel-actions-'+kidId);
+  if(el) el.style.display='none';
+  if(actEl) actEl.style.display='none';
+  toast(`🗑️ נמחקו ${toDelete.size} תנועות`);
+  // re-render wallet
+  renderDadWallet(document.getElementById('dad-track-slide-0'),kidId,()=>{});
+};
+
 window.clearHistory=async(id)=>{
   const range=document.getElementById('hrange-'+id)?.value||'all';
   const k=D.kids.find(x=>x.id===id);
@@ -1842,28 +2079,46 @@ function renderDadRequests(el){
   const all=[];
   D.kids.forEach(k=>(k.requests||[]).forEach(r=>all.push({...r,kidId:k.id,kidName:k.name,kidEmoji:k.emoji})));
   const pending=all.filter(r=>r.status==='waiting');
-  const done=all.filter(r=>r.status!=='waiting').slice(0,5);
+  const done=all.filter(r=>r.status!=='waiting').slice(0,10);
   el.innerHTML=`<div class="sec-pad">`+
     (pending.length?`<div class="sec-ttl">⏳ ממתין (${pending.length})</div>`+pending.map(r=>`
-      <div class="card-block">
+      <div class="card-block" id="dreq-${r.id}">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-          <span>${r.kidEmoji}</span><span style="font-weight:700;flex:1">${r.name}</span>
-          <span style="color:var(--yellow);font-weight:700">₪${r.amount}</span>
+          <span style="font-size:1.2rem">${r.kidEmoji}</span>
+          <span style="font-weight:700;flex:1">${r.name}</span>
+          <span style="color:var(--yellow);font-weight:700">${r.amount?'₪'+r.amount:''}</span>
+          <button onclick="dadDeleteReq('${r.kidId}','${r.id}')"
+            style="background:rgba(255,255,255,.06);border:none;border-radius:7px;padding:4px 8px;color:var(--dim);cursor:pointer;font-size:.8rem">✕</button>
         </div>
-        <div style="font-size:.76rem;color:var(--dim);margin-bottom:8px">${r.kidName} · ${r.note||''}</div>
-        <div class="iw" style="margin-bottom:7px"><input type="text" id="rep-${r.id}" placeholder="הערה לילדה (אופציונלי)" maxlength="60"></div>
+        <div style="font-size:.76rem;color:var(--dim);margin-bottom:8px">${r.kidName}${r.note?' · '+r.note:''}</div>
+        <div class="iw" style="margin-bottom:7px">
+          <input type="text" id="rep-${r.id}" placeholder="הערה לילדה (אופציונלי)" maxlength="60">
+        </div>
         <div class="arow">
           <button class="btn-g" style="flex:1" onclick="approveReq('${r.kidId}','${r.id}')">✅ אשר</button>
           <button class="btn-r" style="flex:1" onclick="rejectReq('${r.kidId}','${r.id}')">❌ דחה</button>
         </div>
       </div>`).join(''):'<div class="empty-state">אין בקשות ממתינות 🎉</div>')+
-    (done.length?`<div class="sec-ttl" style="margin-top:8px">היסטוריה</div>`+done.map(r=>`
-      <div style="background:var(--card);border-radius:12px;padding:11px;margin-bottom:7px;display:flex;align-items:center;gap:8px">
-        <span>${r.kidEmoji}</span><span style="flex:1;font-size:.84rem">${r.name}</span>
-        <span style="font-size:.8rem;color:var(--dim)">₪${r.amount}</span>
-        <span class="req-badge ${r.status}">${r.status==='approved'?'✅':'❌'}</span>
+    (done.length?`<div class="sec-ttl" style="margin-top:8px">טופלו</div>`+done.map(r=>`
+      <div style="background:var(--card);border-radius:12px;padding:11px;margin-bottom:7px;
+                  display:flex;align-items:center;gap:8px" id="dreq-${r.id}">
+        <span>${r.kidEmoji}</span>
+        <span style="flex:1;font-size:.84rem">${r.name}</span>
+        <span style="font-size:.8rem;color:var(--dim)">${r.amount?'₪'+r.amount:''}</span>
+        <span class="req-badge ${r.status}">${r.status==='approved'?'✅ אושר':'❌ נדחה'}</span>
+        <button onclick="dadDeleteReq('${r.kidId}','${r.id}')"
+          style="background:rgba(255,255,255,.06);border:none;border-radius:7px;padding:4px 8px;color:var(--dim);cursor:pointer;font-size:.8rem">✕</button>
       </div>`).join(''):'')+'</div>';
 }
+window.dadDeleteReq=async(kidId,reqId)=>{
+  const k=D.kids.find(x=>x.id===kidId); if(!k)return;
+  k.requests=(k.requests||[]).filter(r=>r.id!==reqId);
+  await saveKidReqs(k);
+  const el=document.getElementById('dreq-'+reqId);
+  if(el){el.style.transition='opacity .25s,max-height .3s';el.style.opacity='0';el.style.maxHeight='0';el.style.overflow='hidden';el.style.padding='0';el.style.margin='0';setTimeout(()=>el.remove(),350);}
+  toast('✕ בקשה הוסרה');
+};
+
 window.approveReq=async(kidId,reqId)=>{
   const k=D.kids.find(x=>x.id===kidId);
   const r=k.requests.find(x=>x.id===reqId); if(!r)return;
@@ -1874,12 +2129,16 @@ window.approveReq=async(kidId,reqId)=>{
     addGraphPt(k); await saveKidData(k);
   }
   await saveKidReqs(k); toast(`✅ אושר`);
+  const el=document.getElementById('dreq-'+reqId);
+  if(el){el.style.transition='opacity .3s';el.style.opacity='0';setTimeout(()=>{el.remove();},350);}
 };
 window.rejectReq=async(kidId,reqId)=>{
   const k=D.kids.find(x=>x.id===kidId);
   const r=k.requests.find(x=>x.id===reqId); if(!r)return;
   r.status='rejected'; r.replyNote=document.getElementById('rep-'+reqId)?.value.trim()||'';
   await saveKidReqs(k); toast('❌ נדחה');
+  const el=document.getElementById('dreq-'+reqId);
+  if(el){el.style.transition='opacity .3s';el.style.opacity='0';setTimeout(()=>{el.remove();},350);}
 };
 
 // ── DAD KIDS ──
@@ -1961,12 +2220,18 @@ window.previewKmAvatar=(e)=>{
   };
   reader.readAsDataURL(file);
 };
+let _savingKid=false;
 window.saveKid=async()=>{
+  if(_savingKid)return; _savingKid=true;
+  const btn=document.querySelector('#kid-modal .msave');
+  if(btn){btn.disabled=true;btn.textContent='שומר...';}
+  try {
   const name=document.getElementById('km-name').value.trim();
   const emoji=document.getElementById('km-emoji').value.trim()||'👧';
-  const pin=String(document.getElementById('km-pin').value).padStart(4,'0').slice(0,4);
-  if(!name){toast('הכנס שם',true);return;}
-  if(!/^\d{4}$/.test(pin)){toast('PIN חייב 4 ספרות',true);return;}
+  const pinRaw=String(document.getElementById('km-pin').value||'').replace(/\D/g,'');
+  const pin=pinRaw.padStart(4,'0').slice(0,4);
+  if(!name){toast('הכנס שם',true);if(btn){btn.disabled=false;btn.textContent='שמור';}_savingKid=false;return;}
+  if(pin.length<4){toast('PIN חייב 4 ספרות',true);if(btn){btn.disabled=false;btn.textContent='שמור';}_savingKid=false;return;}
   if(editKidId){
     const k=D.kids.find(x=>x.id===editKidId);
     k.name=name; k.emoji=emoji; k.pin=pin; k.themeIdx=kmThemeIdx; k.gender=kmGender;
@@ -1978,10 +2243,24 @@ window.saveKid=async()=>{
     D.kids.push(nk);
     await saveKidData(nk); await saveKidTasks(nk); await saveKidReqs(nk);
   }
-  await saveConfig(); closeModal('kid-modal');
-  toast(editKidId?'✅ עודכן':'✅ נוסף');
+  await saveConfig();
+  // 1. close modal immediately
+  closeModal('kid-modal');
+  // 2. reset button right away
+  if(btn){btn.disabled=false;btn.textContent='שמור';}
+  _savingKid=false;
+  // 3. show toast
+  toast(editKidId?'✅ פרטים עודכנו':'✅ ילד/ה נוסף/ה');
+  // 4. navigate to kids tab and re-render
+  goSlide('dad-track','dad-tabs','dad-dots',3,window.dadRenderFns);
   renderDadKids(document.getElementById('dad-track-slide-3'));
   renderDadWallet(document.getElementById('dad-track-slide-0'),D.kids[0]?.id,()=>{});
+  } catch(err){
+    toast('שגיאה בשמירה',true);
+  } finally {
+    _savingKid=false;
+    if(btn){btn.disabled=false;btn.textContent='שמור';}
+  }
 };
 window.deleteKid=async()=>{
   if(!editKidId)return;
