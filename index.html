@@ -75,6 +75,36 @@ animation-delay:1.1s;
 @keyframes splashBar{to{width:100%;}}
 @keyframes splashOut{to{opacity:0;transform:scale(1.05);}}
 
+/* DOG ANIMATION */
+.dog-wrap{
+position:absolute;bottom:20%;
+animation:dogWalk linear forwards;
+font-size:4rem;
+white-space:nowrap;
+}
+@keyframes dogWalk{
+0%  {right:-80px;transform:scaleX(1);}
+45% {right:calc(50% - 40px);transform:scaleX(1);}
+50% {right:calc(50% - 40px);transform:scaleX(1) scale(1.2);}
+55% {right:calc(50% - 40px);transform:scaleX(1);}
+100%{right:110%;transform:scaleX(1);}
+}
+.dog-bubble{
+position:absolute;top:-50px;right:10px;
+background:white;color:#333;border-radius:16px;padding:6px 12px;
+font-size:.9rem;font-family:‘Rubik’;font-weight:700;
+opacity:0;animation:bubblePop .4s ease forwards;
+white-space:nowrap;
+}
+.dog-bubble::after{content:’’;position:absolute;bottom:-8px;right:16px;
+border:8px solid transparent;border-top-color:white;border-bottom:none;}
+@keyframes bubblePop{to{opacity:1;}}
+.dog-paw{
+position:absolute;font-size:1.2rem;opacity:0;
+animation:pawPrint .3s ease forwards;
+}
+@keyframes pawPrint{0%{opacity:.8;transform:scale(1.2)}100%{opacity:0;transform:scale(.8)}}
+
 /* ══════════════════════════════════════
 LOGIN
 ══════════════════════════════════════ */
@@ -112,7 +142,7 @@ display:none;flex-direction:column;align-items:center;gap:14px;
 CAROUSEL WRAPPER
 ══════════════════════════════════════ */
 .carousel-outer{
-position:fixed;inset:0;z-index:1;display:none;
+position:fixed;inset:0;z-index:10;display:none;
 flex-direction:column;
 }
 .carousel-outer.active{display:flex;}
@@ -140,7 +170,6 @@ overflow-y:auto;overflow-x:hidden;
 padding-bottom:80px;
 -webkit-overflow-scrolling:touch;
 transition:transform .32s cubic-bezier(.4,0,.2,1);
-will-change:transform;
 }
 
 /* swipe indicator dots */
@@ -156,11 +185,13 @@ display:flex;justify-content:center;gap:6px;z-index:10;pointer-events:none;
 position:absolute;bottom:0;left:0;right:0;
 background:rgba(18,18,31,.96);backdrop-filter:blur(16px);
 border-top:1px solid var(–border);
-display:flex;padding:8px 4px 20px;z-index:20;
+display:flex;padding:6px 2px 18px;z-index:20;
+overflow-x:auto;-webkit-overflow-scrolling:touch;
 }
-.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:5px 3px;border-radius:10px;}
-.tab .ti{font-size:1.25rem;}
-.tab .tl{font-size:.62rem;color:var(–dim);transition:color .15s;}
+.tab-bar::-webkit-scrollbar{display:none;}
+.tab{flex:0 0 auto;min-width:52px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px 2px;border-radius:10px;}
+.tab .ti{font-size:1.15rem;}
+.tab .tl{font-size:.58rem;color:var(–dim);transition:color .15s;white-space:nowrap;}
 .tab.active .tl{color:var(–yellow);}
 .tab.active .ti{animation:tabPop .25s cubic-bezier(.34,1.5,.64,1);}
 @keyframes tabPop{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
@@ -289,9 +320,9 @@ border:1px solid rgba(6,214,160,.2);
 .toast.info{background:var(–blue);color:#0A0A1A;}
 
 /* ══ MODAL ══ */
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9000;align-items:flex-end;justify-content:center;}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;align-items:flex-end;justify-content:center;isolation:isolate;}
 .overlay.open{display:flex;}
-.modal{background:var(–card);border-radius:24px 24px 0 0;padding:24px 20px 36px;width:100%;max-width:460px;animation:slideUp .26s cubic-bezier(.34,1.3,.64,1);max-height:86vh;overflow-y:auto;}
+.modal{background:var(–card);border-radius:24px 24px 0 0;padding:24px 20px 36px;width:100%;max-width:460px;animation:slideUp .26s cubic-bezier(.34,1.3,.64,1);max-height:86vh;overflow-y:auto;position:relative;z-index:10000;}
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .modal h3{font-family:‘Fredoka One’;font-size:1.25rem;margin-bottom:14px;}
 .mfield{margin-bottom:11px;}
@@ -340,18 +371,20 @@ border:1px solid rgba(6,214,160,.2);
     <div style="color:var(--dim);font-size:.9rem;text-align:center;margin-bottom:4px">הכנס פרטים להתחברות</div>
     <div style="width:100%;max-width:320px;display:flex;flex-direction:column;gap:12px;">
       <div>
-        <label style="display:block;font-size:.74rem;color:var(--dim);margin-bottom:5px">שם משתמש</label>
+        <label style="display:block;font-size:.78rem;color:var(--dim);margin-bottom:6px;font-weight:600">👤 שם משתמש</label>
         <input id="login-username" type="text" placeholder="הכנס שם משתמש"
-          style="width:100%;background:var(--card);border:1.5px solid rgba(255,255,255,.1);border-radius:14px;padding:14px 16px;color:var(--text);font-family:'Rubik';font-size:1rem;outline:none;transition:border-color .2s"
+          style="width:100%;background:#1C1C2E;border:2px solid rgba(255,255,255,.25);border-radius:14px;padding:15px 16px;color:#EEEEF8;font-family:'Rubik';font-size:1rem;outline:none;-webkit-appearance:none;appearance:none;"
           autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-          onfocus="this.style.borderColor='var(--yellow)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+          onfocus="this.style.borderColor='#FFD166';this.style.boxShadow='0 0 0 3px rgba(255,209,102,.2)'"
+          onblur="this.style.borderColor='rgba(255,255,255,.25)';this.style.boxShadow='none'">
       </div>
       <div>
-        <label style="display:block;font-size:.74rem;color:var(--dim);margin-bottom:5px">סיסמה</label>
-        <input id="login-password" type="password" placeholder="הכנס סיסמה (4 ספרות)"
-          style="width:100%;background:var(--card);border:1.5px solid rgba(255,255,255,.1);border-radius:14px;padding:14px 16px;color:var(--text);font-family:'Rubik';font-size:1rem;outline:none;transition:border-color .2s"
+        <label style="display:block;font-size:.78rem;color:var(--dim);margin-bottom:6px;font-weight:600">🔑 סיסמה</label>
+        <input id="login-password" type="password" placeholder="• • • •"
+          style="width:100%;background:#1C1C2E;border:2px solid rgba(255,255,255,.25);border-radius:14px;padding:15px 16px;color:#EEEEF8;font-family:'Rubik';font-size:1.4rem;outline:none;letter-spacing:6px;-webkit-appearance:none;appearance:none;"
           inputmode="numeric" maxlength="4"
-          onfocus="this.style.borderColor='var(--yellow)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'"
+          onfocus="this.style.borderColor='#FFD166';this.style.boxShadow='0 0 0 3px rgba(255,209,102,.2)'"
+          onblur="this.style.borderColor='rgba(255,255,255,.25)';this.style.boxShadow='none'"
           onkeydown="if(event.key==='Enter')doLogin()">
       </div>
       <div id="login-err" style="color:var(--red);font-size:.84rem;text-align:center;height:18px;"></div>
@@ -516,6 +549,8 @@ let editKidId=null, kmThemeIdx=0, kmAvatarData='';
 let dmThemeIdx=0;
 let childSlideIdx=0, dadSlideIdx=0;
 let touchStartX=0, touchStartY=0;
+let carouselRenderFns={}; // store per trackId
+let carouselTabCounts={};
 
 // ── LOAD ──
 async function loadAll() {
@@ -590,6 +625,7 @@ const SPLASH_TYPES = {
   flowers:{label:'🌸 פרחים',  items:['🌸','🌺','🌻','🌹','💐','🌷','🌼','🌿','🍀','🌱','🌾','🎋']},
   animals:{label:'🐾 חיות',   items:['🐶','🐱','🦊','🐰','🐼','🦁','🐸','🦋','🐬','🦄','🐧','🦜']},
   dolls:  {label:'🧸 בובות',  items:['🧸','👾','🎮','🪆','🎪','🎠','🎡','🎢','🎯','🎨','🎭','🎬']},
+  dog:    {label:'🐕 כלב',    items:[]},
 };
 
 function renderSplashTypePicker(){
@@ -615,21 +651,56 @@ function runSplash(onDone){
   sub.textContent   = D.dad.splashText||'המשפחה שלנו';
 
   const type = D.dad.splashType||'money';
-  const items = SPLASH_TYPES[type]?.items || SPLASH_TYPES.money.items;
-
   const container = document.getElementById('splash-coins');
   container.innerHTML='';
-  for(let i=0;i<24;i++){
-    const c=document.createElement('div');
-    c.className='coin';
-    c.textContent=items[Math.floor(Math.random()*items.length)];
-    c.style.left=Math.random()*100+'%';
-    c.style.fontSize=(1.4+Math.random()*2.2)+'rem';
-    const d=0.3+Math.random()*2;
-    const delay=Math.random()*Math.max(0.5,(dur/1000-d-0.5));
-    c.style.animationDuration=d+'s';
-    c.style.animationDelay=delay+'s';
-    container.appendChild(c);
+
+  if(type==='dog'){
+    // Walking dog animation
+    const dogWrap=document.createElement('div');
+    dogWrap.className='dog-wrap';
+    dogWrap.style.animationDuration=(dur/1000*0.85)+'s';
+    dogWrap.style.animationDelay='0.5s';
+    dogWrap.innerHTML='🐕';
+
+    const bubble=document.createElement('div');
+    bubble.className='dog-bubble';
+    bubble.textContent='שלום! 👋';
+    // bubble appears at midpoint
+    bubble.style.animationDelay=(dur/1000*0.42)+'s';
+    dogWrap.appendChild(bubble);
+
+    // wave paw emoji timed at mid
+    const paw=document.createElement('div');
+    paw.style.cssText=`position:absolute;top:-20px;left:-10px;font-size:1.8rem;animation:none;`;
+    paw.textContent='🐾';
+    dogWrap.appendChild(paw);
+
+    container.appendChild(dogWrap);
+
+    // Scatter paw prints on ground
+    for(let i=0;i<8;i++){
+      const pw=document.createElement('div');
+      pw.className='dog-paw';
+      pw.textContent='🐾';
+      pw.style.bottom=(5+Math.random()*8)+'%';
+      pw.style.right=(10+i*11)+'%';
+      pw.style.animationDelay=(0.5+i*0.3)+'s';
+      container.appendChild(pw);
+    }
+  } else {
+    const items = SPLASH_TYPES[type]?.items || SPLASH_TYPES.money.items;
+    for(let i=0;i<24;i++){
+      const c=document.createElement('div');
+      c.className='coin';
+      c.textContent=items[Math.floor(Math.random()*items.length)];
+      c.style.left=Math.random()*100+'%';
+      c.style.fontSize=(1.4+Math.random()*2.2)+'rem';
+      const d=0.3+Math.random()*2;
+      const delay=Math.random()*Math.max(0.5,(dur/1000-d-0.5));
+      c.style.animationDuration=d+'s';
+      c.style.animationDelay=delay+'s';
+      container.appendChild(c);
+    }
   }
 
   document.getElementById('splash-bar').style.animationDuration=Math.max(0.5,(dur/1000-1.1))+'s';
@@ -713,15 +784,22 @@ function buildCarousel(containerId, trackId, tabsId, dotsId, tabs, renderFns){
     dotsEl.appendChild(dot);
   });
 
+  // store for swipe handler
+  carouselRenderFns[trackId]={fns:renderFns,tabsId,dotsId,count:tabs.length};
+  carouselTabCounts[trackId]=tabs.length;
+
   // swipe
   track.addEventListener('touchstart',e=>{ touchStartX=e.touches[0].clientX; touchStartY=e.touches[0].clientY; },{passive:true});
   track.addEventListener('touchend',e=>{
     const dx=e.changedTouches[0].clientX-touchStartX;
     const dy=e.changedTouches[0].clientY-touchStartY;
-    if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>40){
+    if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>50){
+      const info=carouselRenderFns[trackId];
+      if(!info)return;
       const cur=trackId==='child-track'?childSlideIdx:dadSlideIdx;
-      const next=dx<0?Math.min(cur+1,tabs.length-1):Math.max(cur-1,0);
-      if(next!==cur) goSlide(trackId,tabsId,dotsId,next,renderFns);
+      // dx<0 = swipe left = go to next (index+1)
+      const next=dx<0?Math.min(cur+1,info.count-1):Math.max(cur-1,0);
+      if(next!==cur) goSlide(trackId,info.tabsId,info.dotsId,next,info.fns);
     }
   },{passive:true});
 
@@ -741,8 +819,9 @@ function goSlide(trackId,tabsId,dotsId,idx,renderFns){
   document.querySelectorAll('#'+tabsId+' .tab').forEach((t,i)=>t.classList.toggle('active',i===idx));
   document.querySelectorAll('#'+dotsId+' .sdot').forEach((d,i)=>d.classList.toggle('active',i===idx));
 
+  // always re-render the active slide
   const slide=document.getElementById(trackId+'-slide-'+idx);
-  if(slide && slide.innerHTML.trim()==='') renderFns[idx](slide);
+  if(slide && renderFns[idx]) renderFns[idx](slide);
 }
 
 // position slides initially
@@ -795,7 +874,8 @@ function openChild(kidId){
     Object.assign(k,snap.data());
     checkAutoInterest(k);
     const cur=childSlideIdx;
-    childRenderFns[cur](document.getElementById('child-track-slide-'+cur));
+    const slideEl=document.getElementById('child-track-slide-'+cur);
+    if(slideEl && window.childRenderFns && window.childRenderFns[cur]) window.childRenderFns[cur](slideEl);
   }));
   unsubs.push(onSnapshot(taskRef(kidId),snap=>{ if(snap.exists()){ k.tasks=snap.data().tasks||[]; updateChildBadge(k); } }));
   unsubs.push(onSnapshot(reqRef(kidId), snap=>{ if(snap.exists()){ k.requests=snap.data().requests||[]; updateChildBadge(k); } }));
