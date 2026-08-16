@@ -4,9 +4,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Rubik:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Rubik:wght@400;500;600;700&display=swap"></noscript>
 <title>ארנק חכם 💰</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Rubik:wght@400;500;600;700&display=swap');
+/* Google Fonts loaded via <link> in <head> for faster rendering */
 
 :root {
 –dark:#12121F; –card:#1C1C2E; –card2:#252540;
@@ -675,15 +679,18 @@ async function loadAll() {
   } else {
     await setDoc(cfgRef(),{dad:D.dad,kids:[]});
   }
-  for (const k of D.kids) {
-    const ks = await getDoc(kidRef(k.id));
+  // ⚡ טעינה מקבילית — כל הילדים בו-זמנית במקום אחד אחרי השני
+  await Promise.all(D.kids.map(async (k) => {
+    const [ks, ts, rs] = await Promise.all([
+      getDoc(kidRef(k.id)),
+      getDoc(taskRef(k.id)),
+      getDoc(reqRef(k.id))
+    ]);
     if (ks.exists()) Object.assign(k, ks.data());
     else await setDoc(kidRef(k.id),{balance:0,savings:0,savingsRate:3.9,lastSavingsMonth:'',history:[],message:'',goal:null,graphData:[],avatar:'',themeIdx:0,fontIdx:4});
-    const ts = await getDoc(taskRef(k.id));
-    k.tasks = ts.exists() ? (ts.data().tasks||[]) : [];
-    const rs = await getDoc(reqRef(k.id));
-    k.requests = rs.exists() ? (rs.data().requests||[]) : [];
-  }
+    k.tasks    = ts.exists() ? (ts.data().tasks    || []) : [];
+    k.requests = rs.exists() ? (rs.data().requests || []) : [];
+  }));
 }
 
 async function saveConfig() {
@@ -2484,10 +2491,14 @@ function show(id){
 
 // ── INIT ──
 try {
-  show('loading');
-  await loadAll();
-  runSplash(()=>showLogin());
   show('splash');
+  // ⚡ הצג splash ו-טעינת נתונים במקביל — לא אחד אחרי השני!
+  const MIN_SPLASH = 1800; // מינימום 1.8 שניות לאנימציה
+  const startTime = Date.now();
+  await loadAll();
+  const elapsed = Date.now() - startTime;
+  const remaining = Math.max(0, MIN_SPLASH - elapsed);
+  setTimeout(() => runSplash(() => showLogin()), remaining);
 } catch(e) {
   document.getElementById('load-txt').textContent='';
   document.getElementById('loading').innerHTML=`<div style="padding:28px 22px;text-align:center;max-width:340px">
