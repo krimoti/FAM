@@ -4,9 +4,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Rubik:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Rubik:wght@400;500;600;700&display=swap"></noscript>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ארנק חכם">
+<meta name="theme-color" content="#12121F">
 <title>ארנק חכם 💰</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Rubik:wght@400;500;600;700&display=swap');
+/* Google Fonts loaded via <link> in <head> */
 
 :root {
 –dark:#12121F; –card:#1C1C2E; –card2:#252540;
@@ -426,57 +434,26 @@ border:1px solid rgba(6,214,160,.2);
 @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
 
 /* ══ NOTIFICATION BANNER ══ */
-.notif-banner{
-  position:fixed;top:0;left:0;right:0;z-index:99999;
-  padding:0 16px;pointer-events:none;
-}
-.notif-item{
-  background:linear-gradient(135deg,#1C1C2E,#252540);
-  border-radius:0 0 18px 18px;
-  padding:14px 16px 14px;
-  display:flex;align-items:center;gap:12px;
-  box-shadow:0 8px 32px rgba(0,0,0,.6);
-  pointer-events:all;cursor:pointer;
-  transform:translateY(-100%);
-  transition:transform .4s cubic-bezier(.34,1.2,.64,1);
-  margin-bottom:6px;
-  border-bottom:3px solid var(--notif-color,#FFD166);
-}
+.notif-banner{position:fixed;top:0;left:0;right:0;z-index:99999;padding:0 16px;pointer-events:none;}
+.notif-item{background:linear-gradient(135deg,#1C1C2E,#252540);border-radius:0 0 18px 18px;padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(0,0,0,.6);pointer-events:all;cursor:pointer;transform:translateY(-100%);transition:transform .4s cubic-bezier(.34,1.2,.64,1);margin-bottom:6px;border-bottom:3px solid var(--notif-color,#FFD166);}
 .notif-item.show{transform:translateY(0);}
 .notif-icon{font-size:1.6rem;flex-shrink:0;}
 .notif-body{flex:1;}
 .notif-title{font-weight:700;font-size:.88rem;color:#EEEEF8;}
 .notif-sub{font-size:.74rem;color:#8888AA;margin-top:2px;}
 .notif-close{font-size:1rem;color:#8888AA;background:none;border:none;cursor:pointer;padding:4px;}
-
-/* ══ NOTIFICATION CENTER ══ */
-.notif-center-overlay{
-  display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);
-  z-index:88888;align-items:flex-end;justify-content:center;
-}
+.notif-center-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:88888;align-items:flex-end;justify-content:center;}
 .notif-center-overlay.open{display:flex;}
-.notif-center{
-  background:#1a1a2e;border-radius:24px 24px 0 0;
-  padding:20px 16px 36px;width:100%;max-width:460px;
-  max-height:75vh;overflow-y:auto;
-  animation:slideUp .25s cubic-bezier(.34,1.3,.64,1);
-}
-.notif-center h3{font-family:'Fredoka One';font-size:1.2rem;margin-bottom:14px;
-  display:flex;align-items:center;justify-content:space-between;}
-.nc-item{
-  background:rgba(255,255,255,.04);border-radius:13px;padding:12px;
-  margin-bottom:8px;display:flex;gap:10px;align-items:flex-start;
-  border-right:3px solid var(--nc-color,#FFD166);
-  position:relative;
-}
+.notif-center{background:#1a1a2e;border-radius:24px 24px 0 0;padding:20px 16px 36px;width:100%;max-width:460px;max-height:75vh;overflow-y:auto;animation:slideUp .25s cubic-bezier(.34,1.3,.64,1);}
+.notif-center h3{font-family:'Fredoka One';font-size:1.2rem;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;}
+.nc-item{background:rgba(255,255,255,.04);border-radius:13px;padding:12px;margin-bottom:8px;display:flex;gap:10px;align-items:flex-start;border-right:3px solid var(--nc-color,#FFD166);position:relative;}
 .nc-item.unread{background:rgba(255,209,102,.07);}
 .nc-item-icon{font-size:1.3rem;flex-shrink:0;}
 .nc-item-body{flex:1;}
 .nc-item-title{font-size:.86rem;font-weight:700;color:#EEEEF8;}
 .nc-item-sub{font-size:.74rem;color:#8888AA;margin-top:2px;}
 .nc-item-time{font-size:.66rem;color:rgba(255,255,255,.25);margin-top:4px;}
-.nc-dot{width:8px;height:8px;border-radius:50%;background:var(--yellow);
-  position:absolute;top:12px;left:12px;}
+.nc-dot{width:8px;height:8px;border-radius:50%;background:var(--yellow);position:absolute;top:12px;left:12px;}
 
 </style>
 
@@ -544,21 +521,10 @@ border:1px solid rgba(6,214,160,.2);
       <div class="tname" id="cname"></div>
       <div class="tsync"><span class="sync-dot"></span> מסונכרן</div>
     </div>
-    <button onclick="openNotifCenter()"
-      style="position:relative;background:rgba(255,255,255,.07);border:none;border-radius:12px;
-             padding:9px 13px;color:#EEEEF8;cursor:pointer;font-size:1.1rem;margin-left:4px"
-      id="notif-bell-btn">
-      🔔<span id="notif-bell-badge" style="display:none;position:absolute;top:4px;right:4px;
-        width:10px;height:10px;background:#FF6B6B;border-radius:50%;border:2px solid #12121F"></span>
+    <button onclick="openNotifCenter()" style="position:relative;background:rgba(255,255,255,.07);border:none;border-radius:12px;padding:9px 13px;color:#EEEEF8;cursor:pointer;font-size:1.1rem;margin-left:4px" id="notif-bell-btn">
+      🔔<span id="notif-bell-badge" style="display:none;position:absolute;top:4px;right:4px;width:10px;height:10px;background:#FF6B6B;border-radius:50%;border:2px solid #12121F"></span>
     </button>
-    <button onclick="logout()"
-      style="background:linear-gradient(135deg,rgba(255,107,107,.2),rgba(255,107,107,.1));
-             border:1.5px solid rgba(255,107,107,.4);border-radius:12px;
-             padding:9px 16px;color:#FF6B6B;cursor:pointer;font-family:'Rubik';
-             font-size:.88rem;font-weight:700;display:flex;align-items:center;gap:5px;
-             transition:all .18s;white-space:nowrap"
-      onmouseenter="this.style.background='rgba(255,107,107,.25)'"
-      onmouseleave="this.style.background='linear-gradient(135deg,rgba(255,107,107,.2),rgba(255,107,107,.1))'">
+    <button onclick="logout()" style="background:linear-gradient(135deg,rgba(255,107,107,.2),rgba(255,107,107,.1));border:1.5px solid rgba(255,107,107,.4);border-radius:12px;padding:9px 16px;color:#FF6B6B;cursor:pointer;font-family:'Rubik';font-size:.88rem;font-weight:700;display:flex;align-items:center;gap:5px;transition:all .18s;white-space:nowrap" onmouseenter="this.style.background='rgba(255,107,107,.25)'" onmouseleave="this.style.background='linear-gradient(135deg,rgba(255,107,107,.2),rgba(255,107,107,.1))'">
       <span style="font-size:1rem">🚪</span> יציאה
     </button>
   </div>
@@ -736,15 +702,19 @@ async function loadAll() {
   } else {
     await setDoc(cfgRef(),{dad:D.dad,kids:[]});
   }
-  for (const k of D.kids) {
-    const ks = await getDoc(kidRef(k.id));
+  // ⚡ Load all kids in parallel
+  await Promise.all(D.kids.map(async (k) => {
+    const [ks, ts, rs] = await Promise.all([
+      getDoc(kidRef(k.id)),
+      getDoc(taskRef(k.id)),
+      getDoc(reqRef(k.id))
+    ]);
     if (ks.exists()) Object.assign(k, ks.data());
-    else await setDoc(kidRef(k.id),{balance:0,savings:0,savingsRate:3.9,lastSavingsMonth:'',history:[],message:'',goal:null,graphData:[],avatar:'',themeIdx:0,fontIdx:4});
-    const ts = await getDoc(taskRef(k.id));
-    k.tasks = ts.exists() ? (ts.data().tasks||[]) : [];
-    const rs = await getDoc(reqRef(k.id));
-    k.requests = rs.exists() ? (rs.data().requests||[]) : [];
-  }
+    else await setDoc(kidRef(k.id),{balance:0,savings:0,savingsRate:3.9,lastSavingsMonth:'',history:[],message:'',goal:null,graphData:[],themeIdx:0,fontIdx:4});
+    try { k.avatar = localStorage.getItem('avatar_'+k.id)||''; } catch(e){ k.avatar=''; }
+    k.tasks    = ts.exists() ? (ts.data().tasks    || []) : [];
+    k.requests = rs.exists() ? (rs.data().requests || []) : [];
+  }));
 }
 
 async function saveConfig() {
@@ -759,7 +729,7 @@ async function saveKidData(k) {
     balance:k.balance||0, savings:k.savings||0, savingsRate:k.savingsRate??3.9,
     lastSavingsMonth:k.lastSavingsMonth||'', history:k.history||[],
     message:k.message||'', goal:k.goal||null, graphData:k.graphData||[],
-    avatar:k.avatar||'', themeIdx:k.themeIdx??0, fontIdx:k.fontIdx??4
+    themeIdx:k.themeIdx??0, fontIdx:k.fontIdx??4  // avatar in localStorage
   });
 }
 async function saveKidTasks(k){ await setDoc(taskRef(k.id),{tasks:k.tasks||[]}); }
@@ -781,27 +751,17 @@ function g(k, female, male){ return (k.gender||'f')==='f' ? female : male; }
 function applyTheme(themeIdx, fontIdx){
   const t=THEMES[themeIdx??0];
   const f=FONT_SIZES[fontIdx??4];
-  const r=document.documentElement;
-  r.style.setProperty('--dark',t.bg);
-  r.style.setProperty('--card',t.card);
-  r.style.setProperty('--card2',t.card2);
-  r.style.setProperty('--text',t.text);
-  r.style.setProperty('--dim',t.dim);
-  r.style.setProperty('--yellow',t.accent);
-  r.style.setProperty('--green',t.accent);
-  r.style.setProperty('--blue',t.accent);
-  r.style.setProperty('--purple',t.accent);
-  r.style.setProperty('--orange',t.accent);
-  r.style.setProperty('--border',t.bg.startsWith('#F')||t.bg.startsWith('#E')?'rgba(0,0,0,.08)':'rgba(255,255,255,.07)');
-  document.body.style.background=t.bg;
-  document.body.style.color=t.text;
-  r.style.fontSize=f.base;
+  const border=t.bg.startsWith('#F')||t.bg.startsWith('#E')?'rgba(0,0,0,.08)':'rgba(255,255,255,.07)';
+  // ⚡ Single style write = 1 reflow instead of 11
+  let styleEl=document.getElementById('_theme-style');
+  if(!styleEl){ styleEl=document.createElement('style'); styleEl.id='_theme-style'; document.head.appendChild(styleEl); }
+  styleEl.textContent=`:root{--dark:${t.bg};--card:${t.card};--card2:${t.card2};--text:${t.text};--dim:${t.dim};--yellow:${t.accent};--green:${t.accent};--blue:${t.accent};--purple:${t.accent};--orange:${t.accent};--border:${border};font-size:${f.base}}body{background:${t.bg};color:${t.text}}`;
 }
 function resetTheme(){
-  ['--dark','--card','--card2','--text','--dim','--yellow','--green','--blue','--purple','--orange','--border'].forEach(v=>document.documentElement.style.removeProperty(v));
+  const el=document.getElementById('_theme-style');
+  if(el) el.remove();
   document.body.style.background='';
   document.body.style.color='';
-  document.documentElement.style.fontSize='';
 }
 
 // ── SPLASH ──
@@ -1094,22 +1054,32 @@ function buildCarousel(containerId, trackId, tabsId, dotsId, tabs, renderFns){
   renderFns[0](document.getElementById(trackId+'-slide-0'));
 }
 
+const _renderedSlides={};
+const _dirtySlides=new Set();
+function markSlideDirty(trackId,idx){ _dirtySlides.add(trackId+'-'+idx); }
+function markAllSlidesDirty(trackId){ const n=carouselTabCounts[trackId]||8; for(let i=0;i<n;i++) _dirtySlides.add(trackId+'-'+i); }
+
 function goSlide(trackId,tabsId,dotsId,idx,renderFns){
   if(trackId==='child-track') childSlideIdx=idx;
   else dadSlideIdx=idx;
 
   const track=document.getElementById(trackId);
   const slides=track.querySelectorAll('.slide');
-  slides.forEach((s,i)=>{
-    s.style.transform=`translateX(${(i-idx)*100}%)`;
-  });
+  slides.forEach((s,i)=>{ s.style.transform=`translateX(${(i-idx)*100}%)`; });
 
   document.querySelectorAll('#'+tabsId+' .tab').forEach((t,i)=>t.classList.toggle('active',i===idx));
   document.querySelectorAll('#'+dotsId+' .sdot').forEach((d,i)=>d.classList.toggle('active',i===idx));
 
-  // always re-render the active slide
+  // ⚡ Only render if first visit or dirty
+  const key=trackId+'-'+idx;
   const slide=document.getElementById(trackId+'-slide-'+idx);
-  if(slide && renderFns[idx]) renderFns[idx](slide);
+  if(slide && renderFns[idx]){
+    if(!_renderedSlides[key]||_dirtySlides.has(key)){
+      renderFns[idx](slide);
+      _renderedSlides[key]=true;
+      _dirtySlides.delete(key);
+    }
+  }
 }
 
 // position slides initially
@@ -1159,17 +1129,19 @@ function openChild(kidId){
   initSlides('child-track');
   show('child-carousel');
 
-  // live listeners
+  // live listeners ⚡ smart dirty flags
   unsubs.push(onSnapshot(kidRef(kidId),snap=>{
     if(!snap.exists())return;
     Object.assign(k,snap.data());
+    try{k.avatar=localStorage.getItem('avatar_'+k.id)||k.avatar||'';}catch(e){}
     checkAutoInterest(k);
+    markAllSlidesDirty('child-track');
     const cur=childSlideIdx;
     const slideEl=document.getElementById('child-track-slide-'+cur);
-    if(slideEl && window.childRenderFns && window.childRenderFns[cur]) window.childRenderFns[cur](slideEl);
+    if(slideEl&&window.childRenderFns&&window.childRenderFns[cur]){ window.childRenderFns[cur](slideEl); _renderedSlides['child-track-'+cur]=true; }
   }));
-  unsubs.push(onSnapshot(taskRef(kidId),snap=>{ if(snap.exists()){ k.tasks=snap.data().tasks||[]; checkTaskChanges(k); updateChildBadge(k); } }));
-  unsubs.push(onSnapshot(reqRef(kidId), snap=>{ if(snap.exists()){ k.requests=snap.data().requests||[]; checkReqChanges(k); updateChildBadge(k); } }));
+  unsubs.push(onSnapshot(taskRef(kidId),snap=>{ if(snap.exists()){ k.tasks=snap.data().tasks||[]; markSlideDirty('child-track',3); checkTaskChanges(k); updateChildBadge(k); } }));
+  unsubs.push(onSnapshot(reqRef(kidId), snap=>{ if(snap.exists()){ k.requests=snap.data().requests||[]; markSlideDirty('child-track',4); checkReqChanges(k); updateChildBadge(k); } }));
 }
 
 function updateChildBadge(k){
@@ -1560,6 +1532,7 @@ window.saveChildAvatar=async(kidId,e)=>{
       const k=D.kids.find(x=>x.id===kidId);
       if(!k)return;
       k.avatar=canvas.toDataURL('image/jpeg',0.7);
+      try{localStorage.setItem('avatar_'+k.id,k.avatar);}catch(e){}
       await saveKidData(k);
       renderChildDesign(document.getElementById('child-track-slide-5'),k);
       const cav=document.getElementById('cav');
@@ -1588,6 +1561,7 @@ function openDad(){
     {icon:'👥',label:'ילדים'},
     {icon:'🎁',label:'פרסים'},
     {icon:'🏆',label:'כבוד'},
+    {icon:'🛠️',label:'עריכה'},
   ];
   let dadSelectedKid=D.kids[0]?.id||null;
 
@@ -1598,6 +1572,7 @@ function openDad(){
     (el)=>renderDadKids(el),
     (el)=>renderDadPrizes(el),
     (el)=>renderLeaderboard(el),
+    (el)=>renderDadEditor(el),
   ];
 
   buildCarousel('dad-carousel','dad-track','dad-tabs','dad-dots',tabs,dadRenderFns);
@@ -1605,9 +1580,18 @@ function openDad(){
   show('dad-carousel');
 
   D.kids.forEach(k=>{
-    unsubs.push(onSnapshot(kidRef(k.id),snap=>{if(snap.exists()){Object.assign(k,snap.data());}}));
-    unsubs.push(onSnapshot(taskRef(k.id),snap=>{if(snap.exists()){k.tasks=snap.data().tasks||[];updateDadBadge();}}));
-    unsubs.push(onSnapshot(reqRef(k.id), snap=>{if(snap.exists()){k.requests=snap.data().requests||[];updateDadBadge();renderDadRequests(document.getElementById('dad-track-slide-2'));}}));
+    unsubs.push(onSnapshot(kidRef(k.id),snap=>{
+      if(snap.exists()){
+        Object.assign(k,snap.data());
+        try{k.avatar=localStorage.getItem('avatar_'+k.id)||k.avatar||'';}catch(e){}
+        markAllSlidesDirty('dad-track');
+        const cur=dadSlideIdx;
+        const slideEl=document.getElementById('dad-track-slide-'+cur);
+        if(slideEl&&window.dadRenderFns&&window.dadRenderFns[cur]){ window.dadRenderFns[cur](slideEl); _renderedSlides['dad-track-'+cur]=true; }
+      }
+    }));
+    unsubs.push(onSnapshot(taskRef(k.id),snap=>{if(snap.exists()){k.tasks=snap.data().tasks||[];markSlideDirty('dad-track',1);updateDadBadge();}}));
+    unsubs.push(onSnapshot(reqRef(k.id), snap=>{if(snap.exists()){k.requests=snap.data().requests||[];markSlideDirty('dad-track',2);updateDadBadge();renderDadRequests(document.getElementById('dad-track-slide-2'));}}));
   });
 }
 
@@ -2363,7 +2347,7 @@ window.saveKid=async()=>{
   if(editKidId){
     const k=D.kids.find(x=>x.id===editKidId);
     k.name=name; k.emoji=emoji; k.pin=pin; k.themeIdx=kmThemeIdx; k.gender=kmGender;
-    if(kmAvatarData) k.avatar=kmAvatarData;
+    if(kmAvatarData){ k.avatar=kmAvatarData; try{localStorage.setItem('avatar_'+k.id,kmAvatarData);}catch(e){} }
     await saveKidData(k);
   } else {
     const id='k'+Date.now(); const ci=D.kids.length%COLORS.length;
@@ -2547,10 +2531,13 @@ function show(id){
 
 // ── INIT ──
 try {
-  show('loading');
-  await loadAll();
-  runSplash(()=>showLogin());
   show('splash');
+  const MIN_SPLASH = 1800;
+  const startTime = Date.now();
+  await loadAll();
+  const elapsed = Date.now() - startTime;
+  const remaining = Math.max(0, MIN_SPLASH - elapsed);
+  setTimeout(() => runSplash(() => showLogin()), remaining);
 } catch(e) {
   document.getElementById('load-txt').textContent='';
   document.getElementById('loading').innerHTML=`<div style="padding:28px 22px;text-align:center;max-width:340px">
@@ -2562,22 +2549,399 @@ try {
   </div>`;
   show('loading');
 }
+
+// ══════════════════════════════════════
+// NOTIFICATION SYSTEM
+// ══════════════════════════════════════
+let _notifs=[];
+function loadNotifs(kidId){ try{_notifs=JSON.parse(localStorage.getItem('notifs_'+kidId)||'[]');}catch{_notifs=[];} updateNotifBell(); }
+function saveNotifs(kidId){ try{localStorage.setItem('notifs_'+kidId,JSON.stringify(_notifs.slice(0,30)));}catch{} }
+
+function showNotif({icon,title,sub,color='#FFD166',kidId,goToTab}){
+  const id='n'+Date.now();
+  _notifs.unshift({id,icon,title,sub,color,time:Date.now(),unread:true,kidId,goToTab});
+  if(kidId) saveNotifs(kidId);
+  updateNotifBell();
+  const banner=document.getElementById('notif-banner');
+  if(!banner)return;
+  const el=document.createElement('div');
+  el.className='notif-item'; el.style.setProperty('--notif-color',color);
+  el.innerHTML=`<div class="notif-icon">${icon}</div><div class="notif-body"><div class="notif-title">${title}</div>${sub?`<div class="notif-sub">${sub}</div>`:''}</div><button class="notif-close" onclick="this.parentElement.remove()">✕</button>`;
+  el.onclick=(e)=>{ if(e.target.classList.contains('notif-close'))return; el.remove(); if(goToTab!==undefined) goSlide('child-track','child-tabs','child-dots',goToTab,window.childRenderFns); };
+  banner.appendChild(el);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('show')));
+  setTimeout(()=>{ el.classList.remove('show'); setTimeout(()=>el.remove(),400); },5000);
+}
+
+function updateNotifBell(){
+  const unread=_notifs.filter(n=>n.unread).length;
+  const badge=document.getElementById('notif-bell-badge');
+  if(badge) badge.style.display=unread?'block':'none';
+}
+
+window.openNotifCenter=()=>{
+  renderNotifCenter();
+  document.getElementById('notif-center-overlay').classList.add('open');
+  _notifs.forEach(n=>n.unread=false);
+  if(currentUser?.type==='kid'){ const k=D.kids.find(x=>x.id===currentUser.id); if(k) saveNotifs(k.id); }
+  updateNotifBell();
+};
+window.closeNotifCenter=()=>document.getElementById('notif-center-overlay').classList.remove('open');
+window.clearAllNotifs=()=>{
+  _notifs=[];
+  if(currentUser?.type==='kid'){ const k=D.kids.find(x=>x.id===currentUser.id); if(k) saveNotifs(k.id); }
+  renderNotifCenter(); updateNotifBell();
+};
+function renderNotifCenter(){
+  const el=document.getElementById('notif-center-list'); if(!el)return;
+  if(!_notifs.length){el.innerHTML='<div style="text-align:center;color:#8888AA;padding:28px;font-size:.84rem">אין התראות 🎉</div>';return;}
+  const ago=(ts)=>{ const d=Date.now()-ts,m=Math.floor(d/60000),h=Math.floor(d/3600000); if(m<1)return 'עכשיו'; if(m<60)return `לפני ${m} דקות`; if(h<24)return `לפני ${h} שעות`; return new Date(ts).toLocaleDateString('he-IL'); };
+  el.innerHTML=_notifs.map(n=>`<div class="nc-item${n.unread?' unread':''}" style="--nc-color:${n.color};cursor:${n.goToTab!==undefined?'pointer':'default'}" onclick="${n.goToTab!==undefined?`closeNotifCenter();goSlide('child-track','child-tabs','child-dots',${n.goToTab},window.childRenderFns)`:''}">
+    ${n.unread?'<div class="nc-dot"></div>':''}
+    <div class="nc-item-icon">${n.icon}</div>
+    <div class="nc-item-body"><div class="nc-item-title">${n.title}</div>${n.sub?`<div class="nc-item-sub">${n.sub}</div>`:''}<div class="nc-item-time">${ago(n.time)}</div></div>
+  </div>`).join('');
+}
+
+let _lastReqStates={}, _lastTaskStates={};
+function checkReqChanges(k){
+  if(!k?.requests)return;
+  k.requests.forEach(r=>{
+    const prev=_lastReqStates[r.id];
+    if(prev===undefined){_lastReqStates[r.id]=r.status;return;}
+    if(prev===r.status)return;
+    _lastReqStates[r.id]=r.status;
+    if(r.status==='approved') showNotif({icon:'✅',title:`הבקשה "${r.name}" אושרה!`,sub:r.amount>0?`💰 ₪${r.amount} נוספו ליתרה${r.replyNote?' · '+r.replyNote:''}`:r.replyNote||'אבא אישר',color:'#06D6A0',kidId:k.id,goToTab:4});
+    else if(r.status==='rejected') showNotif({icon:'❌',title:`הבקשה "${r.name}" נדחתה`,sub:r.replyNote||'אבא דחה את הבקשה',color:'#FF6B6B',kidId:k.id,goToTab:4});
+  });
+}
+function checkTaskChanges(k){
+  if(!k?.tasks)return;
+  k.tasks.forEach(t=>{
+    const prev=_lastTaskStates[t.id];
+    if(prev===undefined){_lastTaskStates[t.id]=t.status;return;}
+    if(prev===t.status)return;
+    _lastTaskStates[t.id]=t.status;
+    if(t.status==='approved') showNotif({icon:'🏅',title:`משימה "${t.name}" אושרה!`,sub:`+₪${t.bonus} נוספו ליתרה 🎉`,color:'#FFD166',kidId:k.id,goToTab:3});
+  });
+}
+
+// ⚡ Pause BG animation when hidden
+document.addEventListener('visibilitychange',()=>{
+  document.querySelectorAll('.bg span').forEach(el=>{ el.style.animationPlayState=document.hidden?'paused':'running'; });
+});
+
+// ══════════════════════════════════════
+// DAD EDITOR — עריכה מהירה
+// ══════════════════════════════════════
+function renderDadEditor(el){
+  if(!el)return;
+  if(!D.kids.length){el.innerHTML='<div class="sec-pad"><div class="empty-state">אין ילדים עדיין</div></div>';return;}
+  el.innerHTML=`<div class="sec-pad">
+    <div class="sec-ttl">🛠️ בחר ילד/ה לעריכה</div>
+    ${D.kids.map(k=>`
+      <div onclick="openKidEditor('${k.id}')"
+        style="background:var(--card);border-radius:18px;padding:16px;margin-bottom:10px;
+               display:flex;align-items:center;gap:14px;cursor:pointer;
+               border:2px solid ${kidColor(k)}33;"
+        ontouchstart="this.style.background='var(--card2)'"
+        ontouchend="this.style.background='var(--card)'">
+        <div style="font-size:2.2rem">${k.avatar?`<img src="${k.avatar}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid ${kidColor(k)}">`:`${k.emoji}`}</div>
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:1rem">${k.name}</div>
+          <div style="display:flex;gap:8px;margin-top:5px;flex-wrap:wrap">
+            <span style="font-size:.76rem;background:rgba(6,214,160,.12);color:#06D6A0;border-radius:99px;padding:2px 9px">💰 ₪${(k.balance||0).toFixed(2)}</span>
+            <span style="font-size:.76rem;background:rgba(76,201,240,.12);color:#4CC9F0;border-radius:99px;padding:2px 9px">🏦 ₪${(k.savings||0).toFixed(2)}</span>
+            ${k.goal?`<span style="font-size:.76rem;background:rgba(255,209,102,.12);color:var(--yellow);border-radius:99px;padding:2px 9px">🎯 ${k.goal.name}</span>`:''}
+          </div>
+        </div>
+        <div style="font-size:1.4rem;color:var(--dim)">›</div>
+      </div>`).join('')}
+  </div>`;
+}
+
+window.openKidEditor=(kidId)=>{
+  const k=D.kids.find(x=>x.id===kidId); if(!k)return;
+  const col=kidColor(k);
+  const prizes=(k.prizes&&k.prizes.length)?k.prizes:(D.dad.globalPrizes&&D.dad.globalPrizes.length)?D.dad.globalPrizes:DEFAULT_PRIZES;
+  const modal=document.getElementById('kid-editor-modal');
+  modal.innerHTML=`<div class="modal" style="max-height:92vh">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
+      <div style="font-size:2.4rem">${k.avatar?`<img src="${k.avatar}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:3px solid ${col}">`:`${k.emoji}`}</div>
+      <div style="flex:1"><div style="font-family:'Fredoka One';font-size:1.3rem">${k.name}</div><div style="font-size:.76rem;color:var(--dim)">עריכה מהירה</div></div>
+      <button onclick="closeModal('kid-editor-modal')" style="background:rgba(255,255,255,.07);border:none;border-radius:10px;padding:8px 12px;color:var(--dim);cursor:pointer;font-size:1rem">✕</button>
+    </div>
+
+    <details open style="margin-bottom:10px">
+      <summary style="font-weight:700;font-size:.88rem;cursor:pointer;padding:10px;background:rgba(255,255,255,.04);border-radius:11px;list-style:none;display:flex;justify-content:space-between"><span>⚙️ פרטי ילד/ה</span><span style="color:var(--dim)">▾</span></summary>
+      <div style="padding:12px 4px 4px">
+        <div class="arow" style="margin-bottom:7px">
+          <div class="iw"><label>שם</label><input id="ke-name" value="${k.name}" maxlength="14"></div>
+          <div class="iw" style="max-width:70px"><label>אימוג'י</label><input id="ke-emoji" value="${k.emoji}" maxlength="4"></div>
+        </div>
+        <div class="arow" style="margin-bottom:7px">
+          <div class="iw"><label>PIN</label><input id="ke-pin" type="number" value="${k.pin}"></div>
+          <div class="iw"><label>מגדר</label>
+            <select id="ke-gender" style="width:100%;background:var(--dark);border:1.5px solid rgba(255,255,255,.08);border-radius:10px;padding:9px 11px;color:var(--text);font-family:'Rubik';font-size:.88rem">
+              <option value="f" ${(k.gender||'f')==='f'?'selected':''}>👧 בת</option>
+              <option value="m" ${k.gender==='m'?'selected':''}>👦 בן</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-y btn-full" onclick="keSaveDetails('${k.id}')">💾 שמור פרטים</button>
+      </div>
+    </details>
+
+    <details open style="margin-bottom:10px">
+      <summary style="font-weight:700;font-size:.88rem;cursor:pointer;padding:10px;background:rgba(255,255,255,.04);border-radius:11px;list-style:none;display:flex;justify-content:space-between"><span>💰 יתרה — <span style="color:${col}">₪${(k.balance||0).toFixed(2)}</span></span><span style="color:var(--dim)">▾</span></summary>
+      <div style="padding:12px 4px 4px">
+        <div class="arow" style="margin-bottom:7px">
+          <div class="iw"><label>קבע יתרה ל-₪</label><input type="number" id="ke-balance" placeholder="${(k.balance||0).toFixed(2)}" step="0.5" min="0"></div>
+          <button class="btn-y" onclick="keSetBalance('${k.id}')">קבע</button>
+        </div>
+        <div class="arow">
+          <div class="iw"><label>סכום להוסיף/להוריד ₪</label><input type="number" id="ke-add" placeholder="0" step="0.5" min="0"></div>
+          <button class="btn-g" onclick="keAddBalance('${k.id}')">+</button>
+          <button class="btn-r" onclick="keSubBalance('${k.id}')">−</button>
+        </div>
+      </div>
+    </details>
+
+    <details style="margin-bottom:10px">
+      <summary style="font-weight:700;font-size:.88rem;cursor:pointer;padding:10px;background:rgba(255,255,255,.04);border-radius:11px;list-style:none;display:flex;justify-content:space-between"><span>🏦 חיסכון — <span style="color:#4CC9F0">₪${(k.savings||0).toFixed(2)}</span> · ${k.savingsRate??3.9}%</span><span style="color:var(--dim)">▾</span></summary>
+      <div style="padding:12px 4px 4px">
+        <div class="arow" style="margin-bottom:7px">
+          <div class="iw"><label>קבע חיסכון ל-₪</label><input type="number" id="ke-savings" placeholder="${(k.savings||0).toFixed(2)}" step="0.5" min="0"></div>
+          <button class="btn-b" onclick="keSetSavings('${k.id}')">קבע</button>
+        </div>
+        <div class="arow">
+          <div class="iw"><label>ריבית %</label><input type="number" id="ke-rate" value="${k.savingsRate??3.9}" step="0.1" min="0" max="100"></div>
+          <button class="btn-y" onclick="keSetRate('${k.id}')">שמור</button>
+        </div>
+      </div>
+    </details>
+
+    <details style="margin-bottom:10px">
+      <summary style="font-weight:700;font-size:.88rem;cursor:pointer;padding:10px;background:rgba(255,255,255,.04);border-radius:11px;list-style:none;display:flex;justify-content:space-between"><span>🎯 יעד — ${k.goal?`<span style="color:var(--yellow)">${k.goal.name} (₪${k.goal.target})</span>`:'<span style="color:var(--dim)">לא הוגדר</span>'}</span><span style="color:var(--dim)">▾</span></summary>
+      <div style="padding:12px 4px 4px">
+        <div class="arow" style="margin-bottom:7px">
+          <div class="iw"><label>שם יעד</label><input id="ke-goal-name" value="${k.goal?.name||''}" placeholder="אוזניות..." maxlength="30"></div>
+          <div class="iw" style="max-width:90px"><label>סכום ₪</label><input type="number" id="ke-goal-target" value="${k.goal?.target||''}" placeholder="100" min="1"></div>
+        </div>
+        <div class="arow">
+          <button class="btn-y" style="flex:1" onclick="keSetGoal('${k.id}')">💾 שמור יעד</button>
+          ${k.goal?`<button class="btn-r" style="flex:1" onclick="keClearGoal('${k.id}')">🗑️ מחק</button>`:''}
+        </div>
+      </div>
+    </details>
+
+    <details style="margin-bottom:10px">
+      <summary style="font-weight:700;font-size:.88rem;cursor:pointer;padding:10px;background:rgba(255,255,255,.04);border-radius:11px;list-style:none;display:flex;justify-content:space-between"><span>💌 הודעה ${k.message?'<span style="color:var(--green)">✓</span>':''}</span><span style="color:var(--dim)">▾</span></summary>
+      <div style="padding:12px 4px 4px">
+        <div class="iw" style="margin-bottom:7px"><textarea id="ke-msg" placeholder="כל הכבוד! 💪" maxlength="120" style="height:64px">${k.message||''}</textarea></div>
+        <div class="arow">
+          <button class="btn-p" style="flex:1" onclick="keSaveMsg('${k.id}')">💌 שלח</button>
+          ${k.message?`<button class="btn-r" onclick="keClearMsg('${k.id}')">🗑️</button>`:''}
+        </div>
+      </div>
+    </details>
+
+    <details style="margin-bottom:10px">
+      <summary style="font-weight:700;font-size:.88rem;cursor:pointer;padding:10px;background:rgba(255,255,255,.04);border-radius:11px;list-style:none;display:flex;justify-content:space-between"><span>✅ משימות (${(k.tasks||[]).length})</span><span style="color:var(--dim)">▾</span></summary>
+      <div style="padding:12px 4px 4px">
+        ${(k.tasks||[]).length?`<div style="margin-bottom:10px">${k.tasks.map(t=>`
+          <div style="display:flex;align-items:center;gap:8px;padding:8px;background:rgba(255,255,255,.03);border-radius:10px;margin-bottom:5px">
+            <span>${t.emoji||'✅'}</span>
+            <span style="flex:1;font-size:.84rem">${t.name}</span>
+            <span style="font-size:.78rem;color:var(--green)">+₪${t.bonus}</span>
+            <span style="font-size:.72rem;padding:2px 7px;border-radius:99px;background:${t.status==='approved'?'rgba(6,214,160,.15)':t.status==='done-wait'?'rgba(255,159,67,.15)':'rgba(255,255,255,.06)'};color:${t.status==='approved'?'#06D6A0':t.status==='done-wait'?'#FF9F43':'var(--dim)'}">
+              ${t.status==='approved'?'✅':t.status==='done-wait'?'⏳':'פעיל'}
+            </span>
+            <button onclick="keResetTask('${k.id}','${t.id}')" style="background:rgba(255,255,255,.06);border:none;border-radius:7px;padding:4px 7px;color:var(--dim);cursor:pointer;font-size:.72rem" title="אפס">↺</button>
+            <button onclick="keDelTask('${k.id}','${t.id}')" style="background:rgba(255,107,107,.1);border:none;border-radius:7px;padding:4px 7px;color:var(--red);cursor:pointer;font-size:.72rem">🗑️</button>
+          </div>`).join('')}</div>`:'<div style="color:var(--dim);font-size:.82rem;margin-bottom:8px">אין משימות</div>'}
+        <div style="background:rgba(255,255,255,.03);border-radius:11px;padding:10px">
+          <div style="font-size:.76rem;color:var(--dim);margin-bottom:7px">➕ הוסף משימה</div>
+          <div class="arow" style="margin-bottom:5px">
+            <div class="iw"><label>שם</label><input id="ke-task-name" placeholder="סידור חדר..." maxlength="30"></div>
+            <div class="iw" style="max-width:70px"><label>בונוס ₪</label><input type="number" id="ke-task-bonus" placeholder="5"></div>
+            <div class="iw" style="max-width:55px"><label>אימוג'י</label><input id="ke-task-emoji" placeholder="🧹" maxlength="4"></div>
+          </div>
+          <button class="btn-g btn-full" onclick="keAddTask('${k.id}')">➕ הוסף</button>
+        </div>
+      </div>
+    </details>
+
+    <details style="margin-bottom:10px">
+      <summary style="font-weight:700;font-size:.88rem;cursor:pointer;padding:10px;background:rgba(255,255,255,.04);border-radius:11px;list-style:none;display:flex;justify-content:space-between"><span>🎁 פרסים (${prizes.length})</span><span style="color:var(--dim)">▾</span></summary>
+      <div style="padding:12px 4px 4px">
+        ${prizes.map(p=>`
+          <div style="display:flex;align-items:center;gap:8px;padding:8px;background:rgba(255,255,255,.03);border-radius:10px;margin-bottom:5px">
+            <span>${p.emoji}</span><span style="flex:1;font-size:.84rem">${p.name}</span>
+            <span style="font-family:'Fredoka One';color:var(--yellow);font-size:.9rem">₪${p.price}</span>
+            <button onclick="keDelPrize('${k.id}','${p.id}')" style="background:rgba(255,107,107,.1);border:none;border-radius:7px;padding:4px 7px;color:var(--red);cursor:pointer;font-size:.72rem">🗑️</button>
+          </div>`).join('')}
+        <div style="background:rgba(255,255,255,.03);border-radius:11px;padding:10px;margin-top:6px">
+          <div style="font-size:.76rem;color:var(--dim);margin-bottom:7px">➕ הוסף פרס</div>
+          <div class="arow" style="margin-bottom:5px">
+            <div class="iw"><label>שם</label><input id="ke-prize-name" placeholder="שעת מסך..." maxlength="30"></div>
+            <div class="iw" style="max-width:70px"><label>מחיר ₪</label><input type="number" id="ke-prize-price" placeholder="30"></div>
+          </div>
+          <div class="arow" style="margin-bottom:5px">
+            <div class="iw"><label>אימוג'י</label><input id="ke-prize-emoji" placeholder="🎁" maxlength="4"></div>
+            <div class="iw"><label>תיאור</label><input id="ke-prize-desc" placeholder="פירוט..." maxlength="40"></div>
+          </div>
+          <button class="btn-y btn-full" onclick="keAddPrize('${k.id}')">➕ הוסף פרס</button>
+        </div>
+      </div>
+    </details>
+
+    <details style="margin-bottom:16px">
+      <summary style="font-weight:700;font-size:.88rem;cursor:pointer;padding:10px;background:rgba(255,255,255,.04);border-radius:11px;list-style:none;display:flex;justify-content:space-between"><span>📋 היסטוריה (${(k.history||[]).length})</span><span style="color:var(--dim)">▾</span></summary>
+      <div style="padding:12px 4px 4px">
+        <div style="max-height:220px;overflow-y:auto">
+          ${(k.history||[]).slice(0,30).map((tx,i)=>`
+            <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04)">
+              <span>${tx.type==='add'||tx.type==='bonus'?'⬆️':tx.type==='sub'?'⬇️':tx.type==='savings'?'🏦':'📌'}</span>
+              <span style="flex:1;font-size:.78rem;color:var(--dim)">${tx.note||tx.type}</span>
+              <span style="font-size:.8rem;font-weight:700;color:${tx.type==='sub'?'var(--red)':'var(--green)'}">${tx.type==='add'||tx.type==='bonus'?'+':tx.type==='sub'?'-':''}₪${Math.abs(tx.amount||0).toFixed(2)}</span>
+              <span style="font-size:.66rem;color:rgba(255,255,255,.2)">${(tx.date||'').split(' ')[0]}</span>
+              ${!tx.protected?`<button onclick="keDelHistTx('${k.id}',${i})" style="background:none;border:none;color:rgba(255,107,107,.5);cursor:pointer;font-size:.75rem;padding:2px 4px">✕</button>`:''}
+            </div>`).join('')}
+        </div>
+        ${(k.history||[]).length?`<button class="btn-r btn-full" style="margin-top:10px" onclick="keClearAllHistory('${k.id}')">🗑️ מחק כל ההיסטוריה</button>`:''}
+      </div>
+    </details>
+
+    <button onclick="closeModal('kid-editor-modal')" style="width:100%;background:rgba(255,255,255,.06);border:none;border-radius:12px;padding:12px;color:var(--dim);cursor:pointer;font-family:'Rubik';font-size:.88rem">סגור</button>
+  </div>`;
+  openModal('kid-editor-modal');
+};
+
+// KE actions
+window.keSaveDetails=async(kidId)=>{
+  const k=D.kids.find(x=>x.id===kidId); if(!k)return;
+  const name=document.getElementById('ke-name')?.value.trim();
+  const emoji=document.getElementById('ke-emoji')?.value.trim()||k.emoji;
+  const pin=String(document.getElementById('ke-pin')?.value||k.pin).replace(/\D/g,'').padStart(4,'0').slice(0,4);
+  const gender=document.getElementById('ke-gender')?.value||k.gender||'f';
+  if(!name){toast('הכנס שם',true);return;}
+  k.name=name; k.emoji=emoji; k.pin=pin; k.gender=gender;
+  await saveConfig(); markAllSlidesDirty('dad-track'); toast('✅ פרטים עודכנו'); openKidEditor(kidId);
+};
+window.keSetBalance=async(kidId)=>{
+  const k=D.kids.find(x=>x.id===kidId); if(!k)return;
+  const val=parseFloat(document.getElementById('ke-balance')?.value);
+  if(isNaN(val)||val<0){toast('יתרה לא תקינה',true);return;}
+  const old=k.balance||0; k.balance=Math.round(val*100)/100;
+  k.history=[{type:'set',amount:val,note:`עריכה ידנית: ₪${old.toFixed(2)}→₪${val.toFixed(2)}`,date:nowStr()},...(k.history||[])].slice(0,60);
+  addGraphPt(k); await saveKidData(k); markAllSlidesDirty('dad-track'); toast('✅ יתרה עודכנה'); openKidEditor(kidId);
+};
+window.keAddBalance=async(kidId)=>{
+  const k=D.kids.find(x=>x.id===kidId); if(!k)return;
+  const amt=parseFloat(document.getElementById('ke-add')?.value);
+  if(!amt||amt<=0){toast('הכנס סכום',true);return;}
+  k.balance=Math.round(((k.balance||0)+amt)*100)/100;
+  k.history=[{type:'add',amount:amt,note:'הפקדה ידנית',date:nowStr()},...(k.history||[])].slice(0,60);
+  addGraphPt(k); await saveKidData(k); markAllSlidesDirty('dad-track'); toast(`✅ +₪${amt.toFixed(2)}`); openKidEditor(kidId);
+};
+window.keSubBalance=async(kidId)=>{
+  const k=D.kids.find(x=>x.id===kidId); if(!k)return;
+  const amt=parseFloat(document.getElementById('ke-add')?.value);
+  if(!amt||amt<=0){toast('הכנס סכום',true);return;}
+  k.balance=Math.round(((k.balance||0)-amt)*100)/100;
+  k.history=[{type:'sub',amount:amt,note:'הורדה ידנית',date:nowStr()},...(k.history||[])].slice(0,60);
+  addGraphPt(k); await saveKidData(k); markAllSlidesDirty('dad-track'); toast(`✅ -₪${amt.toFixed(2)}`); openKidEditor(kidId);
+};
+window.keSetSavings=async(kidId)=>{
+  const k=D.kids.find(x=>x.id===kidId); if(!k)return;
+  const val=parseFloat(document.getElementById('ke-savings')?.value);
+  if(isNaN(val)||val<0){toast('סכום לא תקין',true);return;}
+  k.savings=Math.round(val*100)/100;
+  k.history=[{type:'savings',amount:val,note:`עריכת חיסכון: ₪${val.toFixed(2)}`,date:nowStr(),protected:true},...(k.history||[])].slice(0,60);
+  await saveKidData(k); markAllSlidesDirty('dad-track'); toast('✅ חיסכון עודכן'); openKidEditor(kidId);
+};
+window.keSetRate=async(kidId)=>{
+  const k=D.kids.find(x=>x.id===kidId); if(!k)return;
+  const rate=parseFloat(document.getElementById('ke-rate')?.value);
+  if(isNaN(rate)||rate<0||rate>100){toast('ריבית לא תקינה',true);return;}
+  k.savingsRate=rate; await saveKidData(k); markAllSlidesDirty('dad-track'); toast(`✅ ריבית ${rate}%`); openKidEditor(kidId);
+};
+window.keSetGoal=async(kidId)=>{
+  const k=D.kids.find(x=>x.id===kidId); if(!k)return;
+  const name=document.getElementById('ke-goal-name')?.value.trim();
+  const target=parseFloat(document.getElementById('ke-goal-target')?.value);
+  if(!name||!target||target<=0){toast('הכנס שם וסכום',true);return;}
+  k.goal={name,target}; await saveKidData(k); markAllSlidesDirty('dad-track'); toast('🎯 יעד עודכן'); openKidEditor(kidId);
+};
+window.keClearGoal=async(kidId)=>{
+  const k=D.kids.find(x=>x.id===kidId); if(!k)return;
+  k.goal=null; await saveKidData(k); markAllSlidesDirty('dad-track'); toast('🗑️ יעד נמחק'); openKidEditor(kidId);
+};
+window.keSaveMsg=async(kidId)=>{
+  const k=D.kids.find(x=>x.id===kidId); if(!k)return;
+  k.message=document.getElementById('ke-msg')?.value.trim()||'';
+  await saveKidData(k); markAllSlidesDirty('dad-track'); toast('💌 הודעה נשמרה'); openKidEditor(kidId);
+};
+window.keClearMsg=async(kidId)=>{
+  const k=D.kids.find(x=>x.id===kidId); if(!k)return;
+  k.message=''; await saveKidData(k); markAllSlidesDirty('dad-track'); toast('🗑️ הודעה נמחקה'); openKidEditor(kidId);
+};
+window.keResetTask=async(kidId,taskId)=>{
+  const k=D.kids.find(x=>x.id===kidId); if(!k)return;
+  const t=k.tasks.find(x=>x.id===taskId); if(!t)return;
+  t.status='active'; await saveKidTasks(k); toast('↺ אופסה'); openKidEditor(kidId);
+};
+window.keDelTask=async(kidId,taskId)=>{
+  const k=D.kids.find(x=>x.id===kidId); if(!k)return;
+  k.tasks=k.tasks.filter(x=>x.id!==taskId); await saveKidTasks(k); toast('🗑️ נמחקה'); openKidEditor(kidId);
+};
+window.keAddTask=async(kidId)=>{
+  const k=D.kids.find(x=>x.id===kidId); if(!k)return;
+  const name=document.getElementById('ke-task-name')?.value.trim();
+  const bonus=parseFloat(document.getElementById('ke-task-bonus')?.value)||0;
+  const emoji=document.getElementById('ke-task-emoji')?.value.trim()||'✅';
+  if(!name){toast('הכנס שם',true);return;}
+  k.tasks=[...(k.tasks||[]),{id:'t'+Date.now(),name,bonus,emoji,status:'active',active:true}];
+  await saveKidTasks(k); toast('✅ נוספה'); openKidEditor(kidId);
+};
+window.keDelPrize=async(kidId,prizeId)=>{
+  const prizes=getPrizesArr(kidId).filter(p=>p.id!==prizeId);
+  await setPrizesArr(kidId,prizes); toast('🗑️ נמחק'); openKidEditor(kidId);
+};
+window.keAddPrize=async(kidId)=>{
+  const name=document.getElementById('ke-prize-name')?.value.trim();
+  const price=parseFloat(document.getElementById('ke-prize-price')?.value);
+  const emoji=document.getElementById('ke-prize-emoji')?.value.trim()||'🎁';
+  const desc=document.getElementById('ke-prize-desc')?.value.trim()||'';
+  if(!name||!price||price<=0){toast('הכנס שם ומחיר',true);return;}
+  const prizes=getPrizesArr(kidId);
+  prizes.push({id:'p'+Date.now(),name,price,emoji,desc});
+  await setPrizesArr(kidId,prizes); toast('✅ נוסף'); openKidEditor(kidId);
+};
+window.keDelHistTx=async(kidId,idx)=>{
+  const k=D.kids.find(x=>x.id===kidId); if(!k)return;
+  if(k.history[idx]?.protected){toast('לא ניתן למחוק',true);return;}
+  k.history.splice(idx,1); await saveKidData(k); toast('🗑️ נמחק'); openKidEditor(kidId);
+};
+window.keClearAllHistory=async(kidId)=>{
+  const k=D.kids.find(x=>x.id===kidId); if(!k)return;
+  if(!confirm(`למחוק כל ההיסטוריה של ${k.name}?`))return;
+  k.history=(k.history||[]).filter(tx=>tx.protected);
+  await saveKidData(k); toast('🗑️ נמחק'); openKidEditor(kidId);
+};
+
 </script>
 
 
-<!-- ══ NOTIFICATION BANNER CONTAINER ══ -->
 <div class="notif-banner" id="notif-banner"></div>
-
-<!-- ══ NOTIFICATION CENTER ══ -->
 <div class="notif-center-overlay" id="notif-center-overlay" onclick="if(event.target===this)closeNotifCenter()">
   <div class="notif-center">
-    <h3>
-      <span>🔔 התראות</span>
-      <button onclick="clearAllNotifs()" style="background:rgba(255,107,107,.12);border:1px solid rgba(255,107,107,.3);border-radius:9px;padding:5px 11px;color:#FF6B6B;cursor:pointer;font-family:'Rubik';font-size:.76rem">נקה הכל</button>
-    </h3>
+    <h3><span>🔔 התראות</span><button onclick="clearAllNotifs()" style="background:rgba(255,107,107,.12);border:1px solid rgba(255,107,107,.3);border-radius:9px;padding:5px 11px;color:#FF6B6B;cursor:pointer;font-family:'Rubik';font-size:.76rem">נקה הכל</button></h3>
     <div id="notif-center-list"></div>
   </div>
 </div>
+<div class="overlay" id="kid-editor-modal"></div>
 
 </body>
 </html>
