@@ -424,6 +424,60 @@ border:1px solid rgba(6,214,160,.2);
 .spin{width:44px;height:44px;border:3px solid rgba(255,209,102,.2);border-top-color:var(–yellow);border-radius:50%;animation:spin .8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+
+/* ══ NOTIFICATION BANNER ══ */
+.notif-banner{
+  position:fixed;top:0;left:0;right:0;z-index:99999;
+  padding:0 16px;pointer-events:none;
+}
+.notif-item{
+  background:linear-gradient(135deg,#1C1C2E,#252540);
+  border-radius:0 0 18px 18px;
+  padding:14px 16px 14px;
+  display:flex;align-items:center;gap:12px;
+  box-shadow:0 8px 32px rgba(0,0,0,.6);
+  pointer-events:all;cursor:pointer;
+  transform:translateY(-100%);
+  transition:transform .4s cubic-bezier(.34,1.2,.64,1);
+  margin-bottom:6px;
+  border-bottom:3px solid var(--notif-color,#FFD166);
+}
+.notif-item.show{transform:translateY(0);}
+.notif-icon{font-size:1.6rem;flex-shrink:0;}
+.notif-body{flex:1;}
+.notif-title{font-weight:700;font-size:.88rem;color:#EEEEF8;}
+.notif-sub{font-size:.74rem;color:#8888AA;margin-top:2px;}
+.notif-close{font-size:1rem;color:#8888AA;background:none;border:none;cursor:pointer;padding:4px;}
+
+/* ══ NOTIFICATION CENTER ══ */
+.notif-center-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);
+  z-index:88888;align-items:flex-end;justify-content:center;
+}
+.notif-center-overlay.open{display:flex;}
+.notif-center{
+  background:#1a1a2e;border-radius:24px 24px 0 0;
+  padding:20px 16px 36px;width:100%;max-width:460px;
+  max-height:75vh;overflow-y:auto;
+  animation:slideUp .25s cubic-bezier(.34,1.3,.64,1);
+}
+.notif-center h3{font-family:'Fredoka One';font-size:1.2rem;margin-bottom:14px;
+  display:flex;align-items:center;justify-content:space-between;}
+.nc-item{
+  background:rgba(255,255,255,.04);border-radius:13px;padding:12px;
+  margin-bottom:8px;display:flex;gap:10px;align-items:flex-start;
+  border-right:3px solid var(--nc-color,#FFD166);
+  position:relative;
+}
+.nc-item.unread{background:rgba(255,209,102,.07);}
+.nc-item-icon{font-size:1.3rem;flex-shrink:0;}
+.nc-item-body{flex:1;}
+.nc-item-title{font-size:.86rem;font-weight:700;color:#EEEEF8;}
+.nc-item-sub{font-size:.74rem;color:#8888AA;margin-top:2px;}
+.nc-item-time{font-size:.66rem;color:rgba(255,255,255,.25);margin-top:4px;}
+.nc-dot{width:8px;height:8px;border-radius:50%;background:var(--yellow);
+  position:absolute;top:12px;left:12px;}
+
 </style>
 
 </head>
@@ -490,6 +544,13 @@ border:1px solid rgba(6,214,160,.2);
       <div class="tname" id="cname"></div>
       <div class="tsync"><span class="sync-dot"></span> מסונכרן</div>
     </div>
+    <button onclick="openNotifCenter()"
+      style="position:relative;background:rgba(255,255,255,.07);border:none;border-radius:12px;
+             padding:9px 13px;color:#EEEEF8;cursor:pointer;font-size:1.1rem;margin-left:4px"
+      id="notif-bell-btn">
+      🔔<span id="notif-bell-badge" style="display:none;position:absolute;top:4px;right:4px;
+        width:10px;height:10px;background:#FF6B6B;border-radius:50%;border:2px solid #12121F"></span>
+    </button>
     <button onclick="logout()"
       style="background:linear-gradient(135deg,rgba(255,107,107,.2),rgba(255,107,107,.1));
              border:1.5px solid rgba(255,107,107,.4);border-radius:12px;
@@ -1072,6 +1133,7 @@ function openChild(kidId){
   document.getElementById('cname').textContent=k.name;
   document.getElementById('gear').style.display='none';
 
+  loadNotifs(kidId);
   childSlideIdx=0;
   const tabs=[
     {icon:'🏠',label:'בית'},
@@ -1106,8 +1168,8 @@ function openChild(kidId){
     const slideEl=document.getElementById('child-track-slide-'+cur);
     if(slideEl && window.childRenderFns && window.childRenderFns[cur]) window.childRenderFns[cur](slideEl);
   }));
-  unsubs.push(onSnapshot(taskRef(kidId),snap=>{ if(snap.exists()){ k.tasks=snap.data().tasks||[]; updateChildBadge(k); } }));
-  unsubs.push(onSnapshot(reqRef(kidId), snap=>{ if(snap.exists()){ k.requests=snap.data().requests||[]; updateChildBadge(k); } }));
+  unsubs.push(onSnapshot(taskRef(kidId),snap=>{ if(snap.exists()){ k.tasks=snap.data().tasks||[]; checkTaskChanges(k); updateChildBadge(k); } }));
+  unsubs.push(onSnapshot(reqRef(kidId), snap=>{ if(snap.exists()){ k.requests=snap.data().requests||[]; checkReqChanges(k); updateChildBadge(k); } }));
 }
 
 function updateChildBadge(k){
@@ -1369,6 +1431,7 @@ window.sendReq=async(kidId)=>{
   document.getElementById('rqam-'+kidId).value='';
   document.getElementById('rqnt-'+kidId).value='';
   toast('📨 נשלח לאבא!');
+  showNotif({icon:'📨',title:'הבקשה נשלחה לאבא',sub:`"${name}" — ממתין לאישור`,color:'#C77DFF',kidId,goToTab:4});
 };
 
 // ── CHILD STORE ──
@@ -1525,7 +1588,6 @@ function openDad(){
     {icon:'👥',label:'ילדים'},
     {icon:'🎁',label:'פרסים'},
     {icon:'🏆',label:'כבוד'},
-    {icon:'🛠️',label:'עריכה'},
   ];
   let dadSelectedKid=D.kids[0]?.id||null;
 
@@ -1536,7 +1598,6 @@ function openDad(){
     (el)=>renderDadKids(el),
     (el)=>renderDadPrizes(el),
     (el)=>renderLeaderboard(el),
-    (el)=>renderDadEditor(el),
   ];
 
   buildCarousel('dad-carousel','dad-track','dad-tabs','dad-dots',tabs,dadRenderFns);
@@ -2501,399 +2562,22 @@ try {
   </div>`;
   show('loading');
 }
-
-// ══════════════════════════════════════
-// DAD EDITOR — עריכה מהירה של כל שדה
-// ══════════════════════════════════════
-function renderDadEditor(el){
-  if(!el)return;
-  if(!D.kids.length){el.innerHTML='<div class="sec-pad"><div class="empty-state">אין ילדים עדיין</div></div>';return;}
-  el.innerHTML=`<div class="sec-pad">
-    <div class="sec-ttl">🛠️ עריכה מהירה — בחר ילד/ה</div>
-    ${D.kids.map(k=>`
-      <div onclick="openKidEditor('${k.id}')"
-        style="background:var(--card);border-radius:18px;padding:16px;margin-bottom:10px;
-               display:flex;align-items:center;gap:14px;cursor:pointer;
-               border:2px solid ${kidColor(k)}33;
-               transition:all .15s;active:transform:scale(.97)"
-        ontouchstart="this.style.background='var(--card2)'"
-        ontouchend="this.style.background='var(--card)'">
-        <div style="font-size:2.2rem">
-          ${k.avatar?`<img src="${k.avatar}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid ${kidColor(k)}">`:`${k.emoji}`}
-        </div>
-        <div style="flex:1">
-          <div style="font-weight:700;font-size:1rem">${k.name}</div>
-          <div style="display:flex;gap:10px;margin-top:5px;flex-wrap:wrap">
-            <span style="font-size:.76rem;background:rgba(6,214,160,.12);color:#06D6A0;border-radius:99px;padding:2px 9px">💰 ₪${(k.balance||0).toFixed(2)}</span>
-            <span style="font-size:.76rem;background:rgba(76,201,240,.12);color:#4CC9F0;border-radius:99px;padding:2px 9px">🏦 ₪${(k.savings||0).toFixed(2)}</span>
-            ${k.goal?`<span style="font-size:.76rem;background:rgba(255,209,102,.12);color:var(--yellow);border-radius:99px;padding:2px 9px">🎯 ${k.goal.name}</span>`:''}
-          </div>
-        </div>
-        <div style="font-size:1.4rem;color:var(--dim)">›</div>
-      </div>`).join('')}
-  </div>`;
-}
-
-window.openKidEditor=(kidId)=>{
-  const k=D.kids.find(x=>x.id===kidId); if(!k)return;
-  const col=kidColor(k);
-  const prizes=(k.prizes&&k.prizes.length)?k.prizes:(D.dad.globalPrizes&&D.dad.globalPrizes.length)?D.dad.globalPrizes:DEFAULT_PRIZES;
-
-  const modal=document.getElementById('kid-editor-modal');
-  modal.innerHTML=`<div class="modal" style="max-height:92vh">
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
-      <div style="font-size:2.4rem">${k.avatar?`<img src="${k.avatar}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:3px solid ${col}">`:`${k.emoji}`}</div>
-      <div style="flex:1">
-        <div style="font-family:'Fredoka One';font-size:1.3rem">${k.name}</div>
-        <div style="font-size:.76rem;color:var(--dim)">עריכה מהירה של כל הנתונים</div>
-      </div>
-      <button onclick="closeModal('kid-editor-modal')" style="background:rgba(255,255,255,.07);border:none;border-radius:10px;padding:8px 12px;color:var(--dim);cursor:pointer;font-size:1rem">✕</button>
-    </div>
-
-    <!-- ── פרטי ילד ── -->
-    <details open style="margin-bottom:10px">
-      <summary style="font-weight:700;font-size:.88rem;cursor:pointer;padding:10px;background:rgba(255,255,255,.04);border-radius:11px;list-style:none;display:flex;justify-content:space-between">
-        <span>⚙️ פרטי ילד/ה</span><span style="color:var(--dim)">▾</span>
-      </summary>
-      <div style="padding:12px 4px 4px">
-        <div class="arow" style="margin-bottom:7px">
-          <div class="iw"><label>שם</label><input id="ke-name" value="${k.name}" maxlength="14"></div>
-          <div class="iw" style="max-width:70px"><label>אימוג'י</label><input id="ke-emoji" value="${k.emoji}" maxlength="4"></div>
-        </div>
-        <div class="arow" style="margin-bottom:7px">
-          <div class="iw"><label>PIN</label><input id="ke-pin" type="number" value="${k.pin}" maxlength="4"></div>
-          <div class="iw"><label>מגדר</label>
-            <select id="ke-gender" style="width:100%;background:var(--dark);border:1.5px solid rgba(255,255,255,.08);border-radius:10px;padding:9px 11px;color:var(--text);font-family:'Rubik';font-size:.88rem">
-              <option value="f" ${(k.gender||'f')==='f'?'selected':''}>👧 בת</option>
-              <option value="m" ${k.gender==='m'?'selected':''}>👦 בן</option>
-            </select>
-          </div>
-        </div>
-        <button class="btn-y btn-full" onclick="keсавеDetails('${k.id}')">💾 שמור פרטים</button>
-      </div>
-    </details>
-
-    <!-- ── יתרה ── -->
-    <details open style="margin-bottom:10px">
-      <summary style="font-weight:700;font-size:.88rem;cursor:pointer;padding:10px;background:rgba(255,255,255,.04);border-radius:11px;list-style:none;display:flex;justify-content:space-between">
-        <span>💰 יתרה נוכחית — <span style="color:${col}">₪${(k.balance||0).toFixed(2)}</span></span><span style="color:var(--dim)">▾</span>
-      </summary>
-      <div style="padding:12px 4px 4px">
-        <div class="arow" style="margin-bottom:7px">
-          <div class="iw"><label>קבע יתרה ל-₪</label><input type="number" id="ke-balance" placeholder="${(k.balance||0).toFixed(2)}" step="0.5" min="0"></div>
-          <button class="btn-y" onclick="keSetBalance('${k.id}')">קבע</button>
-        </div>
-        <div class="arow">
-          <div class="iw"><label>הוסף ₪</label><input type="number" id="ke-add" placeholder="0" step="0.5" min="0"></div>
-          <button class="btn-g" onclick="keAddBalance('${k.id}')">+ הוסף</button>
-          <button class="btn-r" onclick="keSubBalance('${k.id}')">− הורד</button>
-        </div>
-      </div>
-    </details>
-
-    <!-- ── חיסכון ── -->
-    <details style="margin-bottom:10px">
-      <summary style="font-weight:700;font-size:.88rem;cursor:pointer;padding:10px;background:rgba(255,255,255,.04);border-radius:11px;list-style:none;display:flex;justify-content:space-between">
-        <span>🏦 חיסכון — <span style="color:#4CC9F0">₪${(k.savings||0).toFixed(2)}</span> · ${k.savingsRate??3.9}%</span><span style="color:var(--dim)">▾</span>
-      </summary>
-      <div style="padding:12px 4px 4px">
-        <div class="arow" style="margin-bottom:7px">
-          <div class="iw"><label>קבע חיסכון ל-₪</label><input type="number" id="ke-savings" placeholder="${(k.savings||0).toFixed(2)}" step="0.5" min="0"></div>
-          <button class="btn-b" onclick="keSetSavings('${k.id}')">קבע</button>
-        </div>
-        <div class="arow">
-          <div class="iw"><label>ריבית שנתית %</label><input type="number" id="ke-rate" value="${k.savingsRate??3.9}" step="0.1" min="0" max="100"></div>
-          <button class="btn-y" onclick="keSetRate('${k.id}')">שמור</button>
-        </div>
-      </div>
-    </details>
-
-    <!-- ── יעד ── -->
-    <details style="margin-bottom:10px">
-      <summary style="font-weight:700;font-size:.88rem;cursor:pointer;padding:10px;background:rgba(255,255,255,.04);border-radius:11px;list-style:none;display:flex;justify-content:space-between">
-        <span>🎯 יעד — ${k.goal?`<span style="color:var(--yellow)">${k.goal.name} (₪${k.goal.target})</span>`:'<span style="color:var(--dim)">לא הוגדר</span>'}</span><span style="color:var(--dim)">▾</span>
-      </summary>
-      <div style="padding:12px 4px 4px">
-        <div class="arow" style="margin-bottom:7px">
-          <div class="iw"><label>שם יעד</label><input id="ke-goal-name" value="${k.goal?.name||''}" placeholder="אוזניות, טיול..." maxlength="30"></div>
-          <div class="iw" style="max-width:90px"><label>סכום ₪</label><input type="number" id="ke-goal-target" value="${k.goal?.target||''}" placeholder="100" min="1"></div>
-        </div>
-        <div class="arow">
-          <button class="btn-y" style="flex:1" onclick="keSetGoal('${k.id}')">💾 שמור יעד</button>
-          ${k.goal?`<button class="btn-r" style="flex:1" onclick="keClearGoal('${k.id}')">🗑️ מחק יעד</button>`:''}
-        </div>
-      </div>
-    </details>
-
-    <!-- ── הודעה ── -->
-    <details style="margin-bottom:10px">
-      <summary style="font-weight:700;font-size:.88rem;cursor:pointer;padding:10px;background:rgba(255,255,255,.04);border-radius:11px;list-style:none;display:flex;justify-content:space-between">
-        <span>💌 הודעה אישית ${k.message?'<span style="color:var(--green)">✓</span>':''}</span><span style="color:var(--dim)">▾</span>
-      </summary>
-      <div style="padding:12px 4px 4px">
-        <div class="iw" style="margin-bottom:7px">
-          <textarea id="ke-msg" placeholder="כל הכבוד! עוד מאמץ! 💪" maxlength="120" style="height:64px">${k.message||''}</textarea>
-        </div>
-        <div class="arow">
-          <button class="btn-p" style="flex:1" onclick="keSaveMsg('${k.id}')">💌 שלח הודעה</button>
-          ${k.message?`<button class="btn-r" onclick="keClearMsg('${k.id}')">🗑️</button>`:''}
-        </div>
-      </div>
-    </details>
-
-    <!-- ── משימות ── -->
-    <details style="margin-bottom:10px">
-      <summary style="font-weight:700;font-size:.88rem;cursor:pointer;padding:10px;background:rgba(255,255,255,.04);border-radius:11px;list-style:none;display:flex;justify-content:space-between">
-        <span>✅ משימות (${(k.tasks||[]).length})</span><span style="color:var(--dim)">▾</span>
-      </summary>
-      <div style="padding:12px 4px 4px">
-        ${(k.tasks||[]).length?`
-          <div style="margin-bottom:10px">
-            ${k.tasks.map(t=>`
-              <div style="display:flex;align-items:center;gap:8px;padding:8px;background:rgba(255,255,255,.03);border-radius:10px;margin-bottom:5px">
-                <span>${t.emoji||'✅'}</span>
-                <span style="flex:1;font-size:.84rem">${t.name}</span>
-                <span style="font-size:.78rem;color:var(--green)">+₪${t.bonus}</span>
-                <span style="font-size:.72rem;padding:2px 7px;border-radius:99px;background:${t.status==='approved'?'rgba(6,214,160,.15)':t.status==='done-wait'?'rgba(255,159,67,.15)':'rgba(255,255,255,.06)'};color:${t.status==='approved'?'#06D6A0':t.status==='done-wait'?'#FF9F43':'var(--dim)'}">
-                  ${t.status==='approved'?'✅':t.status==='done-wait'?'⏳':'פעיל'}
-                </span>
-                <button onclick="keResetTask('${k.id}','${t.id}')" style="background:rgba(255,255,255,.06);border:none;border-radius:7px;padding:4px 7px;color:var(--dim);cursor:pointer;font-size:.72rem" title="אפס סטטוס">↺</button>
-                <button onclick="keDelTask('${k.id}','${t.id}')" style="background:rgba(255,107,107,.1);border:none;border-radius:7px;padding:4px 7px;color:var(--red);cursor:pointer;font-size:.72rem">🗑️</button>
-              </div>`).join('')}
-          </div>`:'<div style="color:var(--dim);font-size:.82rem;margin-bottom:8px">אין משימות</div>'}
-        <div style="background:rgba(255,255,255,.03);border-radius:11px;padding:10px">
-          <div style="font-size:.76rem;color:var(--dim);margin-bottom:7px">➕ הוסף משימה</div>
-          <div class="arow" style="margin-bottom:5px">
-            <div class="iw"><label>שם</label><input id="ke-task-name" placeholder="סידור חדר..." maxlength="30"></div>
-            <div class="iw" style="max-width:70px"><label>בונוס ₪</label><input type="number" id="ke-task-bonus" placeholder="5"></div>
-            <div class="iw" style="max-width:55px"><label>אימוג'י</label><input id="ke-task-emoji" placeholder="🧹" maxlength="4"></div>
-          </div>
-          <button class="btn-g btn-full" onclick="keAddTask('${k.id}')">➕ הוסף</button>
-        </div>
-      </div>
-    </details>
-
-    <!-- ── פרסים ── -->
-    <details style="margin-bottom:10px">
-      <summary style="font-weight:700;font-size:.88rem;cursor:pointer;padding:10px;background:rgba(255,255,255,.04);border-radius:11px;list-style:none;display:flex;justify-content:space-between">
-        <span>🎁 פרסים (${prizes.length})</span><span style="color:var(--dim)">▾</span>
-      </summary>
-      <div style="padding:12px 4px 4px">
-        ${prizes.map(p=>`
-          <div style="display:flex;align-items:center;gap:8px;padding:8px;background:rgba(255,255,255,.03);border-radius:10px;margin-bottom:5px">
-            <span>${p.emoji}</span>
-            <span style="flex:1;font-size:.84rem">${p.name}</span>
-            <span style="font-family:'Fredoka One';color:var(--yellow);font-size:.9rem">₪${p.price}</span>
-            <button onclick="keDelPrize('${k.id}','${p.id}')" style="background:rgba(255,107,107,.1);border:none;border-radius:7px;padding:4px 7px;color:var(--red);cursor:pointer;font-size:.72rem">🗑️</button>
-          </div>`).join('')}
-        <div style="background:rgba(255,255,255,.03);border-radius:11px;padding:10px;margin-top:6px">
-          <div style="font-size:.76rem;color:var(--dim);margin-bottom:7px">➕ הוסף פרס</div>
-          <div class="arow" style="margin-bottom:5px">
-            <div class="iw"><label>שם פרס</label><input id="ke-prize-name" placeholder="שעת מסך..." maxlength="30"></div>
-            <div class="iw" style="max-width:70px"><label>מחיר ₪</label><input type="number" id="ke-prize-price" placeholder="30"></div>
-          </div>
-          <div class="arow" style="margin-bottom:5px">
-            <div class="iw"><label>אימוג'י</label><input id="ke-prize-emoji" placeholder="🎁" maxlength="4"></div>
-            <div class="iw"><label>תיאור</label><input id="ke-prize-desc" placeholder="פירוט..." maxlength="40"></div>
-          </div>
-          <button class="btn-y btn-full" onclick="keAddPrize('${k.id}')">➕ הוסף פרס</button>
-        </div>
-      </div>
-    </details>
-
-    <!-- ── היסטוריה ── -->
-    <details style="margin-bottom:16px">
-      <summary style="font-weight:700;font-size:.88rem;cursor:pointer;padding:10px;background:rgba(255,255,255,.04);border-radius:11px;list-style:none;display:flex;justify-content:space-between">
-        <span>📋 היסטוריה (${(k.history||[]).length} תנועות)</span><span style="color:var(--dim)">▾</span>
-      </summary>
-      <div style="padding:12px 4px 4px">
-        <div style="max-height:220px;overflow-y:auto">
-          ${(k.history||[]).slice(0,30).map((tx,i)=>`
-            <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04)">
-              <span style="font-size:.9rem">${tx.type==='add'||tx.type==='bonus'?'⬆️':tx.type==='sub'?'⬇️':tx.type==='savings'?'🏦':'📌'}</span>
-              <span style="flex:1;font-size:.78rem;color:var(--dim)">${tx.note||tx.type}</span>
-              <span style="font-size:.8rem;font-weight:700;color:${tx.type==='sub'?'var(--red)':'var(--green)'}">${tx.type==='add'||tx.type==='bonus'?'+':tx.type==='sub'?'-':''}₪${Math.abs(tx.amount||0).toFixed(2)}</span>
-              <span style="font-size:.66rem;color:rgba(255,255,255,.2)">${(tx.date||'').split(' ')[0]}</span>
-              ${!tx.protected?`<button onclick="keDelHistTx('${k.id}',${i})" style="background:none;border:none;color:rgba(255,107,107,.5);cursor:pointer;font-size:.75rem;padding:2px 4px">✕</button>`:''}
-            </div>`).join('')}
-        </div>
-        ${(k.history||[]).length>0?`
-          <button class="btn-r btn-full" style="margin-top:10px" onclick="keClearAllHistory('${k.id}')">🗑️ מחק כל ההיסטוריה</button>`:''}
-      </div>
-    </details>
-
-    <button onclick="closeModal('kid-editor-modal')" style="width:100%;background:rgba(255,255,255,.06);border:none;border-radius:12px;padding:12px;color:var(--dim);cursor:pointer;font-family:'Rubik';font-size:.88rem">סגור</button>
-  </div>`;
-
-  openModal('kid-editor-modal');
-};
-
-// ── KE ACTIONS ──
-window.keСавеDetails = window['keСавеDetails'] = window['keSaveDetails'] = async(kidId)=>{
-  const k=D.kids.find(x=>x.id===kidId); if(!k)return;
-  const name=document.getElementById('ke-name')?.value.trim();
-  const emoji=document.getElementById('ke-emoji')?.value.trim()||k.emoji;
-  const pin=String(document.getElementById('ke-pin')?.value||k.pin).replace(/\D/g,'').padStart(4,'0').slice(0,4);
-  const gender=document.getElementById('ke-gender')?.value||k.gender||'f';
-  if(!name){toast('הכנס שם',true);return;}
-  k.name=name; k.emoji=emoji; k.pin=pin; k.gender=gender;
-  await saveConfig(); toast('✅ פרטים עודכנו');
-  openKidEditor(kidId);
-};
-
-window['keСавеDetails'] = window.keSaveDetails = async(kidId)=>{
-  const k=D.kids.find(x=>x.id===kidId); if(!k)return;
-  const name=document.getElementById('ke-name')?.value.trim();
-  const emoji=document.getElementById('ke-emoji')?.value.trim()||k.emoji;
-  const pin=String(document.getElementById('ke-pin')?.value||k.pin).replace(/\D/g,'').padStart(4,'0').slice(0,4);
-  const gender=document.getElementById('ke-gender')?.value||k.gender||'f';
-  if(!name){toast('הכנס שם',true);return;}
-  k.name=name; k.emoji=emoji; k.pin=pin; k.gender=gender;
-  await saveConfig(); toast('✅ פרטים עודכנו');
-  openKidEditor(kidId);
-};
-
-window.keSetBalance=async(kidId)=>{
-  const k=D.kids.find(x=>x.id===kidId); if(!k)return;
-  const val=parseFloat(document.getElementById('ke-balance')?.value);
-  if(isNaN(val)||val<0){toast('יתרה לא תקינה',true);return;}
-  const old=k.balance||0;
-  k.balance=Math.round(val*100)/100;
-  k.history=[{type:'set',amount:val,note:`עריכה ידנית: ₪${old.toFixed(2)}→₪${val.toFixed(2)}`,date:nowStr()},...(k.history||[])].slice(0,60);
-  addGraphPt(k); await saveKidData(k); toast('✅ יתרה עודכנה');
-  openKidEditor(kidId);
-};
-
-window.keAddBalance=async(kidId)=>{
-  const k=D.kids.find(x=>x.id===kidId); if(!k)return;
-  const amt=parseFloat(document.getElementById('ke-add')?.value);
-  if(!amt||amt<=0){toast('הכנס סכום',true);return;}
-  k.balance=Math.round(((k.balance||0)+amt)*100)/100;
-  k.history=[{type:'add',amount:amt,note:'הפקדה ידנית',date:nowStr()},...(k.history||[])].slice(0,60);
-  addGraphPt(k); await saveKidData(k); toast(`✅ +₪${amt.toFixed(2)}`);
-  openKidEditor(kidId);
-};
-
-window.keSubBalance=async(kidId)=>{
-  const k=D.kids.find(x=>x.id===kidId); if(!k)return;
-  const amt=parseFloat(document.getElementById('ke-add')?.value);
-  if(!amt||amt<=0){toast('הכנס סכום',true);return;}
-  k.balance=Math.round(((k.balance||0)-amt)*100)/100;
-  k.history=[{type:'sub',amount:amt,note:'הורדה ידנית',date:nowStr()},...(k.history||[])].slice(0,60);
-  addGraphPt(k); await saveKidData(k); toast(`✅ -₪${amt.toFixed(2)}`);
-  openKidEditor(kidId);
-};
-
-window.keSetSavings=async(kidId)=>{
-  const k=D.kids.find(x=>x.id===kidId); if(!k)return;
-  const val=parseFloat(document.getElementById('ke-savings')?.value);
-  if(isNaN(val)||val<0){toast('סכום לא תקין',true);return;}
-  k.savings=Math.round(val*100)/100;
-  k.history=[{type:'savings',amount:val,note:`עריכת חיסכון ידנית: ₪${val.toFixed(2)}`,date:nowStr(),protected:true},...(k.history||[])].slice(0,60);
-  await saveKidData(k); toast('✅ חיסכון עודכן');
-  openKidEditor(kidId);
-};
-
-window.keSetRate=async(kidId)=>{
-  const k=D.kids.find(x=>x.id===kidId); if(!k)return;
-  const rate=parseFloat(document.getElementById('ke-rate')?.value);
-  if(isNaN(rate)||rate<0||rate>100){toast('ריבית לא תקינה',true);return;}
-  k.savingsRate=rate; await saveKidData(k); toast(`✅ ריבית ${rate}%`);
-  openKidEditor(kidId);
-};
-
-window.keSetGoal=async(kidId)=>{
-  const k=D.kids.find(x=>x.id===kidId); if(!k)return;
-  const name=document.getElementById('ke-goal-name')?.value.trim();
-  const target=parseFloat(document.getElementById('ke-goal-target')?.value);
-  if(!name||!target||target<=0){toast('הכנס שם וסכום',true);return;}
-  k.goal={name,target}; await saveKidData(k); toast('🎯 יעד עודכן');
-  openKidEditor(kidId);
-};
-
-window.keClearGoal=async(kidId)=>{
-  const k=D.kids.find(x=>x.id===kidId); if(!k)return;
-  k.goal=null; await saveKidData(k); toast('🗑️ יעד נמחק');
-  openKidEditor(kidId);
-};
-
-window.keSaveMsg=async(kidId)=>{
-  const k=D.kids.find(x=>x.id===kidId); if(!k)return;
-  k.message=document.getElementById('ke-msg')?.value.trim()||'';
-  await saveKidData(k); toast('💌 הודעה נשמרה');
-  openKidEditor(kidId);
-};
-
-window.keClearMsg=async(kidId)=>{
-  const k=D.kids.find(x=>x.id===kidId); if(!k)return;
-  k.message=''; await saveKidData(k); toast('🗑️ הודעה נמחקה');
-  openKidEditor(kidId);
-};
-
-window.keResetTask=async(kidId,taskId)=>{
-  const k=D.kids.find(x=>x.id===kidId); if(!k)return;
-  const t=k.tasks.find(x=>x.id===taskId); if(!t)return;
-  t.status='active'; await saveKidTasks(k); toast('↺ משימה אופסה');
-  openKidEditor(kidId);
-};
-
-window.keDelTask=async(kidId,taskId)=>{
-  const k=D.kids.find(x=>x.id===kidId); if(!k)return;
-  k.tasks=k.tasks.filter(x=>x.id!==taskId); await saveKidTasks(k); toast('🗑️ משימה נמחקה');
-  openKidEditor(kidId);
-};
-
-window.keAddTask=async(kidId)=>{
-  const k=D.kids.find(x=>x.id===kidId); if(!k)return;
-  const name=document.getElementById('ke-task-name')?.value.trim();
-  const bonus=parseFloat(document.getElementById('ke-task-bonus')?.value)||0;
-  const emoji=document.getElementById('ke-task-emoji')?.value.trim()||'✅';
-  if(!name){toast('הכנס שם משימה',true);return;}
-  k.tasks=[...(k.tasks||[]),{id:'t'+Date.now(),name,bonus,emoji,status:'active',active:true}];
-  await saveKidTasks(k); toast('✅ משימה נוספה');
-  openKidEditor(kidId);
-};
-
-window.keDelPrize=async(kidId,prizeId)=>{
-  const k=D.kids.find(x=>x.id===kidId); if(!k)return;
-  const prizes=getPrizesArr(kidId).filter(p=>p.id!==prizeId);
-  await setPrizesArr(kidId,prizes); toast('🗑️ פרס נמחק');
-  openKidEditor(kidId);
-};
-
-window.keAddPrize=async(kidId)=>{
-  const name=document.getElementById('ke-prize-name')?.value.trim();
-  const price=parseFloat(document.getElementById('ke-prize-price')?.value);
-  const emoji=document.getElementById('ke-prize-emoji')?.value.trim()||'🎁';
-  const desc=document.getElementById('ke-prize-desc')?.value.trim()||'';
-  if(!name||!price||price<=0){toast('הכנס שם ומחיר',true);return;}
-  const prizes=getPrizesArr(kidId);
-  prizes.push({id:'p'+Date.now(),name,price,emoji,desc});
-  await setPrizesArr(kidId,prizes); toast('✅ פרס נוסף');
-  openKidEditor(kidId);
-};
-
-window.keDelHistTx=async(kidId,idx)=>{
-  const k=D.kids.find(x=>x.id===kidId); if(!k)return;
-  if(k.history[idx]?.protected){toast('לא ניתן למחוק תנועה מוגנת',true);return;}
-  k.history.splice(idx,1);
-  await saveKidData(k); toast('🗑️ תנועה נמחקה');
-  openKidEditor(kidId);
-};
-
-window.keClearAllHistory=async(kidId)=>{
-  const k=D.kids.find(x=>x.id===kidId); if(!k)return;
-  if(!confirm(`למחוק את כל ההיסטוריה של ${k.name}?`))return;
-  k.history=(k.history||[]).filter(tx=>tx.protected);
-  await saveKidData(k); toast('🗑️ היסטוריה נמחקה');
-  openKidEditor(kidId);
-};
-
 </script>
 
 
-<!-- ══ KID EDITOR MODAL ══ -->
-<div class="overlay" id="kid-editor-modal">
+<!-- ══ NOTIFICATION BANNER CONTAINER ══ -->
+<div class="notif-banner" id="notif-banner"></div>
+
+<!-- ══ NOTIFICATION CENTER ══ -->
+<div class="notif-center-overlay" id="notif-center-overlay" onclick="if(event.target===this)closeNotifCenter()">
+  <div class="notif-center">
+    <h3>
+      <span>🔔 התראות</span>
+      <button onclick="clearAllNotifs()" style="background:rgba(255,107,107,.12);border:1px solid rgba(255,107,107,.3);border-radius:9px;padding:5px 11px;color:#FF6B6B;cursor:pointer;font-family:'Rubik';font-size:.76rem">נקה הכל</button>
+    </h3>
+    <div id="notif-center-list"></div>
+  </div>
 </div>
+
 </body>
 </html>
