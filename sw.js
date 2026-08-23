@@ -3,7 +3,7 @@
 // Cache-first PWA + Background Sync
 // ██████████████████████████████████████
 
-const CACHE_NAME = 'wallet-v3';
+const CACHE_NAME = 'wallet-v4';
 const OFFLINE_DATA_KEY = 'wallet-offline-queue';
 
 // Files to cache for full offline support
@@ -38,26 +38,39 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
 
-  // ⚡ CRITICAL FIX: Never intercept Firebase/Firestore/Google requests.
-  // Firestore's onSnapshot() uses a persistent streaming connection
-  // (WebChannel) — if the Service Worker wraps it in respondWith(),
-  // the stream gets proxied through the SW, breaks, and reconnects
-  // constantly. This was the cause of the slow loading.
-  // By not calling e.respondWith() at all, these requests bypass the
-  // SW entirely and go straight to the network, exactly like without a SW.
-  if(url.hostname.includes('firestore.googleapis.com') ||
-     url.hostname.includes('googleapis.com') ||
-     url.hostname.includes('firebaseio.com') ||
-     url.hostname.includes('firebase') ||
-     url.hostname.includes('gstatic.com') ||
-     url.hostname.includes('google.com')){
-    return; // let the browser handle it natively — no interception
+  // ⚡ CRITICAL: Never intercept the actual Firestore LIVE connection.
+  // onSnapshot() uses a persistent streaming channel — wrapping it in
+  // respondWith() breaks the stream and forces constant reconnects.
+  // This is the domain that carries realtime data (reads/writes/listeners):
+  if(url.hostname.includes('firestore.googleapis.com')){
+    return; // bypass SW completely — straight to network
   }
 
-  // Only GET requests are safe to cache
+  // Only GET requests are cacheable
   if(e.request.method !== 'GET') return;
 
-  // App shell (HTML, fonts, scripts) — Cache first, then network
+  // ⚡ Firebase SDK files (gstatic.com/firebasejs/10.12.0/...) are
+  // versioned & immutable — safe (and FAST) to cache-first. This is
+  // the part that was slow before: the ~2 SDK module files had to be
+  // re-downloaded on every single app open. Now they load instantly
+  // from cache after the first visit.
+  if(url.hostname.includes('gstatic.com') || url.hostname.includes('fonts.googleapis.com')){
+    e.respondWith(
+      caches.match(e.request).then(cached => {
+        if(cached) return cached;
+        return fetch(e.request).then(response => {
+          if(response && response.status === 200){
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
+          }
+          return response;
+        });
+      })
+    );
+    return;
+  }
+
+  // App shell (index.html itself) — Cache first, then network
   e.respondWith(
     caches.match(e.request).then(cached => {
       if(cached) return cached;
