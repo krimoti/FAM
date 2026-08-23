@@ -497,6 +497,7 @@ border:1px solid rgba(6,214,160,.2);
   <div class="splash-logo" id="splash-title">💰 ארנק חכם</div>
   <div class="splash-sub" id="splash-sub">המשפחה שלנו</div>
   <div class="splash-bar-wrap"><div class="splash-bar-fill" id="splash-bar"></div></div>
+  <div id="splash-status" style="margin-top:14px;font-size:.72rem;color:var(--dim);opacity:.8;z-index:2">מאתחל...</div>
 </div>
 
 <!-- ══ LOADING ══ -->
@@ -2571,42 +2572,111 @@ function show(id){
 }
 
 // ── INIT ──
-try {
-  show('splash');
-  const MIN_SPLASH = 1800;
-  const startTime = Date.now();
-  await loadAll();
-  const elapsed = Date.now() - startTime;
-  const remaining = Math.max(0, MIN_SPLASH - elapsed);
-
-  // ⚡ Auto-login: check saved session (kids only)
-  let savedSession = null;
-  try { savedSession = JSON.parse(localStorage.getItem('session_user')||'null'); } catch(e){}
-
-  setTimeout(() => {
-    if(savedSession?.type==='kid'){
-      const k = D.kids.find(x=>x.id===savedSession.id);
-      if(k){
-        // Valid saved session — go straight in
-        currentUser = {type:'kid', id:k.id};
-        runSplash(()=>openChild(k.id));
-        return;
-      }
-    }
-    // No valid session — show login
-    runSplash(()=>showLogin());
-  }, remaining);
-} catch(e) {
-  document.getElementById('load-txt').textContent='';
-  document.getElementById('loading').innerHTML=`<div style="padding:28px 22px;text-align:center;max-width:340px">
-    <div style="font-size:2.2rem;margin-bottom:10px">❌</div>
-    <div style="font-family:'Fredoka One';font-size:1.2rem;color:#FF6B6B;margin-bottom:10px">שגיאת חיבור</div>
-    <div style="background:#1C1C2E;border-radius:12px;padding:12px;font-size:.74rem;color:#FF6B6B;direction:ltr;word-break:break-all;margin-bottom:14px">${e.message||e.toString()}</div>
-    <div style="font-size:.78rem;color:#8888AA">קוד: <b style="color:#FFD166">${e.code||'?'}</b></div>
-    <button onclick="location.reload()" style="margin-top:14px;background:#FFD166;border:none;border-radius:11px;padding:11px 26px;font-family:'Fredoka One';font-size:.95rem;cursor:pointer;color:#1A1A2E">נסה שוב</button>
-  </div>`;
-  show('loading');
+// ⚡ status text shown ON the splash screen itself (visible, no more silent freeze)
+function setSplashStatus(txt){
+  const el = document.getElementById('splash-status');
+  if(el) el.textContent = txt;
 }
+
+// ⚡ Wraps a promise with a hard timeout — never hang forever again
+function withTimeout(promise, ms, label){
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error(`⏱️ תם הזמן (${label}) — הרשת איטית מדי או אין חיבור`)), ms))
+  ]);
+}
+
+// ⚡ INSTANT LOAD: try local cache FIRST — render immediately, no network wait.
+// Firebase syncs silently in the background and updates the UI when ready.
+function tryInstantLoad(){
+  try{
+    const cfg = JSON.parse(localStorage.getItem('cfg_cache')||'null');
+    if(!cfg || !cfg.kids || !cfg.kids.length) return false;
+    D.dad = {...D.dad, ...cfg.dad};
+    D.kids = cfg.kids;
+    D.kids.forEach(k=>{
+      const kd = JSON.parse(localStorage.getItem('kiddata_'+k.id)||'null');
+      if(kd) Object.assign(k, kd);
+      k.avatar = localStorage.getItem('avatar_'+k.id)||'';
+      k.tasks    = JSON.parse(localStorage.getItem('tasks_'+k.id)||'[]');
+      k.requests = JSON.parse(localStorage.getItem('reqs_'+k.id)||'[]');
+    });
+    return true;
+  }catch(e){ return false; }
+}
+
+async function bootApp(){
+  const hasCache = tryInstantLoad();
+
+  if(hasCache){
+    // ⚡ We have local data — skip the network wait entirely, go straight in.
+    let savedSession = null;
+    try { savedSession = JSON.parse(localStorage.getItem('session_user')||'null'); } catch(e){}
+
+    show('splash');
+    const openFast = () => {
+      if(savedSession?.type==='kid'){
+        const k = D.kids.find(x=>x.id===savedSession.id);
+        if(k){ currentUser={type:'kid',id:k.id}; openChild(k.id); return; }
+      }
+      showLogin();
+    };
+    // Short splash just for branding — data is already here
+    setTimeout(()=> runSplash(openFast), 50);
+
+    // 🔄 Sync with Firebase silently in the background — no blocking, no spinner
+    withTimeout(loadAll(), 12000, 'סנכרון רקע').then(()=>{
+      try{ localStorage.setItem('cfg_cache', JSON.stringify({dad:D.dad, kids:D.kids.map(k=>({id:k.id,name:k.name,emoji:k.emoji,pin:k.pin,ci:k.ci,themeIdx:k.themeIdx,fontIdx:k.fontIdx}))})); }catch(e){}
+      // If still on the same kid's screen, refresh visible tab quietly
+      if(currentUser?.type==='kid'){
+        markAllSlidesDirty('child-track');
+        const cur=childSlideIdx;
+        const slideEl=document.getElementById('child-track-slide-'+cur);
+        if(slideEl && window.childRenderFns?.[cur]) window.childRenderFns[cur](slideEl);
+      }
+    }).catch(err=>{ console.log('Background sync failed (offline?):', err.message); });
+    return;
+  }
+
+  // ── No cache yet (first-ever visit) — normal network-blocking flow ──
+  try {
+    show('splash');
+    setSplashStatus('מתחבר לשרת...');
+    const MIN_SPLASH = 1800;
+    const startTime = Date.now();
+
+    await withTimeout(loadAll(), 10000, 'טעינת נתונים');
+    try{ localStorage.setItem('cfg_cache', JSON.stringify({dad:D.dad, kids:D.kids.map(k=>({id:k.id,name:k.name,emoji:k.emoji,pin:k.pin,ci:k.ci,themeIdx:k.themeIdx,fontIdx:k.fontIdx}))})); }catch(e){}
+
+    setSplashStatus('כמעט מוכן...');
+    const elapsed = Date.now() - startTime;
+    const remaining = Math.max(0, MIN_SPLASH - elapsed);
+
+    let savedSession = null;
+    try { savedSession = JSON.parse(localStorage.getItem('session_user')||'null'); } catch(e){}
+
+    setTimeout(() => {
+      if(savedSession?.type==='kid'){
+        const k = D.kids.find(x=>x.id===savedSession.id);
+        if(k){ currentUser={type:'kid', id:k.id}; runSplash(()=>openChild(k.id)); return; }
+      }
+      runSplash(()=>showLogin());
+    }, remaining);
+
+  } catch(e) {
+    document.getElementById('splash').style.display = 'none';
+    document.getElementById('load-txt').textContent='';
+    document.getElementById('loading').innerHTML=`<div style="padding:28px 22px;text-align:center;max-width:340px">
+      <div style="font-size:2.2rem;margin-bottom:10px">📡</div>
+      <div style="font-family:'Fredoka One';font-size:1.2rem;color:#FF6B6B;margin-bottom:10px">החיבור לוקח יותר מדי זמן</div>
+      <div style="background:#1C1C2E;border-radius:12px;padding:12px;font-size:.78rem;color:#FF9F43;direction:rtl;margin-bottom:14px">${e.message||e.toString()}</div>
+      <div style="font-size:.76rem;color:#8888AA;margin-bottom:6px">בדוק חיבור אינטרנט / Wi-Fi ונסה שוב</div>
+      <button onclick="location.reload()" style="margin-top:10px;background:#FFD166;border:none;border-radius:11px;padding:11px 26px;font-family:'Fredoka One';font-size:.95rem;cursor:pointer;color:#1A1A2E">🔄 נסה שוב</button>
+    </div>`;
+    show('loading');
+  }
+}
+bootApp();
 
 // ══════════════════════════════════════
 // NOTIFICATION SYSTEM
@@ -3008,6 +3078,34 @@ async function initServiceWorker(){
   try{
     _swReg = await navigator.serviceWorker.register('./sw.js', {scope:'./'});
     console.log('SW registered');
+
+    // ⚡ SELF-HEALING UPDATE: iOS Safari is notoriously slow to check for
+    // new Service Worker versions on its own. Force a check on every app
+    // open, and if a new version takes control, reload automatically so
+    // the fix is always live — no manual delete/reinstall needed by the user.
+    _swReg.update().catch(()=>{});
+
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', ()=>{
+      if(refreshing) return;
+      refreshing = true;
+      console.log('New SW took control — reloading once to apply update');
+      location.reload();
+    });
+
+    // If a new SW is already waiting (installed but not yet active), activate it now
+    if(_swReg.waiting){
+      _swReg.waiting.postMessage({type:'SKIP_WAITING'});
+    }
+    _swReg.addEventListener('updatefound', ()=>{
+      const newWorker = _swReg.installing;
+      if(!newWorker) return;
+      newWorker.addEventListener('statechange', ()=>{
+        if(newWorker.state==='installed' && navigator.serviceWorker.controller){
+          newWorker.postMessage({type:'SKIP_WAITING'});
+        }
+      });
+    });
   }catch(e){ console.log('SW failed:',e); }
 }
 
@@ -3106,6 +3204,18 @@ updateOnlineStatus();
 // ══════════════════════════════════════
 // LOCAL DATA CACHE — fallback when offline
 // ══════════════════════════════════════
+// ⚡ Keep cfg_cache always fresh so next app open is instant
+const _origSaveConfig = saveConfig;
+window.saveConfig = async function(){
+  try{
+    localStorage.setItem('cfg_cache', JSON.stringify({
+      dad: D.dad,
+      kids: D.kids.map(k=>({id:k.id,name:k.name,emoji:k.emoji,pin:k.pin,ci:k.ci,themeIdx:k.themeIdx,fontIdx:k.fontIdx}))
+    }));
+  }catch(e){}
+  return queueSave(()=>_origSaveConfig());
+};
+
 const _origSaveKidData = saveKidData;
 window.saveKidData = async function(k){
   // Always save to localStorage immediately (instant, offline-safe)
