@@ -3,7 +3,7 @@
 // Cache-first PWA + Background Sync
 // ██████████████████████████████████████
 
-const CACHE_NAME = 'wallet-v2';
+const CACHE_NAME = 'wallet-v3';
 const OFFLINE_DATA_KEY = 'wallet-offline-queue';
 
 // Files to cache for full offline support
@@ -38,33 +38,36 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
 
-  // Firebase API calls — network first, fallback gracefully
+  // ⚡ CRITICAL FIX: Never intercept Firebase/Firestore/Google requests.
+  // Firestore's onSnapshot() uses a persistent streaming connection
+  // (WebChannel) — if the Service Worker wraps it in respondWith(),
+  // the stream gets proxied through the SW, breaks, and reconnects
+  // constantly. This was the cause of the slow loading.
+  // By not calling e.respondWith() at all, these requests bypass the
+  // SW entirely and go straight to the network, exactly like without a SW.
   if(url.hostname.includes('firestore.googleapis.com') ||
+     url.hostname.includes('googleapis.com') ||
+     url.hostname.includes('firebaseio.com') ||
      url.hostname.includes('firebase') ||
-     url.hostname.includes('google')){
-    e.respondWith(
-      fetch(e.request).catch(() => {
-        // Offline: return empty 200 so app doesn't crash
-        return new Response(JSON.stringify({offline:true}),
-          {status:200, headers:{'Content-Type':'application/json'}});
-      })
-    );
-    return;
+     url.hostname.includes('gstatic.com') ||
+     url.hostname.includes('google.com')){
+    return; // let the browser handle it natively — no interception
   }
+
+  // Only GET requests are safe to cache
+  if(e.request.method !== 'GET') return;
 
   // App shell (HTML, fonts, scripts) — Cache first, then network
   e.respondWith(
     caches.match(e.request).then(cached => {
       if(cached) return cached;
       return fetch(e.request).then(response => {
-        // Cache successful responses
         if(response && response.status === 200 && response.type !== 'opaque'){
           const clone = response.clone();
           caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
         }
         return response;
       }).catch(() => {
-        // Total offline fallback — serve index.html for navigation
         if(e.request.mode === 'navigate'){
           return caches.match('./index.html');
         }
